@@ -110,7 +110,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 ```bash
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
-cd frontend && npm test          # vitest — 559 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 533 test case, JANGAN dibiarkan merah
 ```
 
 ## Aturan tes yang diwarisi dan tetap berlaku

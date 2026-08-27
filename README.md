@@ -38,7 +38,7 @@ Halal Pro Gym menyelesaikan itu:
   itu yang dipakai orang di gym.
 - 🏋️ **Mesin latihan yang serius** — progresi (linear, Greyskull LP, double progression), estimasi
   1RM, peta kelelahan otot, superset, warm-up, drop-set, rest-pause. Diwarisi dari openGym dengan
-  559 unit test-nya.
+  533 unit test-nya.
 - 📴 **Offline dulu** — datamu di HP-mu. Sync ke server itu bonus, bukan syarat. Basement gym
   tanpa sinyal tetap jalan.
 
