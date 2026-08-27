@@ -28,10 +28,15 @@ describe('Brazilian Portuguese locale', () => {
     const fingerprint = createHash('sha256').update(JSON.stringify(inherited)).digest('hex')
 
     expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(291)
-    expect(inherited).toHaveLength(449)
+    // 449 -> 452: tiga kunci demo gerakan ('also', 'start position', 'end position') ditambahkan
+    // ke pt DAN pt-BR dengan nilai yang sama, jadi ketiganya masuk sebagai warisan, bukan
+    // override. Selisihnya persis tiga — itu reviewnya: jumlahnya cocok tanpa sisa, dan tidak
+    // ada kata pt-PT lain yang berubah. Hash baru diambil dari alat yang disediakan repo ini,
+    // bukan ditempel dari pesan kegagalan.
+    expect(inherited).toHaveLength(452)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('09c4fa5e04c8d3ea21916a6c07f074a35013b33d5d945ecfc13cd54cc8b7d41d')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('744ca025f8b0efb82f326ff63c7e68c9faab3b862bc26a4fd6fac20e4d993983')
   })
 
   test('does not leak European Portuguese UI terms', () => {

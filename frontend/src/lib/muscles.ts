@@ -192,8 +192,14 @@ export function matchesMuscleGroups(
 }
 
 /** Muscles one exercise trains: { slug: 0…1 }. Duplicate metadata never adds load twice. */
-export function musclesOf(ex: MuscleSource | null | undefined): MuscleMap {
-  if (!ex) return {}
+export function musclesOf(input: Exercise | MuscleSource | null | undefined): MuscleMap {
+  if (!input) return {}
+  // Satu cast di SINI, bukan di setiap pemanggil. `Exercise` itu interface tertutup dan
+  // `MuscleSource` punya index signature, dan TS tidak menganggap yang pertama bisa di-assign
+  // ke yang kedua — padahal entri katalog memang sumber metadata otot yang sah. Sebelumnya
+  // ini berarti cast berulang di progression.ts, recovery.ts (dua kali) dan setiap pemanggil
+  // baru; sekarang kontraknya yang menyatakan "apa pun yang mungkin membawa metadata otot".
+  const ex = input as MuscleSource
   const sourceEx = metadataOf(ex)
   if (sourceEx !== ex) return musclesOf(sourceEx)
   if (ex.muscleWeights && typeof ex.muscleWeights === 'object' && !Array.isArray(ex.muscleWeights)) {

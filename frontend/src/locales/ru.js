@@ -673,5 +673,9 @@ export default {
   'Add session note': 'Добавить заметку',
   'Edit session note': 'Изменить заметку',
   'How the session went as a whole.': 'Как прошла тренировка в целом.',
-  'Rest-pause always trains as one warm-up set at this rep count, then one rest-pause work set — "Sets" is not used.': 'Rest-pause всегда выполняется как один разминочный подход с этим числом повторений и один рабочий подход rest-pause — «Подходы» не используются.'
+  'Rest-pause always trains as one warm-up set at this rep count, then one rest-pause work set — "Sets" is not used.': 'Rest-pause всегда выполняется как один разминочный подход с этим числом повторений и один рабочий подход rest-pause — «Подходы» не используются.',
+  /* demo gerakan: dua bingkai, posisi awal dan akhir */
+  'also': 'также',
+  'start position': 'начальная позиция',
+  'end position': 'конечная позиция'
 }

@@ -305,4 +305,9 @@ export const PT_BR_OVERRIDES = {
   'Rest-pause always trains as one warm-up set at this rep count, then one rest-pause work set — "Sets" is not used.': 'O rest-pause sempre treina como uma série de aquecimento com essas repetições e uma série de trabalho rest-pause — “Séries” não é usado.'
 }
 
-export default { ...pt, ...PT_BR_OVERRIDES }
+export default { ...pt, ...PT_BR_OVERRIDES,
+  /* demo gerakan: dua bingkai, posisi awal dan akhir */
+  'also': 'também',
+  'start position': 'posição inicial',
+  'end position': 'posição final'
+}

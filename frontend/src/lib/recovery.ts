@@ -1,7 +1,7 @@
 import { EXIDX } from './exercises.js'
 import { MUSCLES, musclesOf } from './muscles.js'
 import { isWarmupRow, dropsOf } from './workout-model.js'
-import type { Exercise, MuscleMap, MuscleSource, SetRow, Workout, WorkoutEntry } from './types.js'
+import type { Exercise, MuscleMap, SetRow, Workout, WorkoutEntry } from './types.js'
 
 // EXIDX diisi dinamis di exercises.js yang masih JS. Dilebarkan sekali di batasnya dengan
 // bentuk sebenarnya, pola yang sama dengan progression.ts.
@@ -304,9 +304,7 @@ function sessionTonnages(
   const sums = emptyMuscleMap(0)
   const oneRms = session1RMs(workout, opts)
   for (const entry of (workout?.entries || []) as LooseEntry[]) {
-    // Exercise itu interface tertutup dan musclesOf menerima rekaman terbuka; entri katalog
-    // memang sumber metadata otot yang sah, jadi cast-nya menyatakan itu, bukan melemahkan apa pun.
-    const weights = musclesOf(EX_INDEX[entry.id as string] as MuscleSource | undefined)
+    const weights = musclesOf(EX_INDEX[entry.id as string])
     for (const set of (entry.sets || []) as LooseSet[]) {
       if (set?.done !== true) continue
       const measured = setTonnage(
@@ -437,7 +435,7 @@ export function strengthOf(
     if (!Number.isFinite(timestamp)) continue
     for (const entry of workout.entries || []) {
       if (!(entry.sets || []).some(set => set?.done === true && !isWarmupRow(set))) continue
-      for (const slug of Object.keys(musclesOf(EX_INDEX[entry.id as string] as MuscleSource | undefined))) {
+      for (const slug of Object.keys(musclesOf(EX_INDEX[entry.id as string]))) {
         if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug)
           && timestamp > (latest[slug] ?? -Infinity)) {
           latest[slug] = timestamp
