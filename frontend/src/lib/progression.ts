@@ -15,28 +15,46 @@
 //   · a set never checked off                          → miss (it was not performed)
 //   · fewer sets than prescribed                       → miss
 // So a session that fell apart can never advance the load as though it had succeeded.
+//
+// CATATAN UNTUK MODE RAMADAN (Fase 6): mesin di berkas inilah yang akan MEREGRESI beban
+// sepanjang bulan puasa kalau dibiarkan. Performa turun saat puasa itu normal, tapi mesin ini
+// tidak tahu itu Ramadan — dia cuma melihat `ok === false` berulang, lalu memicu deload.
+// Sebulan begitu dan program user mundur jauh dari kemampuan aslinya. Mode Ramadan harus
+// menyetel kebijakan ke `hold`: jangan naik, jangan turun. Titik masuknya `nextPrescription`.
 
 import { modeOf, repStep, rerampWarmups } from './history.js'
 import { EXIDX } from './exercises.js'
 import { isWarmupRow } from './workout-model.js'
+import type { AppState, Exercise, ExerciseConfig, Routine, SetMode, SetRow } from './types.js'
 
-export const POLICIES = ['off', 'linear', 'greyskull', 'double', 'time']
+// EXIDX diisi secara dinamis di exercises.js yang masih JS, jadi TS menginferensinya sebagai
+// `{}`. Dilebarkan sekali di sini dengan bentuk yang sebenarnya, bukan `any` — jadi field yang
+// dibaca di bawah (`.bp`) tetap dicek.
+const EX_INDEX = EXIDX as Record<string, Exercise | undefined>
+
+export type Policy = 'off' | 'linear' | 'greyskull' | 'double' | 'time'
+export type PrescriptionKind = 'first' | 'up' | 'hold' | 'deload' | 'off'
+
+/** Template terjemahan plus argumennya, supaya app selalu bisa menjawab "kenapa angka ini?". */
+export type Why = [string, ...(string | number)[]]
+
+export const POLICIES: Policy[] = ['off', 'linear', 'greyskull', 'double', 'time']
 
 // Which policies can sensibly drive which logging mode.
-export const POLICIES_FOR = {
+export const POLICIES_FOR: Record<string, Policy[]> = {
   reps: ['off', 'linear', 'greyskull', 'double'],
   time: ['off', 'time'],
   cardio: ['off']
 }
 
-export const POLICY_NAME = {
+export const POLICY_NAME: Record<Policy, string> = {
   off: 'No automatic progression',
   linear: 'Linear progression',
   greyskull: 'Greyskull LP',
   double: 'Double progression',
   time: 'Add time'
 }
-export const POLICY_DESC = {
+export const POLICY_DESC: Record<Policy, string> = {
   off: 'Targets stay where you set them.',
   linear: 'Hit every rep in every set and the weight goes up. Repeated misses trigger a deload.',
   greyskull: 'Two straight sets plus a final set taken to failure. Beat the target on that set and the weight goes up — double if you double the reps. One failure resets 10 %.',
@@ -46,7 +64,7 @@ export const POLICY_DESC = {
 
 // Sessions of repeated misses before a deload. Greyskull resets on the first failure by
 // design; the general linear policy gives you two more cracks at it first.
-export const DELOAD_AFTER = { linear: 3, greyskull: 1, double: 3, time: 3 }
+export const DELOAD_AFTER: Record<string, number> = { linear: 3, greyskull: 1, double: 3, time: 3 }
 const DELOAD_FACTOR = 0.9
 
 // Body parts where a 5 kg jump is normal rather than brutal.
@@ -54,9 +72,9 @@ const HEAVY_BP = ['upper legs', 'lower legs', 'back', 'hips', 'glutes']
 
 // Default load step. Lower-body lifts take the bigger jump — that is the "lift-specific
 // increment" a linear program lives on; an exercise can override it with cfg.inc.
-export function defaultIncrement(exId, unit) {
-  const ex = EXIDX[exId]
-  const heavy = ex && HEAVY_BP.includes(ex.bp)
+export function defaultIncrement(exId: string | undefined, unit: string): number {
+  const ex = exId ? EX_INDEX[exId] : undefined
+  const heavy = !!ex && HEAVY_BP.includes(ex.bp)
   if (unit === 'lb') return heavy ? 10 : 5
   return heavy ? 5 : 2.5
 }
@@ -67,16 +85,20 @@ export const MAX_BW_SETS = 6
 
 // The policy in force for one exercise: its own override, else the routine's default, else
 // the mode's default. Reps keeps behaving the way the app always did (all reps → add a step).
-export function policyFor(cfg, routine, mode) {
+export function policyFor(
+  cfg: ExerciseConfig | null | undefined,
+  routine: Routine | null | undefined,
+  mode?: SetMode | string
+): Policy {
   const m = mode || modeOf(cfg || {})
-  const allowed = POLICIES_FOR[m] || ['off']
+  const allowed = POLICIES_FOR[m] || (['off'] as Policy[])
   const pick = (cfg && cfg.prog) || (routine && routine.prog) || (m === 'reps' ? 'linear' : 'off')
-  return allowed.includes(pick) ? pick : 'off'
+  return allowed.includes(pick as Policy) ? (pick as Policy) : 'off'
 }
 
-const round1 = v => Math.round(v * 10) / 10
+const round1 = (v: number): number => Math.round(v * 10) / 10
 // Snap to a loadable multiple of the step.
-function snap(v, step) {
+function snap(v: number, step: number): number {
   if (!(step > 0)) return round1(v)
   return round1(Math.round(v / step) * step)
 }
@@ -84,11 +106,44 @@ function snap(v, step) {
 // nearest step keeps the cut close to the intended 10 %, but on small weights the nearest
 // step can be the weight you started from — so a deload that did not actually reduce
 // anything takes one step down instead. Never goes below a single step.
-function deloadTo(cur, step) {
+function deloadTo(cur: number, step: number): number {
   let next = snap(cur * DELOAD_FACTOR, step)
   if (next >= cur) next = snap(cur - step, step)
   return Math.max(step, next)
 }
+
+/**
+ * Bacaan sesi untuk latihan berbasis waktu (plank, hang, wall sit, loaded carry).
+ * Dibedakan dari bacaan repetisi lewat `mode`, dan bedanya nyata: yang satu diukur detik,
+ * yang satu diukur repetisi — tidak ada field yang bisa dipakai bergantian.
+ */
+export interface TimeSessionRead {
+  mode: 'time'
+  goal: number
+  /** Detik yang benar-benar ditahan per set; 0 untuk set yang tidak dicentang. */
+  held: number[]
+  weight: number
+  best: number
+  ok: boolean
+}
+
+/** Bacaan sesi untuk latihan berbasis repetisi. */
+export interface RepsSessionRead {
+  mode: 'reps' | 'cardio'
+  goal: number
+  /** Repetisi per set; 0 untuk set yang tidak dicentang — dilog apa adanya, bukan diabaikan. */
+  reps: number[]
+  weight: number
+  /** Dimensi yang ditumbuhkan kerja berat-badan (#33). */
+  count: number
+  low: number
+  /** Set terakhir — set yang Greyskull bawa ke failure. */
+  amrap: number
+  ok: boolean
+}
+
+export type SessionRead = TimeSessionRead | RepsSessionRead
+export type DatedSessionRead = SessionRead & { d?: string }
 
 /**
  * Reduce one finished workout entry to what a policy needs to judge it.
@@ -99,9 +154,12 @@ function deloadTo(cur, step) {
  * entry without its own target is judged against `fallback`, the exercise's current plan,
  * which is exactly what the app's old weight hint compared against.
  */
-export function readSession(entry, fallback) {
-  const target = (entry && entry.target) || fallback || {}
-  const mode = modeOf({ ...target, id: entry && entry.id })
+export function readSession(
+  entry: { id?: string; target?: SetRow; sets?: SetRow[] } | null | undefined,
+  fallback?: ExerciseConfig | SetRow | null
+): SessionRead {
+  const target = ((entry && entry.target) || fallback || {}) as SetRow & ExerciseConfig
+  const mode = modeOf({ ...target, id: entry && entry.id }) as SetMode
   // Warm-up rows are prep, not the session: one filtered read beats guarding every consumer
   // below (an undone warm-up otherwise poisons `ok` forever and its reps drag `low`/`count`).
   const sets = ((entry && entry.sets) || []).filter(s => !isWarmupRow(s))
@@ -121,33 +179,51 @@ export function readSession(entry, fallback) {
   const goal = target.reps || 0
   const reps = sets.map(s => (s.done ? (s.r || 0) : 0))
   return {
-    mode, goal, reps,
+    mode: mode === 'cardio' ? 'cardio' : 'reps',
+    goal,
+    reps,
     weight: Math.max(0, ...sets.filter(s => s.done).map(s => s.w || 0)),
     count: reps.length,                                   // the dimension bodyweight work grows (#33)
     low: reps.length ? Math.min(...reps) : 0,
-    amrap: reps.length ? reps[reps.length - 1] : 0,       // Greyskull's final set
+    amrap: reps.length ? (reps[reps.length - 1] ?? 0) : 0, // Greyskull's final set
     ok: goal > 0 && enough && reps.length > 0 && reps.every(r => r >= goal)
   }
 }
 
 /** Every past session for one exercise, oldest first. `fallback` — see readSession. */
-export function sessionsFor(S, exId, fallback) {
-  const out = []
+export function sessionsFor(
+  S: AppState,
+  exId: string,
+  fallback?: ExerciseConfig | SetRow | null
+): DatedSessionRead[] {
+  const out: DatedSessionRead[] = []
   ;(S.workouts || []).forEach(w => {
-    const entry = w.entries.find(e => e.id === exId)
-    if (entry && entry.sets.some(s => s.done && !isWarmupRow(s))) out.push({ d: w.d, ...readSession(entry, fallback) })
+    const entry = (w.entries || []).find(e => e.id === exId)
+    if (entry && (entry.sets || []).some(s => s.done && !isWarmupRow(s))) {
+      out.push({ d: w.d, ...readSession(entry, fallback) })
+    }
   })
   return out
 }
 
 // How many sessions in a row ended in a miss, counting back from the most recent.
-export function stallCount(sessions) {
+export function stallCount(sessions: SessionRead[]): number {
   let n = 0
   for (let i = sessions.length - 1; i >= 0; i--) {
-    if (sessions[i].ok) break
+    if (sessions[i]?.ok) break
     n++
   }
   return n
+}
+
+export interface Prescription {
+  policy: Policy
+  kind: PrescriptionKind
+  weight?: number
+  reps?: number
+  sec?: number
+  sets?: number
+  why?: Why
 }
 
 /**
@@ -158,21 +234,25 @@ export function stallCount(sessions) {
  * always answer "why this number?". A field the policy has no opinion on comes back
  * undefined and the caller keeps whatever the plan said.
  */
-export function nextPrescription(S, cfg, routine) {
-  const mode = modeOf(cfg)
+export function nextPrescription(S: AppState, cfg: ExerciseConfig, routine?: Routine | null): Prescription {
+  const mode = modeOf(cfg) as SetMode
   const policy = policyFor(cfg, routine, mode)
   const unit = S.unit || 'kg'
-  const inc = cfg.inc > 0 ? cfg.inc : (mode === 'time' ? DEFAULT_SEC_INCREMENT : defaultIncrement(cfg.id, unit))
+  const cfgInc = typeof cfg.inc === 'number' ? cfg.inc : 0
+  const inc = cfgInc > 0 ? cfgInc : (mode === 'time' ? DEFAULT_SEC_INCREMENT : defaultIncrement(cfg.id, unit))
   if (policy === 'off') return { policy, kind: 'off' }
 
-  const sessions = sessionsFor(S, cfg.id, cfg).filter(s => s.mode === mode)
+  const sessions = sessionsFor(S, cfg.id as string, cfg).filter(s => s.mode === mode)
   const last = sessions[sessions.length - 1]
   if (!last) return { policy, kind: 'first', why: ['Nothing logged yet — this session sets the baseline.'] }
 
   const stalls = stallCount(sessions)
   const deloadAt = DELOAD_AFTER[policy] || 3
 
-  if (mode === 'time') {
+  // Dinarasikan lewat `last.mode`, bukan `mode`. Hasilnya identik — `sessions` sudah difilter
+  // ke `mode`, jadi last.mode === mode selalu — tapi versi ini invariannya terlihat oleh
+  // pembaca dan oleh compiler, bukan tersirat dua baris di atas.
+  if (last.mode === 'time') {
     if (last.ok) {
       const sec = (last.goal || cfg.sec || 0) + inc
       return { policy, kind: 'up', sec, why: ['Held every set for the full time — target up by {0}s.', inc] }
@@ -196,7 +276,7 @@ export function nextPrescription(S, cfg, routine) {
     // A ceiling turns "+1 rep forever" into a plan (issue #33). Past the top of the range the
     // reps go back to the bottom and a set is added instead, which is how bodyweight work
     // actually progresses once a set of 30 push-ups stops being a strength stimulus.
-    const top = cfg.repsMax > 0 ? cfg.repsMax : 0
+    const top = (cfg.repsMax || 0) > 0 ? (cfg.repsMax as number) : 0
     if (top > 0 && goal >= top) {
       const sets = Math.max(1, cfg.sets || last.count || 1) + 1
       const bottom = Math.max(1, Math.min(cfg.reps || top, top))
@@ -250,14 +330,18 @@ export function nextPrescription(S, cfg, routine) {
  * Apply a prescription to freshly built sets. Only the fields the policy actually decided
  * are touched, and only on sets that have not been logged yet.
  */
-export function applyPrescription(sets, p, step = 2.5) {
+export function applyPrescription(
+  sets: SetRow[],
+  p: Prescription | null | undefined,
+  step = 2.5
+): SetRow[] {
   if (!p || p.kind === 'off' || p.kind === 'first') return sets
-  const out = sets.map(s => {
+  const out: SetRow[] = sets.map(s => {
     // Never rewrite a logged set, and never rewrite a warm-up: the prescription speaks to
     // the work rows only (a ticked warm-up falling through here would be the data-loss the
     // cascade fix removed, two files over).
     if (s.done || isWarmupRow(s)) return s
-    const o = { ...s }
+    const o: SetRow = { ...s }
     if (p.weight != null) o.w = p.weight
     if (p.reps != null) o.r = p.reps
     if (p.sec != null) o.sec = p.sec
@@ -267,17 +351,19 @@ export function applyPrescription(sets, p, step = 2.5) {
   // a set where a barbell would have added a plate. Only ever upwards, and only by copying a
   // row that is already there: a session in progress must not lose a set it has logged.
   const workRows = out.filter(s => !isWarmupRow(s))
-  if (p.sets > workRows.length) {
+  // `p.sets ?? 0` bukan perubahan perilaku: `undefined > n` sudah false di jalur lama.
+  if ((p.sets ?? 0) > workRows.length) {
     // An all-warm-up entry has no work row to seed growth from - growing warm-up copies
     // would both invent work and never terminate the loop. Leave the entry untouched.
     if (!workRows.length) return rerampWarmups(out, step)
-    const seed = workRows[workRows.length - 1]
+    const seed = workRows[workRows.length - 1] as SetRow
     // A freshly appended row hasn't been performed, so it never inherits a seed's already-
     // logged drops/clusters — that would invent extra work the row never actually did. Its
     // `type` is kept: that's the exercise's plan (every set is a drop-set/rest-pause), not
     // something this particular row logged.
     const { drops, clusters, ...plainSeed } = seed
-    while (out.filter(s => !isWarmupRow(s)).length < p.sets) out.push({ ...plainSeed, done: false })
+    void drops; void clusters   // dibuang dengan sengaja — lihat komentar di atas
+    while (out.filter(s => !isWarmupRow(s)).length < (p.sets ?? 0)) out.push({ ...plainSeed, done: false })
   }
   // Last, because the work rows now carry their final weight: the warm-up block ramps toward
   // what you are actually about to lift, not toward what you lifted last time.

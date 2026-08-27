@@ -67,12 +67,66 @@ export interface Workout {
 }
 
 /**
+ * Satu latihan dari katalog (1.324 bawaan) atau buatan user.
+ *
+ * `bp` = body part, `tg` = target, `eq` = equipment, `sm` = secondary muscles,
+ * `st` = langkah instruksi. Nama sependek itu berasal dari dataset asalnya dan dipertahankan
+ * karena dia terulang 1.324 kali di berkas data 888 KB — memanjangkannya menambah ukuran
+ * bundle tanpa menambah kejelasan di tempat yang benar-benar dibaca orang.
+ */
+export interface Exercise {
+  id: string
+  n: string
+  bp: string
+  tg: string
+  eq: string
+  sm: string[]
+  st: string[]
+  /** Ditandai true untuk id yang tidak ada di katalog — placeholder, bukan latihan. */
+  missing?: boolean
+}
+
+/**
+ * Konfigurasi satu latihan di dalam rutin: apa yang DIRENCANAKAN, bukan apa yang terjadi.
+ *
+ * Index signature-nya disengaja selama migrasi: cfg dilewatkan lintas belasan berkas yang
+ * masih JS dan membawa lebih banyak field daripada yang sudah dideklarasikan di sini. Field
+ * ditambahkan ke daftar eksplisit begitu ada berkas TS yang benar-benar membacanya — jadi
+ * daftar ini tumbuh mengikuti bukti, bukan tebakan.
+ */
+export interface ExerciseConfig {
+  id?: string
+  /** Kebijakan progresi: 'off' | 'linear' | 'greyskull' | 'double' | 'time'. */
+  prog?: string
+  /** Kenaikan beban per langkah, meng-override default per-latihan. */
+  inc?: number
+  sets?: number
+  reps?: number
+  repsMin?: number
+  repsMax?: number
+  sec?: number
+  mode?: string
+  [k: string]: unknown
+}
+
+/** Satu rutin: nama, daftar latihan, dan kebijakan progresi default untuk semuanya. */
+export interface Routine {
+  id?: string
+  name?: string
+  prog?: string
+  ex?: ExerciseConfig[]
+  [k: string]: unknown
+}
+
+/**
  * Irisan state app yang dibaca helper domain. Sengaja BUKAN seluruh state:
  * tiap modul menambah field yang benar-benar dia baca, supaya jelas siapa
  * bergantung pada apa.
  */
 export interface AppState {
   workouts?: Workout[]
+  /** 'kg' atau 'lb'. Menentukan besar langkah beban default. */
+  unit?: string
   /**
    * Skala effort yang dicatat: `'none' | 'rir' | 'rpe'`, atau **null** kalau profil belum
    * pernah memilih. null itu bermakna, bukan sama dengan 'none' — profil yang belum memilih
