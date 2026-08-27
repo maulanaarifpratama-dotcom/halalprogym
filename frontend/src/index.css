@@ -614,6 +614,28 @@ h4.sec{
 .exmedia.compact img{height:120px}
 .exmedia.mini img{height:84px}
 
+/* Slot media TANPA media: peta otot, bukan kotak kosong.
+   Gambar Gym visual dicabut karena lisensi (lihat CLAUDE.md), jadi sampai aset sendiri ada,
+   TIDAK ADA latihan yang punya animasi. Slot kosong di setiap latihan berarti app kehilangan
+   hal paling intinya, jadi slot ini diisi jawaban atas pertanyaan berbeda — otot mana yang
+   dikerjakan — yang justru tidak pernah dijawab GIF-nya.
+   Tingginya dipatok mendekati slot yang digantikan supaya tidak ada yang bergeser waktu aset
+   sungguhan nanti mengambil tempatnya. */
+.exmedia.anat{background:var(--surface);padding:12px 12px 10px}
+.exanat{display:flex;flex-direction:column;gap:8px}
+.exanat .bm-v{max-height:260px}
+.exanat.compact .bm-v{max-height:104px}
+.exanat.mini .bm-v{max-height:68px}
+/* Nama otot dalam kata, karena diagram sendiri tidak bilang "pectorals". Primer memakai
+   bobot dan warna label penuh; sekunder mundur ke --label-2 — hierarki dari bobot dan
+   ukuran, bukan dari warna aksen, supaya lime tetap milik ototnya di diagram. */
+.exanat-lg{
+  display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline;
+  font-size:12.5px;line-height:1.4;border-top:var(--hair) solid var(--sep);padding-top:8px
+}
+.exanat-p{color:var(--label);font-weight:600;letter-spacing:-.012em;text-transform:capitalize}
+.exanat-s{color:var(--label-2);text-transform:lowercase}
+
 .sethead{
   display:flex;align-items:center;gap:8px;padding:0 0 6px;
   font-size:11px;color:var(--label-3);font-weight:500;text-transform:uppercase;letter-spacing:.045em;

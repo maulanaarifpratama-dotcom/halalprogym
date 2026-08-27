@@ -87,6 +87,23 @@ export default {
   'Note': 'Catatan',
   // 'Reps' sengaja TIDAK diisi — lihat prinsip 2 di atas.
 
+  /* ---- nama otot: label peta anatomi, sekarang visual utama SETIAP latihan.
+     Yang tidak diisi (Biceps, Triceps, Quads, Hamstrings, Glutes, Adductors, Serratus)
+     memang istilah yang dipakai orang di gym apa adanya — aturan induk 1 di glosarium. ---- */
+  'Chest': 'Dada',
+  'Shoulders': 'Bahu',
+  'Upper back': 'Punggung atas',
+  'Lower back': 'Punggung bawah',
+  'Abs': 'Perut',
+  'Obliques': 'Perut samping',
+  'Forearms': 'Lengan bawah',
+  'Calves': 'Betis',
+  'Shins': 'Tulang kering',
+  'Hip flexors': 'Fleksor pinggul',
+  'Traps': 'Trapezius',
+  /** Penghubung di keterangan peta otot: "Dada · juga Bahu, Triceps". */
+  'also': 'juga',
+
   /* ---- tampilan ---- */
   'Language': 'Bahasa',
   'Theme': 'Tema',

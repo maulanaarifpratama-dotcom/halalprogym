@@ -1,0 +1,130 @@
+import React, { act } from 'react'
+import { createRoot } from 'react-dom/client'
+import { parseHTML } from 'linkedom'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Store dimock supaya tes ini tidak menarik localStorage, sync, atau mobile shim.
+// Satu-satunya yang dibaca komponennya adalah S.body.
+const mocks = vi.hoisted(() => ({ body: 'male' }))
+vi.mock('../store/useStore.js', async () => {
+  const React = await import('react')
+  const useStore = (selector = state => state) => {
+    void React
+    return selector({ S: { body: mocks.body } })
+  }
+  return { useStore }
+})
+
+const { default: ExerciseAnatomy } = await import('./ExerciseAnatomy.jsx')
+const { default: Media, Thumb } = await import('./Media.jsx')
+const { EXDB } = await import('../lib/exercises-data.js')
+
+// Barbell bench press: tg 'pectorals' (primer), sm ['triceps', 'shoulders'] (sekunder).
+// Dipilih karena punya SATU primer dan DUA sekunder — jadi pemisahan dua tingkatnya benar-benar
+// terbukti, bukan kebetulan lolos karena semuanya satu tingkat.
+const BENCH = Object.values(EXDB).find(e => e.id === '0025')
+
+let dom, root, container
+
+function installDom() {
+  const parsed = parseHTML('<!doctype html><html><body><div id="root"></div></body></html>')
+  dom = parsed.window
+  globalThis.window = dom
+  globalThis.document = dom.document
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: dom.navigator })
+  for (const key of ['HTMLElement', 'Node', 'Element', 'Event']) globalThis[key] = dom[key]
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true
+  container = document.getElementById('root')
+  root = createRoot(container)
+}
+
+const render = async node => { await act(async () => { root.render(node) }) }
+
+/**
+ * BodyMap mengimpor geometri MuscleMap (~90 KB) secara dinamis dan menyimpannya di cache
+ * tingkat-modul, jadi sampai promise itu selesai yang tergambar cuma placeholder. Satu
+ * microtask tidak cukup: impornya harus selesai DULU, lalu setState-nya perlu tick
+ * tersendiri untuk masuk. Jadi impornya dipaksa di sini, baru beberapa tick act.
+ */
+async function settleBodyPaths() {
+  await import('../lib/body-paths.js')
+  for (let i = 0; i < 5; i++) await act(async () => { await Promise.resolve() })
+}
+
+beforeEach(() => { mocks.body = 'male'; installDom() })
+afterEach(async () => { await act(async () => { root.unmount() }) })
+
+describe('ExerciseAnatomy', () => {
+  it('memakai latihan katalog yang bentuknya memang diuji', () => {
+    expect(BENCH).toBeTruthy()
+    expect(BENCH.tg).toBe('pectorals')
+    expect(BENCH.sm).toEqual(['triceps', 'shoulders'])
+  })
+
+  it('menyebut otot primer terpisah dari sekunder', async () => {
+    await render(<ExerciseAnatomy ex={BENCH} />)
+    const primary = container.querySelector('.exanat-p')
+    const secondary = container.querySelector('.exanat-s')
+    // 'pectorals' -> slug 'chest' -> nama 'Chest'; 'shoulders' -> 'deltoids' -> 'Shoulders'.
+    expect(primary.textContent).toBe('Chest')
+    expect(secondary.textContent).toContain('Shoulders')
+    expect(secondary.textContent).toContain('Triceps')
+    // Yang primer tidak boleh ikut muncul di daftar sekunder.
+    expect(secondary.textContent).not.toContain('Chest')
+  })
+
+  it('memberi primer dan sekunder tingkat naungan yang BEDA, dan tingkatnya absolut', async () => {
+    await render(<ExerciseAnatomy ex={BENCH} />)
+    // Geometri MuscleMap diimpor dinamis; sampai dia mendarat yang tergambar cuma placeholder.
+    // Yang diuji di sini keputusan tingkatnya, jadi tunggu path-nya ada dulu.
+    await settleBodyPaths()
+
+    const l4 = container.querySelectorAll('.bm-m.l4')
+    const l2 = container.querySelectorAll('.bm-m.l2')
+    expect(l4.length).toBeGreaterThan(0)
+    expect(l2.length).toBeGreaterThan(0)
+
+    // Ini inti kenapa THRESHOLDS dipatok dan bukan relatif: latihan satu-otot dan
+    // multi-otot harus terbaca dengan aturan yang sama. Naungan relatif akan membuat
+    // keduanya punya l4 di maksimumnya masing-masing, jadi tidak bisa dibandingkan.
+    const soleTarget = { id: 'x', n: 'test', bp: 'chest', tg: 'pectorals', sm: [], st: [] }
+    await render(<ExerciseAnatomy ex={soleTarget} />)
+    await settleBodyPaths()
+    expect(container.querySelectorAll('.bm-m.l4').length).toBeGreaterThan(0)
+    expect(container.querySelectorAll('.bm-m.l2').length).toBe(0)
+  })
+
+  it('menghormati pilihan Ikhwan/Akhwat untuk bentuk tubuhnya', async () => {
+    mocks.body = 'female'
+    await render(<ExerciseAnatomy ex={BENCH} />)
+    await settleBodyPaths()
+    expect(container.querySelectorAll('svg.bm-v').length).toBe(2)   // depan + belakang
+  })
+})
+
+describe('Media tanpa media', () => {
+  it('jatuh ke peta otot, BUKAN kotak kosong, saat latihan tidak punya animasi', async () => {
+    // Ini regresi yang dijaga: jalur lama mengembalikan null di sini. Itu benar waktu cuma
+    // latihan buatan user yang tanpa media — tapi gambar Gym visual sudah dicabut karena
+    // lisensi, jadi null berarti setiap latihan kehilangan visualnya.
+    const noMedia = { ...BENCH, gif: '', img: '' }
+    await render(<Media ex={noMedia} />)
+    expect(container.querySelector('.exmedia.anat')).toBeTruthy()
+    expect(container.querySelector('.exanat')).toBeTruthy()
+    expect(container.querySelector('img')).toBeNull()
+  })
+
+  it('mencoba media dulu kalau ada — self-host berlisensi sendiri harus tetap tampil', async () => {
+    await render(<Media ex={BENCH} />)
+    const img = container.querySelector('img')
+    expect(img).toBeTruthy()
+    expect(img.getAttribute('src')).toContain(BENCH.gif)
+    expect(container.querySelector('.exmedia.anat')).toBeNull()
+  })
+
+  it('Thumb memakai ikon, bukan peta otot — 50px terlalu kecil untuk terbaca', async () => {
+    await render(<Thumb ex={{ ...BENCH, img: '' }} />)
+    expect(container.querySelector('.thumb-x')).toBeTruthy()
+    expect(container.querySelector('.exanat')).toBeNull()
+  })
+})
