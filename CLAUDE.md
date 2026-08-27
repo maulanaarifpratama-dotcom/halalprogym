@@ -92,6 +92,48 @@ membuat upstream salah: `drops` itu kerja **tambahan di atas** set utama, `clust
 **pecahan dari** total set itu sendiri. Riwayat bug itu di
 `docs/upstream/DOMAIN-NOTES-dropset-restpause.md` — **baca sebelum menyentuh workout-model.**
 
+## Supabase — baca ini sebelum menjalankan SQL apa pun
+
+Project Halal Pro Gym: **`ljhawtubkynxwcaaqcpo`**
+(ref itu publik — dia ada di setiap request dari browser, jadi bukan rahasia.)
+
+**Project ini ada di akun email yang BERBEDA dari konektor Supabase MCP di mesin ini.**
+Akibatnya ada asimetri berbahaya:
+
+| | MCP bisa lihat? |
+| --- | --- |
+| `ljhawtubkynxwcaaqcpo` — **Halal Pro Gym, milik repo ini** | **TIDAK** |
+| `hpxjvffwhajumdlxhuet` — LittleChamp | Ya |
+| `uncsvkvkaijzydndyutp` — supabase-cobalt-compass | Ya |
+
+Jadi kalau sesi memakai tool Supabase MCP di repo ini, satu-satunya database yang terjangkau
+justru **dua yang bukan milik repo ini.**
+
+**ATURAN: jangan pernah pakai tool `mcp__*supabase*` dari repo ini.** Bukan karena rusak — karena
+dia menunjuk ke tempat yang salah, dan kegagalannya sunyi.
+
+**`hpxjvffwhajumdlxhuet` (LittleChamp) dilarang keras disentuh.** User menyatakan eksplisit
+2026-08-27: project itu dipakai, jangan pernah disentuh. Bukan cuma soal repo — jangan disentuh
+dari sesi mana pun.
+
+Cara yang benar: **Supabase CLI + berkas migration di git.**
+
+```bash
+supabase link --project-ref ljhawtubkynxwcaaqcpo   # ref-nya eksplisit, bukan tersirat
+supabase db push
+```
+
+Migration hidup sebagai berkas di `supabase/migrations/`, bisa di-review, bisa diulang.
+
+**Jangan bikin workflow yang auto-`db push` saat ada perubahan di `supabase/migrations/`.**
+Impactory punya itu, dan akibatnya di sana "cuma commit" bisa berarti deploy produksi. Jangan
+tanam ulang jebakan yang sama di sini.
+
+Kredensial: `.env.local` (diabaikan git). `VITE_SUPABASE_URL` dan
+`VITE_SUPABASE_PUBLISHABLE_KEY` memang terkirim ke browser — bukan rahasia. Yang rahasia
+(`service_role`, `sb_secret_*`, password DB) **tidak boleh ada di repo ini sama sekali**, dan
+nilainya tidak pernah disalin ke vault, catatan, atau output percakapan.
+
 ## Git
 
 ```

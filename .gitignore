@@ -5,8 +5,12 @@ media/gif/
 # Runtime data — users, passkeys, per-user state, session secret
 data/
 
-# Local config
+# Local config — nilai kredensial TIDAK PERNAH masuk git.
+# Pola `.env` saja tidak menangkap .env.local / .env.production; repo ini publik
+# (AGPL), jadi satu key ter-commit langsung terekspos.
 .env
+.env.*
+!.env.example
 
 # Build output / deps
 frontend/dist/
