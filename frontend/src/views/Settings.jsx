@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useStore, DEF, hasData } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
 import { ACCENTS, todayISO, localTZ } from '../lib/format.js'
-import { CITIES, DEFAULT_CITY_ID } from '../lib/prayer.js'
+import { CITIES, DEFAULT_CITY_ID, cityById, fmtPrayer } from '../lib/prayer.js'
+import { fastingWindow, isFastingDay } from '../lib/ramadan.js'
 import { effortOf } from '../lib/history.js'
 import { IS_ANDROID } from '../lib/platform.js'
 import { authAvailable, looksLikeEmail, signInWithEmail, signInWithGoogle } from '../lib/auth.js'
@@ -165,6 +166,9 @@ export default function Settings() {
 
     {/* ---------- equipment ---------- */}
     <EquipmentCard S={S} update={update} />
+
+    {/* ---------- puasa ---------- */}
+    <RamadanCard S={S} update={update} />
 
     {/* ---------- appearance ---------- */}
     {/* Catatan kaki "tersinkron dengan profilmu" dulu digerbangi `DEMO || MOBILE`, dan itu
@@ -374,6 +378,62 @@ function WebNotifCard() {
             : t('Off — a beep still plays while the app is open.')}
         accessory={perm === 'default' ? 'chevron' : undefined}
         onClick={perm === 'default' ? ask : undefined} />
+    </Section>
+  )
+}
+
+/**
+ * Mode Ramadan dan mode puasa sunah.
+ *
+ * Bukan sakelar kosmetik: dia menyetel mesin progresi ke HOLD dan memangkas volume kerja. Yang
+ * penting di UI ini adalah AKIBATNYA harus terbaca sebelum orang menyalakannya — sakelar yang
+ * mengubah beban latihan tanpa mengatakan apa yang berubah adalah sakelar yang bikin orang
+ * curiga pada app-nya.
+ *
+ * Deteksi tanggal Hijriah otomatis SENGAJA tidak ada. Awal Ramadan di Indonesia ditetapkan
+ * sidang isbat Kemenag dan hisab bisa berbeda sehari; menyala sehari lebih awal berarti menahan
+ * progresi di hari orang belum berpuasa, sehari lebih lambat berarti satu hari puasa dibaca
+ * mesin sebagai kegagalan. Pemiliknya yang tahu, dan sakelarnya selalu benar.
+ */
+function RamadanCard({ S, update }) {
+  const r = S.ramadan || DEF.ramadan
+  const city = cityById(S.city || DEFAULT_CITY_ID)
+  const now = new Date()
+  const puasaHariIni = isFastingDay(r, now)
+  const win = puasaHariIni ? fastingWindow(city, now) : null
+  const set = patch => update(s => { s.ramadan = { ...(s.ramadan || DEF.ramadan), ...patch } })
+
+  return (
+    <Section title={t('Fasting')}
+      footer={r.on || r.sunnah
+        ? t('On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.')
+        : t('Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.')}>
+      <Row icon="moon" iconTint="var(--indigo)" title={t('Ramadan mode')}
+        subtitle={t('Every day: hold the weight, trim the volume.')}>
+        <Switch checked={!!r.on} onChange={v => set({ on: v })} />
+      </Row>
+      {/* Mode sunah disembunyikan saat Ramadan menyala: di bulan itu SETIAP hari puasa, jadi
+          sakelar "hanya Senin & Kamis" tidak mengubah apa pun dan cuma bikin bingung. */}
+      {!r.on && (
+        <Row icon="calendar" iconTint="var(--teal)" title={t('Sunnah fasting (Mon & Thu)')}
+          subtitle={t('Same treatment, only on those two days — and a way to test all this before Ramadan.')}>
+          <Switch checked={!!r.sunnah} onChange={v => set({ sunnah: v })} />
+        </Row>
+      )}
+      {(r.on || r.sunnah) && (
+        <Row icon="chartLine" iconTint="var(--orange)" title={t('Work sets kept')}>
+          <Segmented
+            className="seg-inline"
+            options={[60, 65, 70, 80].map(v => ({ value: v, label: v + '%' }))}
+            value={typeof r.volumeKeepPct === 'number' ? r.volumeKeepPct : 65}
+            onChange={v => set({ volumeKeepPct: Number(v) })}
+          />
+        </Row>
+      )}
+      {win && (
+        <Row icon="clock" iconTint="var(--acc)" title={t('Fasting today')}
+          subtitle={t('{0} to {1} in {2}', fmtPrayer(win.from, city), fmtPrayer(win.to, city), city.name)} />
+      )}
     </Section>
   )
 }

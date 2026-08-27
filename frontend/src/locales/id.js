@@ -833,5 +833,22 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Demo ini jalan sepenuhnya di browser-mu dengan data contoh — tidak ada yang dikirim ke mana pun.',
   'Workout-day reminders come from the Android app for now.':
-    'Pengingat hari latihan untuk sekarang datang dari app Android.'
+    'Pengingat hari latihan untuk sekarang datang dari app Android.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': 'Setiap hari: beban ditahan, volume dipangkas.',
+  'Fasting': 'Puasa',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Puasa menurunkan performa, dan mesin progresi membacanya sebagai kegagalan. Sakelar ini yang menahannya supaya tidak men-deload kamu sebulan penuh.',
+  'Fasting today': 'Puasa hari ini',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'Di hari puasa beban ditahan — tidak naik, tidak turun — dan set kerja dipangkas. Warm-up tidak disentuh.',
+  'Ramadan mode': 'Mode Ramadan',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Mode Ramadan — beban ditahan. Puasa bukan alasan untuk deload.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Perlakuan sama, hanya di dua hari itu — sekaligus cara menguji semua ini sebelum Ramadan.',
+  'Sunnah fasting (Mon & Thu)': 'Puasa sunah (Senin & Kamis)',
+  'Work sets kept': 'Set kerja dipertahankan',
+  '{0} to {1} in {2}': '{0} sampai {1} di {2}'
 }

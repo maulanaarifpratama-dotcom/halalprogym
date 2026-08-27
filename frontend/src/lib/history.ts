@@ -20,6 +20,7 @@ const workRowsForMode = (
 // for the hook — and it re-exports this very `t` from core, so nothing changes here except what
 // gets dragged along behind it.
 import { t } from './i18n-core.js'
+import { workSetsFor } from './ramadan.js'
 import type {
   ActiveWorkout, AppState, ExerciseConfig, Routine, SetRow, Workout, WorkoutEntry
 } from './types.js'
@@ -357,6 +358,14 @@ export function effectiveRoutine(S: AppState, iso: string): Routine | null {
 export interface BuildOptions {
   step?: number
   preferLast?: boolean
+  /**
+   * "Sekarang", untuk memutuskan apakah hari ini hari puasa. Default `new Date()`.
+   *
+   * Ada sebagai argumen supaya pangkas volume Ramadan bisa ditesnya di hari apa pun. Fungsi
+   * yang membaca jam sistem sendiri cuma bisa dites benar satu hari dalam seminggu, dan mode
+   * puasa sunah kebetulan aktif tepat dua hari dari tujuh.
+   */
+  now?: Date
 }
 
 export function buildSets(S: AppState, cfg: ExerciseConfig, options: BuildOptions = {}): SetRow[] {
@@ -374,7 +383,13 @@ export const MAX_PLANNED_WARMUPS = 5
 
 function buildWorkSets(S: AppState, cfg: ExerciseConfig, options: BuildOptions = {}): SetRow[] {
   const last = lastEntryFor(S, cfg.id)
-  const n = Math.max(1, cfg.sets || 1)
+  // Mode Ramadan / puasa sunah memangkas volume kerja di hari puasa. Dipangkas DI SINI, di satu
+  // tempat semua mode logging melewatinya, bukan di masing-masing cabang di bawah — cabang yang
+  // lupa berarti satu jenis latihan yang tidak ikut dipangkas, dan itu tidak akan terlihat.
+  //
+  // Set warm-up TIDAK ikut dipangkas (lihat buildSets di atas): dia justru lebih penting saat
+  // energi rendah, dan dia tidak dihitung ke volume maupun ke progresi.
+  const n = workSetsFor(Math.max(1, cfg.sets || 1), S.ramadan, options.now || new Date())
   const mode = modeOf(cfg)
   const preferLast = !!options.preferLast
   const sets: SetRow[] = []

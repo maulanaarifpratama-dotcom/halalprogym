@@ -16,13 +16,20 @@
 //   · fewer sets than prescribed                       → miss
 // So a session that fell apart can never advance the load as though it had succeeded.
 //
-// CATATAN UNTUK MODE RAMADAN (Fase 6): mesin di berkas inilah yang akan MEREGRESI beban
-// sepanjang bulan puasa kalau dibiarkan. Performa turun saat puasa itu normal, tapi mesin ini
-// tidak tahu itu Ramadan — dia cuma melihat `ok === false` berulang, lalu memicu deload.
-// Sebulan begitu dan program user mundur jauh dari kemampuan aslinya. Mode Ramadan harus
-// menyetel kebijakan ke `hold`: jangan naik, jangan turun. Titik masuknya `nextPrescription`.
+// MODE RAMADAN — sudah terpasang, dan ini alasannya ada.
+//
+// Mesin di berkas inilah yang akan MEREGRESI beban sepanjang bulan puasa kalau dibiarkan.
+// Performa turun saat puasa itu normal, tapi mesin ini tidak tahu bulan apa sekarang — dia cuma
+// melihat `ok === false` berulang, lalu memicu deload. Sebulan begitu dan program user mundur
+// jauh dari kemampuan aslinya, bukan karena dia melemah tapi karena alat ukurnya salah
+// menafsirkan sebabnya.
+//
+// Penahanannya ada di `nextPrescription`, DI LUAR badan fungsinya (`basePrescription`). Badan itu
+// punya sebelas jalan keluar; satu cabang yang lupa sudah cukup. Logikanya sendiri di
+// lib/ramadan.ts, murni dan bertes tersendiri.
 
 import { modeOf, repStep, rerampWarmups } from './history.js'
+import { holdFor, isFastingDay } from './ramadan.js'
 import { EXIDX } from './exercises.js'
 import { isWarmupRow } from './workout-model.js'
 import type { AppState, Exercise, ExerciseConfig, Routine, SetMode, SetRow } from './types.js'
@@ -234,7 +241,33 @@ export interface Prescription {
  * always answer "why this number?". A field the policy has no opinion on comes back
  * undefined and the caller keeps whatever the plan said.
  */
-export function nextPrescription(S: AppState, cfg: ExerciseConfig, routine?: Routine | null): Prescription {
+export function nextPrescription(
+  S: AppState,
+  cfg: ExerciseConfig,
+  routine?: Routine | null,
+  now: Date = new Date()
+): Prescription {
+  const raw = basePrescription(S, cfg, routine)
+  if (!isFastingDay(S.ramadan, now)) return raw
+
+  // MODE RAMADAN — titik masuk yang dijanjikan di kepala berkas ini.
+  //
+  // Dibungkus di LUAR badan fungsinya, bukan disebar ke setiap cabang. Badan itu punya sebelas
+  // jalan keluar, dan satu cabang yang lupa menahan diri sudah cukup untuk meregresi beban
+  // orang sepanjang bulan puasa. Pembungkus tidak bisa lupa.
+  //
+  // Angka yang ditahan diambil dari sesi TERAKHIR, bukan dari resep yang baru dihitung: yang
+  // harus dipertahankan adalah beban sebelum puasa, dan resepnya justru yang sudah bergerak.
+  const mode = modeOf(cfg) as SetMode
+  const sessions = sessionsFor(S, cfg.id as string, cfg).filter(s => s.mode === mode)
+  const last = sessions[sessions.length - 1]
+  const current = last?.mode === 'time'
+    ? { sec: last.goal }
+    : { weight: last?.weight, reps: last?.goal }
+  return holdFor(raw, true, current)
+}
+
+function basePrescription(S: AppState, cfg: ExerciseConfig, routine?: Routine | null): Prescription {
   const mode = modeOf(cfg) as SetMode
   const policy = policyFor(cfg, routine, mode)
   const unit = S.unit || 'kg'

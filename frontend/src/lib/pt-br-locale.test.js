@@ -43,7 +43,11 @@ describe('Brazilian Portuguese locale', () => {
     // (passkey, self-host, pairing app HP, dasbor admin, web push), jadi override untuk
     // string-string itu tidak menunjuk apa pun lagi. Plus 12 override baru untuk auth Supabase.
     // Selisihnya: 294 - 46 dihapus + 12 baru = 260.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(260)
+    //
+    // 260 -> 266: mode Ramadan. Enam kunci berbeda regional, dan lima di antaranya karena satu
+    // kata: Portugal menulis "Ramadão", Brasil "Ramadã" — pembeda yang sudah tercatat di pack
+    // ini sejak kunci waktu salat masuk.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(266)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -59,7 +63,9 @@ describe('Brazilian Portuguese locale', () => {
     // 459 -> 445: sama, pencabutan lapis auth. Kunci warisan untuk passkey/self-host/push ikut
     // pergi, dan 11 kunci auth Supabase yang kata Brasilnya sama dengan Portugal masuk sebagai
     // warisan baru.
-    expect(inherited).toHaveLength(445)
+    //
+    // 445 -> 450: lima kunci mode Ramadan yang kata Brasilnya sama dengan Portugal.
+    expect(inherited).toHaveLength(450)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -68,7 +74,7 @@ describe('Brazilian Portuguese locale', () => {
     // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
     // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
     // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('c5ca27435998b165aff2fbcfce1ab9485ed7efb5fc51becdc839204ebafcf77e')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('ecdfd43b6b77b1105f631710f1c3f2a5ab6446671fb92b75f6d55ced24d54d1b')
   })
 
   test('does not leak European Portuguese UI terms', () => {

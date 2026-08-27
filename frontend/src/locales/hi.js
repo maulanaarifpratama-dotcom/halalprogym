@@ -653,5 +653,22 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'यह डेमो पूरी तरह आपके ब्राउज़र में नमूना डेटा पर चलता है — कहीं कुछ नहीं भेजा जाता।',
   'Workout-day reminders come from the Android app for now.':
-    'अभी वर्कआउट दिन के रिमाइंडर Android ऐप से आते हैं।'
+    'अभी वर्कआउट दिन के रिमाइंडर Android ऐप से आते हैं।',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': 'रोज़ रोज़: वज़न वैसा ही, वॉल्यूम कम।',
+  'Fasting': 'रोज़ा',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'रोज़े से प्रदर्शन गिरता है, और प्रोग्रेशन इंजन उसे नाकामी समझता है। ये स्विच उसे पूरे महीने डीलोड करने से रोकते हैं।',
+  'Fasting today': 'आज रोज़ा',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'रोज़े के दिन वज़न वैसा ही रहता है — न बढ़ता, न डीलोड — और वर्क सेट कम होते हैं। वॉर्म-अप वैसा ही रहता है।',
+  'Ramadan mode': 'रमज़ान मोड',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'रमज़ान मोड — वज़न वैसा ही रहता है। रोज़ा डीलोड की वजह नहीं है।',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'वही तरीका, सिर्फ़ उन दो दिनों में — और रमज़ान से पहले सब परखने का तरीका भी।',
+  'Sunnah fasting (Mon & Thu)': 'सुन्नत रोज़ा (सोम और गुरु)',
+  'Work sets kept': 'बनाए रखे गए वर्क सेट',
+  '{0} to {1} in {2}': '{2} में {0} से {1}'
 }

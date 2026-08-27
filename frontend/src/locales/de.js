@@ -671,5 +671,22 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Diese Demo läuft vollständig in deinem Browser mit Beispieldaten — nichts wird irgendwohin gesendet.',
   'Workout-day reminders come from the Android app for now.':
-    'Erinnerungen an Trainingstage kommen vorerst aus der Android-App.'
+    'Erinnerungen an Trainingstage kommen vorerst aus der Android-App.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': 'Jeden Tag: Gewicht halten, Volumen kürzen.',
+  'Fasting': 'Fasten',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Fasten senkt die Leistung, und die Progressions-Engine liest das als Misserfolg. Diese Schalter verhindern, dass sie dich einen Monat lang deloadet.',
+  'Fasting today': 'Heute Fastentag',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'An einem Fastentag bleibt das Gewicht gleich — keine Steigerung, kein Deload — und die Arbeitssätze werden gekürzt. Aufwärmsätze bleiben unberührt.',
+  'Ramadan mode': 'Ramadan-Modus',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Ramadan-Modus — das Gewicht bleibt. Fasten ist kein Grund für einen Deload.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Gleiche Behandlung, nur an diesen zwei Tagen — und eine Möglichkeit, das alles vor dem Ramadan zu testen.',
+  'Sunnah fasting (Mon & Thu)': 'Sunnah-Fasten (Mo & Do)',
+  'Work sets kept': 'Beibehaltene Arbeitssätze',
+  '{0} to {1} in {2}': '{0} bis {1} in {2}'
 }

@@ -654,5 +654,23 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Questa demo gira interamente nel tuo browser su dati di esempio — nulla viene inviato da nessuna parte.',
   'Workout-day reminders come from the Android app for now.':
-    'Per ora i promemoria dei giorni di allenamento arrivano dall’app Android.'
+    'Per ora i promemoria dei giorni di allenamento arrivano dall’app Android.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.':
+    'Ogni giorno: mantieni il carico, riduci il volume.',
+  'Fasting': 'Digiuno',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Il digiuno abbassa la prestazione, e il motore di progressione lo legge come un fallimento. Questi interruttori gli impediscono di farti un deload per un mese.',
+  'Fasting today': 'Oggi si digiuna',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'In un giorno di digiuno il carico resta — nessun aumento, nessun deload — e le serie di lavoro vengono ridotte. Il riscaldamento non si tocca.',
+  'Ramadan mode': 'Modalità Ramadan',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Modalità Ramadan — il carico resta. Digiunare non è un motivo per fare un deload.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Stesso trattamento, solo in quei due giorni — e un modo per provare tutto questo prima del Ramadan.',
+  'Sunnah fasting (Mon & Thu)': 'Digiuno sunna (lun e gio)',
+  'Work sets kept': 'Serie di lavoro mantenute',
+  '{0} to {1} in {2}': 'da {0} a {1} a {2}'
 }

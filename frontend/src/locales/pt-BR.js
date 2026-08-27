@@ -287,7 +287,19 @@ export const PT_BR_OVERRIDES = {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Esta demo roda inteiramente no seu navegador com dados de exemplo — nada é enviado para lugar algum.',
   'Workout-day reminders come from the Android app for now.':
-    'Por enquanto os lembretes de dia de treino vêm do app Android.'
+    'Por enquanto os lembretes de dia de treino vêm do app Android.',
+
+  /* --- mode Ramadan: yang berbeda regional dari pt-PT --- */
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'O jejum baixa o desempenho, e o motor de progressão lê isso como falha. Estes interruptores impedem que ele faça um deload em você durante um mês.',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'Num dia de jejum a carga se mantém — sem aumento, sem deload — e as séries de trabalho são reduzidas. O aquecimento fica intacto.',
+  'Ramadan mode': 'Modo Ramadã',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Modo Ramadã — a carga mantém-se. Jejuar não é motivo para um deload.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Mesmo tratamento, só nesses dois dias — e uma forma de testar tudo isso antes do Ramadã.',
+  'Sunnah fasting (Mon & Thu)': 'Jejum sunna (seg e qui)'
 }
 export default { ...pt, ...PT_BR_OVERRIDES,
   /* demo gerakan: dua bingkai, posisi awal dan akhir */

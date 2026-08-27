@@ -22,6 +22,12 @@ export const DEF = {
   // Kota untuk waktu salat. Dipilih dari daftar, bukan geolocation: tanpa izin browser,
   // jalan offline, dan untuk waktu salat presisi GPS tidak dibutuhkan. Lihat lib/prayer.ts.
   city: 'jakarta',
+  // Mode Ramadan dan mode puasa sunah Senin-Kamis. Sakelar MANUAL, bukan deteksi tanggal
+  // Hijriah otomatis: awal Ramadan di Indonesia ditetapkan sidang isbat, dan hisab bisa beda
+  // sehari. Menyala sehari lebih awal berarti menahan progresi di hari yang belum berpuasa;
+  // sehari lebih lambat berarti satu hari puasa yang dibaca mesin sebagai kegagalan.
+  // Lihat lib/ramadan.ts.
+  ramadan: { on: false, sunnah: false, volumeKeepPct: 65 },
   // Equipment profiles (issue: filter Library/picker/routines by what you actually own —
   // e.g. "Home" vs "Gym" — building on the session-only equipment filter from issue #6).
   equipProfiles: [], activeEquipId: null, equipFilterOn: false,

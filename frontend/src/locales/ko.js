@@ -650,5 +650,22 @@ export default {
   'Syncs your plan and history across your devices.': '여러 기기 사이에서 계획과 기록을 동기화합니다.',
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     '이 데모는 전부 보여지기 안에서 예시 데이타로 동작해요 — 어느 곳으로도 보내지 지 않습니다.',
-  'Workout-day reminders come from the Android app for now.': '지금은 운동 일 알림이 Android 앱에서 나옵니다.'
+  'Workout-day reminders come from the Android app for now.': '지금은 운동 일 알림이 Android 앱에서 나옵니다.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': '매일: 무게는 그대로, 볼륨은 줄이기.',
+  'Fasting': '단식',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    '단식은 수행 능력을 낮추고, 진전 엔진은 그것을 실패로 읽어요. 이 스위치가 한 달 동안 디로드를 막아줍니다.',
+  'Fasting today': '오늘은 단식일',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    '단식일엔 무게를 그대로 유지합니다 — 오림도 디로드도 없이 — 워킹 셋은 줄여요. 워밍업은 그대로 둘니다.',
+  'Ramadan mode': '라마단 모드',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    '라마단 모드 — 무게를 유지합니다. 단식은 디로드할 이유가 아니에요.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    '같은 방식을 그 이틀에만 — 라마단 전에 이 전부를 시함해보는 방법이기도 해요.',
+  'Sunnah fasting (Mon & Thu)': '숬나 단식 (월 · 목)',
+  'Work sets kept': '유지하는 워킹 셋',
+  '{0} to {1} in {2}': '{2}: {0} ~ {1}'
 }

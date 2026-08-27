@@ -46,11 +46,22 @@ const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(e => {
 const SQ = /\bt\(\s*'((?:[^'\\]|\\.)*)'/g
 const DQ = /\bt\(\s*"((?:[^"\\]|\\.)*)"/g
 
+// Mesin progresi dan mode Ramadan tidak memanggil `t()` sendiri — mereka mengembalikan
+// `why: ['template', ...args]` dan pemanggil yang menerjemahkannya. Jadi template itu kunci
+// terjemahan yang sah tapi TIDAK PERNAH muncul sebagai literal di dalam `t(`.
+//
+// Ini ketangkap saat mode Ramadan dipasang: pesan penahanannya tidak ada di satu pack pun, dan
+// pemeriksaan di bawah melaporkan hijau karena dia cuma melihat argumen `t()`.
+const WHY = /\bwhy:\s*\[\s*'((?:[^'\\]|\\.)*)'/g
+const WHY_DQ = /\bwhy:\s*\[\s*"((?:[^"\\]|\\.)*)"/g
+
 const used = new Set()
 for (const f of walk(SRC)) {
   const s = readFileSync(f, 'utf8')
   for (const m of s.matchAll(SQ)) used.add(m[1].replace(/\\'/g, "'"))
   for (const m of s.matchAll(DQ)) used.add(m[1].replace(/\\"/g, '"'))
+  for (const m of s.matchAll(WHY)) used.add(m[1].replace(/\\'/g, "'"))
+  for (const m of s.matchAll(WHY_DQ)) used.add(m[1].replace(/\\"/g, '"'))
 }
 
 // Kunci pack yang jadi literal-yang-ada setelah satu penggantian = terbukti tertinggal.

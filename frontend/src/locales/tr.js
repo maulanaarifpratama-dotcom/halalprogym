@@ -654,5 +654,22 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Bu demo tamamen tarayıcında örnek verilerle çalışır — hiçbir yere bir şey gönderilmez.',
   'Workout-day reminders come from the Android app for now.':
-    'Şimdilik antrenman günü hatırlatmaları Android uygulamasından gelir.'
+    'Şimdilik antrenman günü hatırlatmaları Android uygulamasından gelir.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': 'Her gün: ağırlık sabit, hacim kısalır.',
+  'Fasting': 'Oruç',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Oruç performansı düşürür, ilerleme motoru da bunu başarısızlık olarak okur. Bu anahtarlar onun seni bir ay boyunca deload etmesini engeller.',
+  'Fasting today': 'Bugün oruç',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'Oruçlu bir günde ağırlık sabit kalır — artış yok, deload yok — ve çalışma setleri kısalır. Isınma setlerine dokunulmaz.',
+  'Ramadan mode': 'Ramazan modu',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Ramazan modu — ağırlık sabit kalır. Oruç deload için bir sebep değildir.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Aynı muamele, sadece o iki günde — ve bütün bunları Ramazan’dan önce test etmenin yolu.',
+  'Sunnah fasting (Mon & Thu)': 'Sünnet orucu (Pzt & Per)',
+  'Work sets kept': 'Korunan çalışma setleri',
+  '{0} to {1} in {2}': '{2} için {0} - {1}'
 }

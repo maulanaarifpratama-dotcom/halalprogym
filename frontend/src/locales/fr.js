@@ -654,5 +654,23 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Cette démo tourne entièrement dans ton navigateur sur des données d’exemple — rien n’est envoyé nulle part.',
   'Workout-day reminders come from the Android app for now.':
-    'Pour l’instant les rappels de jour d’entraînement viennent de l’appli Android.'
+    'Pour l’instant les rappels de jour d’entraînement viennent de l’appli Android.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.':
+    'Chaque jour : garder la charge, réduire le volume.',
+  'Fasting': 'Jeûne',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Le jeûne fait baisser la performance, et le moteur de progression le lit comme un échec. Ces interrupteurs l’empêchent de te faire un deload pendant un mois.',
+  'Fasting today': 'Jeûne aujourd’hui',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'Un jour de jeûne, la charge est maintenue — pas d’augmentation, pas de deload — et les séries de travail sont réduites. L’échauffement reste intact.',
+  'Ramadan mode': 'Mode Ramadan',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Mode Ramadan — la charge est maintenue. Jeûner n’est pas une raison de faire un deload.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'Même traitement, seulement ces deux jours — et une façon de tester tout ça avant le Ramadan.',
+  'Sunnah fasting (Mon & Thu)': 'Jeûne sunna (lun & jeu)',
+  'Work sets kept': 'Séries de travail conservées',
+  '{0} to {1} in {2}': 'de {0} à {1} à {2}'
 }

@@ -249,6 +249,14 @@ export interface AppState {
   effort?: string | null
   showRir?: boolean
   /**
+   * Mode Ramadan dan mode puasa sunah Senin–Kamis. Lihat lib/ramadan.ts.
+   *
+   * Bentuknya sengaja objek, bukan boolean: dia membawa persentase volume juga, dan sebuah
+   * boolean `ramadan: true` akan memaksa persentasenya hidup di field lain — dua nilai untuk
+   * satu keputusan, yang selalu berakhir tidak sinkron.
+   */
+  ramadan?: { on?: boolean; sunnah?: boolean; volumeKeepPct?: number }
+  /**
    * Jam KLIEN saat state ini terakhir dipersist, dari `Date.now()`. Dipakai lib/sync.ts untuk
    * memutuskan lokal atau server yang lebih baru.
    *

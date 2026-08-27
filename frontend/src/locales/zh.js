@@ -649,5 +649,21 @@ export default {
   'Syncs your plan and history across your devices.': '在你的多个设备间同步计划和历史。',
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     '此演示完全在你的浏览器中使用示例数据运行 — 不向任何地方发送。',
-  'Workout-day reminders come from the Android app for now.': '目前训练日提醒由 Android 应用发出。'
+  'Workout-day reminders come from the Android app for now.': '目前训练日提醒由 Android 应用发出。',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': '每天：重量不变，容量减少。',
+  'Fasting': '斋戒',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    '斋戒会降低表现，而进阶引擎会把它读成失败。这些开关可以阻止它在一个月里不断给你降重。',
+  'Fasting today': '今天斋戒',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    '斋戒日重量保持不变 — 不加不减 — 工作组相应减少。热身组不变。',
+  'Ramadan mode': '斋月模式',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.': '斋月模式 — 重量保持不变。斋戒不是降重的理由。',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    '同样的处理，只在这两天 — 也是在斋月前验证这一切的方式。',
+  'Sunnah fasting (Mon & Thu)': '主孤断食（周一和周四）',
+  'Work sets kept': '保留的工作组',
+  '{0} to {1} in {2}': '{2}：{0} 至 {1}'
 }

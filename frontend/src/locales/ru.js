@@ -654,5 +654,22 @@ export default {
   'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
     'Это демо работает целиком в твоём браузере на примерных данных — ничего никуда не отправляется.',
   'Workout-day reminders come from the Android app for now.':
-    'Пока напоминания о днях тренировок приходят из Android-приложения.'
+    'Пока напоминания о днях тренировок приходят из Android-приложения.',
+
+  /* --- mode Ramadan & puasa sunah (2026-08-28) --- */
+  'Every day: hold the weight, trim the volume.': 'Каждый день: вес держится, объём урезается.',
+  'Fasting': 'Пост',
+  'Fasting lowers performance, and the progression engine reads that as failure. These switches stop it from deloading you for a month.':
+    'Пост снижает результаты, а движок прогрессии читает это как неудачу. Эти переключатели не дают ему делать тебе делоад целый месяц.',
+  'Fasting today': 'Сегодня пост',
+  'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
+    'В день поста вес остаётся тем же — без прибавки и без делоада — а рабочие подходы урезаются. Разминка не трогается.',
+  'Ramadan mode': 'Режим Рамадана',
+  'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
+    'Режим Рамадана — вес держится. Пост — не повод для делоада.',
+  'Same treatment, only on those two days — and a way to test all this before Ramadan.':
+    'То же самое, только в эти два дня — и способ проверить всё это до Рамадана.',
+  'Sunnah fasting (Mon & Thu)': 'Пост сунна (пн и чт)',
+  'Work sets kept': 'Сохраняемые рабочие подходы',
+  '{0} to {1} in {2}': 'с {0} до {1} в {2}'
 }
