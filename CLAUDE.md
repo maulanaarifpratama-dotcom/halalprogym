@@ -90,17 +90,26 @@ Default parameter Kemenag, **wajib diverifikasi** ke jadwal resmi minimal 6 kota
 Bandung, Surabaya, Medan, Makassar, Jayapura — sengaja rentang bujur ekstrem) sebelum parameter
 dikunci. Jangan percaya angka dari hafalan model. Lokasi = **pilih kota**, bukan geolocation.
 
-**5. Mode Ramadan wajib men-*hold* mesin progresi.** Puasa menurunkan performa; mesin progresi
-tidak tahu itu Ramadan dan akan **meregresi beban**. Sebulan begitu = program mundur jauh.
-Jadi mode Ramadan menyetel progresi ke `hold` (jangan naik, jangan turun) + volume dipangkas
-~30–40%. Notifikasi juga harus sadar jam puasa — push "minum air" jam 2 siang itu salah.
+**5. Mode Ramadan men-*hold* mesin progresi — SUDAH TERPASANG.** Puasa menurunkan performa;
+mesin progresi tidak tahu itu Ramadan dan akan **meregresi beban**. Sebulan begitu = program
+mundur jauh. Logikanya di `lib/ramadan.ts` (murni, bertes), disambungkan di `nextPrescription`
+sebagai **pembungkus di luar badan fungsinya** — badan itu punya sebelas jalan keluar, dan satu
+cabang yang lupa sudah cukup. Volume dipangkas di `buildWorkSets`, satu tempat yang dilewati
+semua mode logging; set warm-up TIDAK ikut dipangkas.
+
+Sakelarnya **manual**, bukan deteksi tanggal Hijriah otomatis: awal Ramadan ditetapkan sidang
+isbat, dan menyala sehari lebih awal berarti menahan progresi di hari orang belum berpuasa.
+Mode **puasa sunah Senin–Kamis** memakai mesin yang sama, dan itu jalur ujinya sebelum Ramadan.
+Notifikasi 'hydration'/'meal' ditahan di jam puasa; 'rest'/'workout' tidak.
 
 **6. Hari: Ahad, bukan Minggu.** Nama hari Indonesia sudah Arab semua (Itsnain→Senin,
 Tsalatsa→Selasa, Arbi'a→Rabu, Khamis→Kamis, Jumu'ah→Jumat, Sabt→Sabtu) — kecuali "Minggu", dari
 Portugis *domingo* ("Hari Tuhan"). Ganti ke **Ahad** dan minggunya konsisten penuh.
 `lib/format.js` `DAYN` **sudah** mulai indeks 0 = Ahad, jadi tidak ada pergeseran indeks.
-Tanggal Hijriah ditampilkan dengan **offset ±1 hari yang bisa disetel** — hisab bisa beda sehari
-dari sidang isbat Kemenag.
+Tanggal Hijriah ditampilkan dengan **offset ±2 hari yang bisa disetel** (`lib/hijri.ts`) — hisab
+Umm al-Qura bisa beda sehari dari sidang isbat Kemenag, dan selisih itu menentukan hari pertama
+Ramadan. **Angkanya dari `Intl`, nama bulannya dari tabel KBBI sendiri**: ICU berubah antar versi
+dan sebagian mengembalikan "Rabiʻ I", sementara ejaan keislaman di sini wajib KBBI.
 
 **7. TypeScript `strict`.** Terutama di `lib/`. Baris set punya dua diskriminator ortogonal:
 `phase: 'work'|'warmup'` × `type: 'straight'|'dropset'|'restpause'`. Semantiknya beda dan pernah
@@ -150,32 +159,57 @@ Kredensial: `.env.local` (diabaikan git). `VITE_SUPABASE_URL` dan
 (`service_role`, `sb_secret_*`, password DB) **tidak boleh ada di repo ini sama sekali**, dan
 nilainya tidak pernah disalin ke vault, catatan, atau output percakapan.
 
-### STATUS SEBENARNYA: Supabase BELUM terpasang sama sekali
+### Supabase TERPASANG — dan yang dicabut bersamanya
 
-Diperiksa 2026-08-28. Jangan percaya kalimat "→ Supabase" di bagian Stack sebagai keadaan
-sekarang — itu rencana, bukan fakta. Yang benar hari ini:
+Dipasang 2026-08-28 setelah user memberi izin eksplisit atas titik berhenti ini.
 
-- **Nol** impor Supabase di `frontend/src/`. `@supabase/supabase-js` tidak ada di `package.json`.
-  Direktori `supabase/` belum ada.
-- Seluruh lapis auth masih milik upstream: `lib/api.js` memanggil `/api/config`, `/api/pair/*`,
-  dan WebAuthn passkey ke **server yang sudah kita hapus** (977 baris itu memang sudah dibuang).
-- Akibatnya app **jalan normal dalam mode tamu**: `/api/config` gagal → `config` tetap null →
-  `guestAllowed(null)` mengembalikan true → masuk sebagai tamu, semuanya di localStorage. Itu
-  konsisten dengan aturan offline-first, jadi bukan kerusakan. Yang rusak adalah **UI yang
-  menawarkan jalan yang mustahil**: "Masuk dengan passkey", "Sambungkan ke server saya",
-  "Sambungkan app HP", "Pasang di server sendiri".
+- **Satu tabel jsonb**, bukan 12 tabel ternormalisasi. Alasannya di
+  `supabase/migrations/20260828000000_user_state.sql`: klien tidak pernah bertanya per-kolom ke
+  server — seluruh statistik dihitung lokal — jadi normalisasi cuma menambah mapper dua arah dan
+  12 kesempatan untuk sinkron separuh jalan. RLS `user_id = auth.uid()`, keempat operasi ditulis
+  eksplisit.
+- **Keputusan sinkronisasi ada di `lib/sync.ts`**, murni dan bertes. Cabang terpentingnya:
+  penanda kotor MENGALAHKAN jam server yang lebih baru — sesi yang dicatat di basement tanpa
+  sinyal tidak boleh dibuang. Ambang toleransi jam 60 detik.
+- **Auth: Google + magic link.** Passkey dicabut — dia terikat RP_ID, jadi tidak berlaku di
+  preview deployment Vercel dan mustahil dari WebView APK.
+- **`active` tidak pernah disinkronkan.** Dikosongkan di `stateForPush`, bukan di pemanggilnya.
 
-**Ini titik berhenti wajib, bukan pekerjaan otonom.** SOP global mewajibkan berhenti untuk
-migration/schema dan auth/permission, dan memasang Supabase menyentuh keduanya sekaligus. Yang
-sudah dikerjakan tanpa menyentuh auth: string-nya di-rebrand supaya tidak lagi menyebut openGym.
-Yang **belum diputuskan** dan butuh keputusan user:
+**Migration diterapkan MANUAL.** `supabase link --project-ref ljhawtubkynxwcaaqcpo` lalu
+`supabase db push`. Tidak ada workflow auto-push, dan jangan dibuat.
 
-1. Apakah UI self-host + pairing itu dicabut (kita bukan produk self-host — Vercel + Supabase,
-   satu pengguna per akun), atau ditahan sampai Supabase Auth masuk menggantikannya?
-2. Skema tabel + RLS untuk sinkronisasi. Ingat: localStorage tetap sumber kebenaran, Supabase
-   cuma target sync, dan sesi `active` **tidak** disinkronkan sampai selesai.
+**Yang dicabut, dan kenapa itu bukan sekadar hapus kode mati:** UI self-host, "Sambungkan ke
+server saya", "Sambungkan app HP", dasbor admin, dan web push semuanya MENAWARKAN JALAN YANG
+MUSTAHIL — orang mengetuknya lalu gagal. Dua di antaranya juga melanggar aturan yang sudah
+tertulis di dokumen ini: `useUI.js` memanggil `/api/push/rest-timer` (aturan #2), dan
+`Workout.jsx` mem-POST `/api/activity` tiap 20 detik selama sesi.
 
-Sebelum itu dijawab, jangan menulis migration dan jangan menyentuh `lib/api.js`.
+**App jalan penuh TANPA kredensial**, dalam mode tamu. Itu jalur yang didukung, bukan mode
+darurat: `supa()` mengembalikan null, boot masuk sebagai tamu, dan Pengaturan mengatakannya.
+`npm run dev` tanpa `.env.local` memang harus membuka app yang berfungsi.
+
+## Catatan makan — dan kenapa TIDAK ADA database makanan bawaan
+
+`lib/nutrition.ts` + layar `/food`. Kalori dan makro, target harian, dan pemecahan
+sahur/berbuka di hari puasa.
+
+**Makanannya dibuat pengguna sendiri.** Itu keputusan lisensi, bukan kekurangan fitur — dan
+alasannya sama persis dengan alasan gambar latihan harus dibangun ulang:
+
+| Sumber | Masalahnya |
+| --- | --- |
+| TKPI (Kemenkes) | Lisensi redistribusi komersial **tidak jelas**. Harus dipastikan dulu. |
+| Open Food Facts | **ODbL** — share-alike pada databasenya. Bisa dipakai, tapi bawa kewajiban. |
+| USDA FoodData Central | Domain publik dan aman, tapi isinya makanan Amerika. |
+
+Yang terakhir itu yang menentukan: pengguna app ini mencari "nasi uduk", dan itu tidak ada di
+USDA. Jadi database bawaan bukan cuma soal lisensi, dia juga harus **Indonesia** untuk berguna.
+
+Menambahkan database nanti **tidak mengubah satu pun fungsi** di `lib/nutrition.ts` — dia cuma
+mengisi `foods` dari sumber lain. Itu memang cara memisahkannya.
+
+**Keputusan yang menunggu user:** pastikan lisensi TKPI, atau terima kewajiban ODbL Open Food
+Facts. Sebelum salah satunya dijawab, jangan commit satu baris pun data makanan.
 
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
@@ -218,7 +252,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 591 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 717 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →

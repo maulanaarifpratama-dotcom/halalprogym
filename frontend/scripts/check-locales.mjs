@@ -71,6 +71,10 @@ const ID_KEEPS_ENGLISH = new Set([
   'Jun',
   'Mar',
   'Nov',
+  // Nutrisi: 'Protein' dan 'per 100 g' memang ditulis persis begitu di Indonesia, dan '{0}'
+  // di 'per {0}' membuat pemetaannya identik juga.
+  'Protein',
+  'Protein (g)',
   'RIR',
   'RPE',
   'Reps',
@@ -94,6 +98,8 @@ const ID_KEEPS_ENGLISH = new Set([
   'latissimus dorsi',
   'lats',
   'olympic barbell',
+  'per 100 g',
+  'per {0}',
   'reps',
   'roller',
   'rotator cuff',

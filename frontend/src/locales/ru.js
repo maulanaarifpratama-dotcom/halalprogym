@@ -685,5 +685,56 @@ export default {
   /* --- tanggal Hijriah (2026-08-28) --- */
   'H': 'г. х.',
   'Hijri date offset': 'Сдвиг даты по хиджре',
-  'Today: {0}': 'Сегодня: {0}'
+  'Today: {0}': 'Сегодня: {0}',
+
+  /* --- catatan makan (2026-08-28) --- */
+  'Add a food': 'Добавить продукт',
+  'After iftar': 'После ифтара',
+  'Calories (kcal)': 'Калории (ккал)',
+  'Carbs': 'Углеводы',
+  'Carbs (g)': 'Углеводы (г)',
+  'Daily target': 'Цель на день',
+  'Delete food': 'Удалить продукт',
+  'Delete food?': 'Удалить продукт?',
+  'Edit food': 'Изменить продукт',
+  'Enter a valid amount': 'Введи корректное количество',
+  'Enter a valid calorie number': 'Введи корректное число калорий',
+  'Fasting day': 'День поста',
+  'Fat': 'Жиры',
+  'Fat (g)': 'Жиры (г)',
+  'Food': 'Еда',
+  'How many grams?': 'Сколько граммов?',
+  'How many {0}?': 'Сколько {0}?',
+  'Leave a field empty to track it without a target.':
+    'Оставь поле пустым, чтобы вести учёт без цели.',
+  'Log food': 'Записать еду',
+  'Log it': 'Записать',
+  'Logged today': 'Записано сегодня',
+  'Name': 'Название',
+  'No built-in food database — the numbers are yours, from the label or the recipe.':
+    'Встроенной базы продуктов нет — цифры твои, с этикетки или из рецепта.',
+  'No foods yet. Add the things you eat often — you only enter them once.':
+    'Продуктов пока нет. Добавь то, что ешь часто — вводить нужно один раз.',
+  'Nothing logged today.': 'Сегодня ничего не записано.',
+  'Other meals': 'Другие приёмы пищи',
+  'Past entries stay in your log, but they will no longer count toward totals.':
+    'Прошлые записи остаются в дневнике, но больше не идут в итоги.',
+  'Protein': 'Белок',
+  'Protein (g)': 'Белок (г)',
+  'Serving, e.g. 1 plate': 'Порция, напр. 1 тарелка',
+  'Suhoor': 'Сухур',
+  'Today\'s intake': 'Сегодня съедено',
+  'Unknown food': 'Неизвестный продукт',
+  'Your foods': 'Твои продукты',
+  'kcal': 'ккал',
+  'over': 'сверх',
+  'per 100 g': 'на 100 г',
+  'per serving': 'за порцию',
+  'per {0}': 'за {0}',
+  'serving': 'порция',
+  'servings': 'порции',
+  '{0} kcal today': 'сегодня {0} ккал',
+  '{0} left today': 'осталось {0} на сегодня',
+  '{0} of {1} kcal': '{0} из {1} ккал',
+  '{0} over your target': '{0} сверх твоей цели'
 }

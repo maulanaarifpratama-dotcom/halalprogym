@@ -49,7 +49,10 @@ describe('Brazilian Portuguese locale', () => {
     // ini sejak kunci waktu salat masuk.
     // 266 -> 268: jeda salat. Dua kunci berbeda regional ("guardadas/parastes" vs
     // "salvas/parou", dan "temporizador" vs "cronometro").
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(268)
+    // 268 -> 289: catatan makan. 21 kunci berbeda regional, sebagian besar karena Portugal
+    // menulis "hidratos"/"registar"/"porção ... parou" di mana Brasil menulis
+    // "carboidratos"/"registrar"/"digite".
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(289)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -69,7 +72,8 @@ describe('Brazilian Portuguese locale', () => {
     // 445 -> 450: lima kunci mode Ramadan yang kata Brasilnya sama dengan Portugal.
     // 450 -> 453: tiga kunci jeda salat yang kata Brasilnya sama dengan Portugal.
     // 453 -> 456: tiga kunci tanggal Hijriah, kata Brasilnya sama dengan Portugal.
-    expect(inherited).toHaveLength(456)
+    // 456 -> 480: 24 kunci catatan makan yang kata Brasilnya sama dengan Portugal.
+    expect(inherited).toHaveLength(480)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -78,7 +82,7 @@ describe('Brazilian Portuguese locale', () => {
     // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
     // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
     // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('ec27556ba374e329f7b34ebce7113756095a28c37ca61edcdd7cbc9bfbdd716e')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('13177efba652425d29c0a3bfde06840e2251c624f2be2ba1882d2fc2e5547353')
   })
 
   test('does not leak European Portuguese UI terms', () => {

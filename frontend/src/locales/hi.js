@@ -684,5 +684,56 @@ export default {
   /* --- tanggal Hijriah (2026-08-28) --- */
   'H': 'हिं',
   'Hijri date offset': 'हिजरी तारीख ऑफ़सेट',
-  'Today: {0}': 'आज: {0}'
+  'Today: {0}': 'आज: {0}',
+
+  /* --- catatan makan (2026-08-28) --- */
+  'Add a food': 'खाना जोड़ें',
+  'After iftar': 'इफ़्तार के बाद',
+  'Calories (kcal)': 'कैलोरी (kcal)',
+  'Carbs': 'कार्ब्स',
+  'Carbs (g)': 'कार्ब्स (g)',
+  'Daily target': 'रोज़ाना लक्ष्य',
+  'Delete food': 'खाना मिटाएं',
+  'Delete food?': 'खाना मिटाएं?',
+  'Edit food': 'खाना बदलें',
+  'Enter a valid amount': 'सही मात्रा दर्ज करें',
+  'Enter a valid calorie number': 'सही कैलोरी संख्या दर्ज करें',
+  'Fasting day': 'रोज़े का दिन',
+  'Fat': 'फ़ैट',
+  'Fat (g)': 'फ़ैट (g)',
+  'Food': 'खाना',
+  'How many grams?': 'कितने ग्राम?',
+  'How many {0}?': 'कितने {0}?',
+  'Leave a field empty to track it without a target.':
+    'बिना लक्ष्य के ट्रैक करना हो तो खाली छोड़ दें।',
+  'Log food': 'खाना दर्ज करें',
+  'Log it': 'दर्ज करें',
+  'Logged today': 'आज दर्ज',
+  'Name': 'नाम',
+  'No built-in food database — the numbers are yours, from the label or the recipe.':
+    'कोई बिल्ट-इन फ़ूड डेटाबेस नहीं — आंकड़े आपके हैं, लेबल या रेसिपी से।',
+  'No foods yet. Add the things you eat often — you only enter them once.':
+    'अभी कोई खाना नहीं। जो अक्सर खाते हैं वह जोड़ें — एक बार ही भरना है।',
+  'Nothing logged today.': 'आज कुछ दर्ज नहीं।',
+  'Other meals': 'दूसरे भोजन',
+  'Past entries stay in your log, but they will no longer count toward totals.':
+    'पुरानी एंट्री लॉग में रहेंगी, पर अब जोड़ में नहीं गिनी जाएंगी।',
+  'Protein': 'प्रोटीन',
+  'Protein (g)': 'प्रोटीन (g)',
+  'Serving, e.g. 1 plate': 'सर्विंग, जैसे 1 प्लेट',
+  'Suhoor': 'सहरी',
+  'Today\'s intake': 'आज का सेवन',
+  'Unknown food': 'अज्ञात खाना',
+  'Your foods': 'आपके खाने',
+  'kcal': 'kcal',
+  'over': 'ज़्यादा',
+  'per 100 g': 'प्रति 100 g',
+  'per serving': 'प्रति सर्विंग',
+  'per {0}': 'प्रति {0}',
+  'serving': 'सर्विंग',
+  'servings': 'सर्विंग',
+  '{0} kcal today': 'आज {0} kcal',
+  '{0} left today': 'आज {0} बाकी',
+  '{0} of {1} kcal': '{1} kcal में से {0}',
+  '{0} over your target': 'लक्ष्य से {0} अधिक'
 }

@@ -863,5 +863,52 @@ export default {
 
   /* --- tanggal Hijriah (2026-08-28) --- */
   'Hijri date offset': 'Geseran tanggal Hijriah',
-  'Today: {0}': 'Hari ini: {0}'
+  'Today: {0}': 'Hari ini: {0}',
+
+  /* --- catatan makan (2026-08-28) --- */
+  'Add a food': 'Tambah makanan',
+  'After iftar': 'Setelah berbuka',
+  'Calories (kcal)': 'Kalori (kkal)',
+  'Carbs': 'Karbo',
+  'Carbs (g)': 'Karbo (g)',
+  'Daily target': 'Target harian',
+  'Delete food': 'Hapus makanan',
+  'Delete food?': 'Hapus makanan?',
+  'Edit food': 'Ubah makanan',
+  'Enter a valid amount': 'Isi jumlah yang valid',
+  'Enter a valid calorie number': 'Isi angka kalori yang valid',
+  'Fasting day': 'Hari puasa',
+  'Fat': 'Lemak',
+  'Fat (g)': 'Lemak (g)',
+  'Food': 'Makanan',
+  'How many grams?': 'Berapa gram?',
+  'How many {0}?': 'Berapa {0}?',
+  'Leave a field empty to track it without a target.':
+    'Kosongkan salah satu kalau mau mencatatnya tanpa target.',
+  'Log food': 'Catat makanan',
+  'Log it': 'Catat',
+  'Logged today': 'Tercatat hari ini',
+  'Name': 'Nama',
+  'No built-in food database — the numbers are yours, from the label or the recipe.':
+    'Tidak ada database makanan bawaan — angkanya milikmu, dari label kemasan atau resepmu.',
+  'No foods yet. Add the things you eat often — you only enter them once.':
+    'Belum ada makanan. Tambahkan yang sering kamu makan — cukup sekali diisi.',
+  'Nothing logged today.': 'Belum ada yang dicatat hari ini.',
+  'Other meals': 'Makan lain',
+  'Past entries stay in your log, but they will no longer count toward totals.':
+    'Entri yang sudah tercatat tetap ada di riwayat, tapi tidak lagi dihitung ke total.',
+  'Serving, e.g. 1 plate': 'Porsi, misal 1 piring',
+  'Suhoor': 'Sahur',
+  'Today\'s intake': 'Asupan hari ini',
+  'Unknown food': 'Makanan tak dikenal',
+  'Your foods': 'Makananmu',
+  'kcal': 'kkal',
+  'over': 'lewat',
+  'per serving': 'per porsi',
+  'serving': 'porsi',
+  'servings': 'porsi',
+  '{0} kcal today': '{0} kkal hari ini',
+  '{0} left today': 'sisa {0} hari ini',
+  '{0} of {1} kcal': '{0} dari {1} kkal',
+  '{0} over your target': '{0} lewat dari targetmu'
 }

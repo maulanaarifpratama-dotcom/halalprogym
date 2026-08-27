@@ -6,6 +6,7 @@ import { fmtNum, fmtDate, todayISO, isoOf, weekKey, DAYS, localeDateString, star
 import { t, dateLocale } from '../lib/i18n.js'
 import { getLang } from '../lib/i18n-core.js'
 import { fmtHijri } from '../lib/hijri.js'
+import { totalsOn } from '../lib/nutrition.js'
 import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, loadStarterPlan, bwDeltaColor } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
@@ -24,6 +25,8 @@ export default function Home() {
   // Offset ±2 hari: hisab Umm al-Qura bisa berbeda sehari dari sidang isbat Kemenag, dan
   // selisih itu menentukan hari pertama Ramadan. Lihat lib/hijri.ts.
   const hijri = fmtHijri(today, getLang(), S.hijriOffset, t('H'))
+  const kcalToday = totalsOn(S.meals, S.foods, todayISO()).kcal
+  const kcalTarget = S.nutritionTarget?.kcal || 0
   const routine = effectiveRoutine(S, todayISO())
   const todayOvr = S.dayPlan[todayISO()] !== undefined
   const bw = lastBW(S)
@@ -119,6 +122,26 @@ export default function Home() {
         app ini ada, dan pertanyaannya ("masih cukup waktu sebelum Magrib?") muncul justru
         saat orang memutuskan mau latihan atau tidak. */}
     <PrayerCard />
+
+    {/* Catatan makan. Satu baris ringkas, bukan kartu penuh: app ini app LATIHAN, dan nutrisi
+        pendamping. Angkanya cuma muncul kalau hari ini memang ada yang dicatat — baris "0 kkal"
+        setiap pagi adalah pengingat bersalah yang tidak diminta siapa pun. */}
+    <button className="card row between tap" style={{ width: '100%', textAlign: 'left' }} onClick={() => nav('/food')}>
+      <span className="row" style={{ gap: 10, alignItems: 'center' }}>
+        <span className="lrow-i" style={{ '--tint': 'var(--orange)' }}><Icon name="flame" /></span>
+        <span>
+          <span style={{ display: 'block', fontWeight: 650 }}>{t('Food')}</span>
+          <span className="small dim">
+            {kcalToday > 0
+              ? (kcalTarget
+                ? t('{0} of {1} kcal', fmtNum(kcalToday), fmtNum(kcalTarget))
+                : t('{0} kcal today', fmtNum(kcalToday)))
+              : t('Nothing logged today.')}
+          </span>
+        </span>
+      </span>
+      <Icon name="chevronRight" className="chev" />
+    </button>
 
     <div className="card">
       <div className="row between" style={{ marginBottom: 6 }}>

@@ -305,7 +305,34 @@ export const PT_BR_OVERRIDES = {
   'Until {0}. Your sets are saved — pick up where you left off.':
     'Até {0}. Suas séries estão salvas — continue de onde parou.',
   'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
-    'Se chegar um horário de oração no meio da sessão, o cronômetro para e o app te avisa.'
+    'Se chegar um horário de oração no meio da sessão, o cronômetro para e o app te avisa.',
+
+  /* --- catatan makan: berbeda regional dari pt-PT --- */
+  'Add a food': 'Adicionar alimento',
+  'Carbs': 'Carboidratos',
+  'Carbs (g)': 'Carboidratos (g)',
+  'Daily target': 'Meta diária',
+  'Enter a valid amount': 'Digite uma quantidade válida',
+  'Enter a valid calorie number': 'Digite um número de calorias válido',
+  'Fasting day': 'Dia de jejum',
+  'How many {0}?': 'Quantos {0}?',
+  'Leave a field empty to track it without a target.':
+    'Deixe um campo vazio para acompanhar sem meta.',
+  'Log food': 'Registrar alimento',
+  'Log it': 'Registrar',
+  'Logged today': 'Registrado hoje',
+  'No built-in food database — the numbers are yours, from the label or the recipe.':
+    'Sem banco de dados de alimentos — os números são seus, do rótulo ou da receita.',
+  'No foods yet. Add the things you eat often — you only enter them once.':
+    'Ainda sem alimentos. Adicione o que você come com frequência — você digita só uma vez.',
+  'Nothing logged today.': 'Hoje ainda nada registrado.',
+  'Past entries stay in your log, but they will no longer count toward totals.':
+    'Os registros anteriores ficam no seu diário, mas deixam de contar nos totais.',
+  'Serving, e.g. 1 plate': 'Porção, ex. 1 prato',
+  'Today\'s intake': 'Consumo de hoje',
+  'Your foods': 'Seus alimentos',
+  '{0} left today': 'faltam {0} hoje',
+  '{0} over your target': '{0} acima da sua meta'
 }
 export default { ...pt, ...PT_BR_OVERRIDES,
   /* demo gerakan: dua bingkai, posisi awal dan akhir */

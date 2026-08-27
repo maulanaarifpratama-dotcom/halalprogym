@@ -36,6 +36,9 @@ export const DEF = {
   // Ada karena sidang isbat Kemenag bisa berbeda sehari dari hisab, dan satu hari itu
   // menentukan hari pertama Ramadan. Lihat lib/hijri.ts.
   hijriOffset: 0,
+  // Catatan makan. `foods` adalah makanan buatan pengguna sendiri; TIDAK ADA database bawaan,
+  // dan itu keputusan lisensi — alasannya di kepala lib/nutrition.ts. `meals` entri per hari.
+  foods: [], meals: [], nutritionTarget: { kcal: null, protein: null },
   // Equipment profiles (issue: filter Library/picker/routines by what you actually own —
   // e.g. "Home" vs "Gym" — building on the session-only equipment filter from issue #6).
   equipProfiles: [], activeEquipId: null, equipFilterOn: false,

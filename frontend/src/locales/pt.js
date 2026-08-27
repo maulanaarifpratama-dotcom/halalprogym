@@ -686,5 +686,56 @@ export default {
   /* --- tanggal Hijriah (2026-08-28) --- */
   'H': 'AH',
   'Hijri date offset': 'Desvio da data hijri',
-  'Today: {0}': 'Hoje: {0}'
+  'Today: {0}': 'Hoje: {0}',
+
+  /* --- catatan makan (2026-08-28) --- */
+  'Add a food': 'Adicionar alimento',
+  'After iftar': 'Depois do iftar',
+  'Calories (kcal)': 'Calorias (kcal)',
+  'Carbs': 'Hidratos',
+  'Carbs (g)': 'Hidratos (g)',
+  'Daily target': 'Objetivo diário',
+  'Delete food': 'Eliminar alimento',
+  'Delete food?': 'Eliminar alimento?',
+  'Edit food': 'Editar alimento',
+  'Enter a valid amount': 'Introduz uma quantidade válida',
+  'Enter a valid calorie number': 'Introduz um número de calorias válido',
+  'Fasting day': 'Dia de jejum',
+  'Fat': 'Gordura',
+  'Fat (g)': 'Gordura (g)',
+  'Food': 'Alimentação',
+  'How many grams?': 'Quantos gramas?',
+  'How many {0}?': 'Quantas {0}?',
+  'Leave a field empty to track it without a target.':
+    'Deixa um campo vazio para o acompanhares sem objetivo.',
+  'Log food': 'Registar alimento',
+  'Log it': 'Registar',
+  'Logged today': 'Registado hoje',
+  'Name': 'Nome',
+  'No built-in food database — the numbers are yours, from the label or the recipe.':
+    'Sem base de dados de alimentos — os números são teus, do rótulo ou da receita.',
+  'No foods yet. Add the things you eat often — you only enter them once.':
+    'Ainda sem alimentos. Adiciona o que comes muitas vezes — só o introduzes uma vez.',
+  'Nothing logged today.': 'Hoje ainda nada registado.',
+  'Other meals': 'Outras refeições',
+  'Past entries stay in your log, but they will no longer count toward totals.':
+    'Os registos anteriores ficam no teu diário, mas deixam de contar nos totais.',
+  'Protein': 'Proteína',
+  'Protein (g)': 'Proteína (g)',
+  'Serving, e.g. 1 plate': 'Porção, p. ex. 1 prato',
+  'Suhoor': 'Suhur',
+  'Today\'s intake': 'Ingestão de hoje',
+  'Unknown food': 'Alimento desconhecido',
+  'Your foods': 'Os teus alimentos',
+  'kcal': 'kcal',
+  'over': 'a mais',
+  'per 100 g': 'por 100 g',
+  'per serving': 'por porção',
+  'per {0}': 'por {0}',
+  'serving': 'porção',
+  'servings': 'porções',
+  '{0} kcal today': '{0} kcal hoje',
+  '{0} left today': 'faltam {0} hoje',
+  '{0} of {1} kcal': '{0} de {1} kcal',
+  '{0} over your target': '{0} acima do teu objetivo'
 }
