@@ -1,0 +1,88 @@
+/* ---------------------------------------------------------------------------
+   Tailwind v4 — masuk TANPA preflight, sengaja.
+
+   Selama Fase 3 (migrasi UI per layar), CSS tangan warisan di src/index.css
+   masih menyetir sebagian besar tampilan. Preflight Tailwind akan me-reset
+   margin, ukuran font dan border yang CSS itu andalkan, jadi app-nya rusak
+   di tengah migrasi — padahal justru harus tetap bisa dijalankan berminggu-minggu.
+
+   Aman dilewati karena index.css:109 sudah melakukan bagian yang penting:
+     *{margin:0;padding:0;box-sizing:border-box}
+   border-box global itu yang bikin utility Tailwind berperilaku benar.
+
+   AKHIR FASE 3, setelah index.css dipensiunkan: hidupkan baris preflight
+   di bawah dan hapus catatan ini.
+   --------------------------------------------------------------------------- */
+
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+/* @import 'tailwindcss/preflight.css' layer(base);  <- lihat catatan di atas */
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+@import 'tw-animate-css';
+
+/* ---------------------------------------------------------------------------
+   Token shadcn/ui dipetakan ke palet warisan, bukan didefinisikan ulang.
+
+   Nol bentrok nama: punya index.css `--bg/--acc/--surface/--sep`, punya shadcn
+   `--background/--primary/--card/--border`. Dengan menunjuk ke sana, komponen
+   shadcn baru dan layar lama tampil satu keluarga selama transisi — dan waktu
+   user mengganti warna aksen di Settings, komponen shadcn ikut berubah.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --background: var(--bg);
+  --foreground: var(--label);
+
+  --card: var(--surface);
+  --card-foreground: var(--label);
+  --popover: var(--bg-el);
+  --popover-foreground: var(--label);
+
+  --primary: var(--acc);
+  --primary-foreground: var(--on-acc);
+
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--label);
+  --muted: var(--surface-3);
+  --muted-foreground: var(--label-2);
+  --accent: var(--surface-2);
+  --accent-foreground: var(--label);
+
+  --destructive: var(--red);
+  --destructive-foreground: var(--label);
+
+  --border: var(--sep);
+  --input: var(--surface-3);
+  --ring: var(--acc);
+
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}

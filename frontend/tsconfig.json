@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+
+    /* Migrasi bertahap: kode warisan masih .js/.jsx dan harus tetap jalan.
+       allowJs biar bisa diimpor; checkJs false biar JS lama tidak dicek —
+       yang sudah jadi .ts DIcek penuh. Berkas berpindah satu per satu. */
+    "allowJs": true,
+    "checkJs": false,
+
+    /* strict itu inti alasan kita pindah ke TS. Baris set punya dua diskriminator
+       ortogonal (phase × type) yang semantiknya pernah bikin upstream salah —
+       lihat docs/upstream/DOMAIN-NOTES-dropset-restpause.md. Tanpa strict,
+       union itu tidak menangkap apa pun. */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+
+    /* TS 7 menghapus baseUrl; paths relatif ke tsconfig ini. */
+    "paths": { "@/*": ["./src/*"] }
+  },
+  "include": ["src", "vite.config.ts"]
+}
