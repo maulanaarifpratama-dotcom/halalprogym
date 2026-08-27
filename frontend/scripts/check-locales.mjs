@@ -51,6 +51,7 @@ const ID_KEEPS_ENGLISH = new Set([
   'Apr',
   'Burst {0}',
   'Data',
+  'Demo',
   'Drop {0}',
   'Drop-set',
   'Drop-set / rest-pause',
@@ -71,6 +72,7 @@ const ID_KEEPS_ENGLISH = new Set([
   'RIR',
   'RPE',
   'Reps',
+  'Reset',
   'Rest-pause',
   'Sep',
   'Superset',
@@ -121,17 +123,13 @@ const UPSTREAM_GAP = new Set([
   'Demo data reset',
   'Example data, stored only in this browser — change anything you like.',
   'Live demo — everything stays in this browser.',
-  'Passkey sign-in, sync across your devices, your own data.',
   'Puts the example plan, workouts and weigh-ins back the way they started.',
   'Reset demo data',
   'Reset demo data?',
-  'Self-host Halal Pro Gym',
-  'Self-host it in a minute →',
   'Start the demo',
-  'This demo runs entirely in your browser on example data — nothing is sent anywhere. Passkey sign-in and sync across your devices come with the Halal Pro Gym server, which you get by self-hosting it.',
   'You’re in the demo',
 ])
-const UPSTREAM_GAP_PINNED = 12
+const UPSTREAM_GAP_PINNED = 8
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'locales')
 const files = readdirSync(localesDir).filter(f => f.endsWith('.js')).sort()
@@ -178,6 +176,23 @@ for (const [lang, keys] of locales) {
   failed = true
   console.error(`\n${lang}.js sudah menerjemahkan ${stale.length} kunci yang masih di UPSTREAM_GAP:`)
   for (const k of stale) console.error(`  keluarkan dari daftar: ${JSON.stringify(k)}`)
+}
+
+// Dan arah sebaliknya: kunci di UPSTREAM_GAP wajib MASIH ADA di id.js.
+//
+// Tanpa pemeriksaan ini, daftar pengecualian jadi tempat kunci mati bersembunyi — dia
+// dikecualikan dari perbandingan `missing`, jadi tidak ada yang memperhatikan kalau string
+// sumbernya sudah lama dihapus. Itu benar-benar terjadi: empat dari dua belas kunci di sini
+// mati bersama pencabutan UI self-host, dan checker ini melaporkan hijau sampai
+// src/lib/locale-orphans.test.ts menemukannya dari sisi lain.
+{
+  const idKeys = locales.get('id')
+  const hantu = idKeys ? [...UPSTREAM_GAP].filter(k => !idKeys.has(k)) : []
+  if (hantu.length) {
+    failed = true
+    console.error(`\nUPSTREAM_GAP memuat ${hantu.length} kunci yang sudah tidak ada di id.js:`)
+    for (const k of hantu) console.error(`  hapus dari daftar: ${JSON.stringify(k)}`)
+  }
 }
 
 for (const [lang, keys] of locales) {

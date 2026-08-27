@@ -5,13 +5,12 @@ import { useUI } from '../store/useUI.js'
 import { ACCENTS, todayISO, localTZ } from '../lib/format.js'
 import { CITIES, DEFAULT_CITY_ID } from '../lib/prayer.js'
 import { effortOf } from '../lib/history.js'
-import { api, webauthnOK, passkeyLogin, passkeyRegister, IS_ANDROID } from '../lib/api.js'
-import { pushSupported, enablePush, disablePush, sendTestPush } from '../lib/push.js'
+import { IS_ANDROID } from '../lib/platform.js'
+import { authAvailable, looksLikeEmail, signInWithEmail, signInWithGoogle } from '../lib/auth.js'
 import { wakeLockSupported } from '../lib/wakelock.js'
 import { t, LANGS, INSTR_LANGS } from '../lib/i18n.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { MOBILE, shareExport, syncReminder } from '../lib/mobile.js'
-import { ConnectSheet } from './MobileOnboarding.jsx'
 import { loadStarterPlan, confirmSheet, importFromApp, equipmentProfileSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { Section, Row, SelectRow, Switch, Segmented, Button, TextField } from '../components/ui.jsx'
@@ -20,7 +19,7 @@ export default function Settings() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
   const user = useStore(s => s.user)
-  const { update, replaceState, setUser, pullState, pushState, signOut, signOutAll, resetDemo, disconnectServer } = useStore()
+  const { update, replaceState, pullState, pushState, signOut, signOutAll, resetDemo, wipeEverything } = useStore()
   const toast = useUI(s => s.toast)
   const fileRef = useRef(null)
   const importRef = useRef(null)
@@ -28,7 +27,7 @@ export default function Settings() {
 
   const doExport = async () => {
     const json = JSON.stringify(S, null, 2)
-    const name = 'opengym-backup-' + todayISO() + '.json'
+    const name = 'halalprogym-backup-' + todayISO() + '.json'
     // WKWebView can't download blob URLs — the native build hands the file to the share sheet.
     if (MOBILE) {
       try { await shareExport(json, name); toast(t('Backup exported')) } catch (e) { /* share sheet dismissed */ }
@@ -50,17 +49,19 @@ export default function Settings() {
     }
     rd.readAsText(f)
   }
-  const signInHere = async () => {
-    try { const u = await passkeyLogin(); setUser(u); await pullState(); toast(t('Welcome back, {0}', u.name)) }
-    catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast(e.message || t('Sign-in failed')) }
+  // Masuk dari Pengaturan memakai jalur yang sama dengan layar masuk. Tidak ada "daftar"
+  // terpisah: Google dan magic link keduanya membuat akun pada percobaan pertama, jadi dua
+  // tombol yang berbeda untuk hal yang sama cuma bikin orang memilih tanpa alasan.
+  const googleHere = async () => {
+    try { await signInWithGoogle() } catch (e) { toast(e?.message || t('Sign-in failed')) }
   }
-  const registerHere = () => useUI.getState().openSheet(close => <RegisterInline close={close} setUser={setUser} pushState={pushState} pullState={pullState} toast={toast} />)
+  const emailHere = () => useUI.getState().openSheet(close => <EmailInline close={close} toast={toast} />)
   // Ends the profile's sessions on every device — this one included, so on success it lands in
   // the same place as the plain sign-out above (home, local data cleared). On failure nothing
   // local is touched: still signed in here, and say so rather than leaving a half-signed-out app.
   const signOutEverywhere = () => confirmSheet({
     title: t('Sign out everywhere?'),
-    message: t('Signs this profile out on every device, including this one. Your passkeys keep working — sign in with them again anytime.'),
+    message: t('Signs this profile out on every device, including this one. You can sign in again anytime.'),
     confirmText: t('Sign out everywhere'), danger: true,
     onConfirm: async () => {
       try { await signOutAll(); nav('/home'); toast(t('Signed out on all devices')) }
@@ -74,42 +75,43 @@ export default function Settings() {
       <div style={{ flex: 1, marginLeft: 10 }}><h1>{t('Settings')}</h1></div>
     </div>
 
-    {/* ---------- account (demo and mobile builds have nothing to sign in to) ---------- */}
-    <Section title={MOBILE ? (user ? t('Your server') : t('Your data')) : DEMO ? t('Demo') : t('Account')}>
-      {MOBILE ? (user ? <>
-        <Row icon="personCircle" iconTint="var(--grey)" title={user.name} subtitle={t('Synced with your Halal Pro Gym server.')} />
-        {user.admin && <Row icon="wrench" iconTint="var(--indigo)" title={t('Admin dashboard')} accessory="chevron" onClick={() => nav('/admin')} />}
-        <Row icon="signOut" iconTint="var(--red)" title={t('Disconnect')} danger onClick={() => confirmSheet({
-          title: t('Disconnect from your server?'),
-          message: t('Your data is synced to your server first, then this device switches back to local-only.'),
-          confirmText: t('Disconnect'), danger: true,
-          onConfirm: async () => { await disconnectServer(); nav('/home'); toast(t('Disconnected — back to local-only')) },
-        })} />
-      </> : <>
-        <Row icon="lock" iconTint="var(--acc)" title={t('All data stays on this phone')} subtitle={t('No account, no cloud — back it up anytime with Export below.')} />
-        <Row icon="link" iconTint="var(--indigo)" title={t('Connect to my server')} subtitle={t('Sync this device to your own self-hosted Halal Pro Gym instead.')} accessory="chevron"
-          onClick={() => useUI.getState().openSheet(close => <ConnectSheet close={close} />)} />
-      </>) : DEMO ? <>
+    {/* ---------- akun ----------
+        Tiga baris yang dulu ada di sini DICABUT, bukan dinonaktifkan:
+
+          "Pasang di server sendiri"   produk ini bukan self-host. Vercel + Supabase, satu
+                                       pengguna per akun. Menawarkannya menjanjikan bentuk
+                                       produk yang tidak kita bangun.
+          "Sambungkan ke server saya"  menunjuk server upstream yang sudah kita hapus.
+          "Sambungkan app HP"          minting kode pairing dari endpoint yang tidak ada.
+
+        Ketiganya bukan cuma mati — mereka MENAWARKAN JALAN YANG MUSTAHIL, dan orang
+        mengetuknya. Dasbor admin ikut pergi bersama Admin.jsx: tidak ada pengguna lain untuk
+        dikelola.
+
+        Build MOBILE sekarang memakai jalur yang sama dengan web: satu akun Supabase, atau tamu
+        lokal. Tidak ada lagi mode ketiga. */}
+    <Section title={DEMO ? t('Demo') : t('Account')}>
+      {DEMO ? <>
         <Row icon="sparkles" iconTint="var(--acc)" title={t('You’re in the demo')} subtitle={t('Example data, stored only in this browser — change anything you like.')} />
         <Row icon="reset" iconTint="var(--blue)" title={t('Reset demo data')} accessory="chevron"
           onClick={() => confirmSheet({ title: t('Reset demo data?'), message: t('Puts the example plan, workouts and weigh-ins back the way they started.'), confirmText: t('Reset'), onConfirm: () => { resetDemo(); nav('/home'); toast(t('Demo data reset')) } })} />
-        <Row icon="rocket" iconTint="var(--indigo)" title={t('Self-host Halal Pro Gym')} subtitle={t('Passkey sign-in, sync across your devices, your own data.')} accessory="chevron"
+        <Row icon="link" iconTint="var(--indigo)" title={t('Source code')} subtitle={t('free & open source (AGPL v3)')} accessory="chevron"
           onClick={() => window.open(REPO, '_blank', 'noopener')} />
       </> : user ? <>
-        <Row icon="personCircle" iconTint="var(--grey)" title={user.name} subtitle={t('Signed in with passkey — data syncs to this profile.')} />
-        {user.admin && <Row icon="wrench" iconTint="var(--indigo)" title={t('Admin dashboard')} accessory="chevron" onClick={() => nav('/admin')} />}
-        <Row icon="link" iconTint="var(--blue)" title={t('Pair the mobile app')} subtitle={t('Connect the Halal Pro Gym app on your phone to this account.')} accessory="chevron"
-          onClick={() => useUI.getState().openSheet(close => <PairSheet close={close} />)} />
+        <Row icon="personCircle" iconTint="var(--grey)" title={user.name}
+          subtitle={user.email || t('Your data syncs with your profile — sign in anywhere to see it.')} />
         <Row icon="signOut" iconTint="var(--red)" title={t('Sign out')} danger onClick={() => confirmSheet({ title: t('Sign out?'), message: t('Your data is synced to your profile first, then cleared from this device.'), confirmText: t('Sign out'), danger: true, onConfirm: () => { signOut(); nav('/home') } })} />
         <Row icon="shield" iconTint="var(--red)" title={t('Sign out everywhere')} subtitle={t('Ends this profile’s sessions on all your devices.')} danger onClick={signOutEverywhere} />
-      </> : webauthnOK() ? <>
-        <Row icon="sparkles" iconTint="var(--acc)" title={t('Create passkey profile')} subtitle={t('Keeps your data safe and separate per person.')} accessory="chevron" onClick={registerHere} />
-        <Row icon="person" iconTint="var(--blue)" title={t('Sign in with passkey')} accessory="chevron" onClick={signInHere} />
+      </> : authAvailable() ? <>
+        <Row icon="person" iconTint="var(--blue)" title={t('Continue with Google')} subtitle={t('Syncs your plan and history across your devices.')} accessory="chevron" onClick={googleHere} />
+        <Row icon="mail" iconTint="var(--acc)" title={t('Sign in with email')} subtitle={t('No password. We send a link — opening it signs you in.')} accessory="chevron" onClick={emailHere} />
       </> : (
-        <Row icon="lock" iconTint="var(--grey)" title={t('Passkeys not supported in this browser.')} />
+        // Tanpa kredensial Supabase, sinkronisasi memang tidak ada di build ini. Dikatakan apa
+        // adanya, bukan disembunyikan dan bukan ditawarkan lalu gagal.
+        <Row icon="lock" iconTint="var(--acc)" title={t('All data stays on this device')} subtitle={t('No account sync is set up in this build — everything stays on this device.')} />
       )}
     </Section>
-    {!user && !DEMO && !MOBILE && <p className="sect-f" style={{ marginTop: -18, marginBottom: 22 }}>{t('Guest mode — data lives only in this browser.')}</p>}
+    {!user && !DEMO && <p className="sect-f" style={{ marginTop: -18, marginBottom: 22 }}>{t('Guest mode — data lives only in this browser.')}</p>}
 
     {/* ---------- general ---------- */}
     <Section title={t('General')} footer={t('Note: switching units only changes the label — logged numbers are not converted.')}>
@@ -159,13 +161,16 @@ export default function Settings() {
       </Row>
     </Section>
 
-    {(user || MOBILE) && <NotificationsCard S={S} update={update} toast={toast} />}
+    <NotificationsCard S={S} update={update} toast={toast} />
 
     {/* ---------- equipment ---------- */}
     <EquipmentCard S={S} update={update} />
 
     {/* ---------- appearance ---------- */}
-    <Section title={t('Appearance')} footer={DEMO || MOBILE ? undefined : t('synced with your profile')}>
+    {/* Catatan kaki "tersinkron dengan profilmu" dulu digerbangi `DEMO || MOBILE`, dan itu
+        salah sejak awal untuk pengguna tamu di web: dia menjanjikan profil yang tidak ada.
+        Sekarang digerbangi `user` — satu-satunya kondisi yang membuat kalimatnya benar. */}
+    <Section title={t('Appearance')} footer={user ? t('synced with your profile') : undefined}>
       <Row icon="moon" iconTint="var(--indigo)" title={t('Theme')}>
         <Segmented
           className="seg-inline"
@@ -220,7 +225,17 @@ export default function Settings() {
         subtitle={t('Saves a dated copy to the Documents folder after finishing a workout or editing a routine — point a sync app at it, or copy it out by hand.')}>
         <Switch checked={!!S.autoBackup} onChange={v => update(s => { s.autoBackup = v })} />
       </Row>}
-      <Row icon="trash" iconTint="var(--red)" title={t('Reset everything')} danger onClick={() => confirmSheet({ title: t('Reset everything?'), message: t('Deletes your plan, workouts and body weight on this device. This cannot be undone.'), confirmText: t('Delete everything'), danger: true, onConfirm: () => { replaceState(JSON.parse(JSON.stringify(DEF)), true); nav('/home'); toast(t('All data reset')) } })} />
+      {/* Untuk pengguna yang masuk, penghapusan harus ikut menghapus barisnya di server —
+          kalau tidak, boot berikutnya melihat lokal kosong dan MENARIKNYA KEMBALI, jadi
+          penghapusannya terasa tidak berlaku. wipeEverything mengurus keduanya. */}
+      <Row icon="trash" iconTint="var(--red)" title={t('Reset everything')} danger onClick={() => confirmSheet({
+        title: t('Reset everything?'),
+        message: user
+          ? t('Deletes your plan, workouts and body weight — on this device and in your account. This cannot be undone.')
+          : t('Deletes your plan, workouts and body weight on this device. This cannot be undone.'),
+        confirmText: t('Delete everything'), danger: true,
+        onConfirm: async () => { await wipeEverything(); nav('/home'); toast(t('All data reset')) },
+      })} />
     </Section>
     <input ref={fileRef} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={doImport} />
     {/* Reset after reading so picking the same file twice still fires onChange. */}
@@ -286,8 +301,12 @@ function effortHelpSheet() {
 }
 
 function NotificationsCard({ S, update, toast }) {
+  // Dua kartu yang benar-benar berbeda, bukan satu kartu dengan cabang: di build mobile
+  // pengingatnya notifikasi lokal OS yang dijadwalkan per hari, di web yang ada cuma izin
+  // notifikasi untuk alarm rest timer. Menyatukannya berarti satu komponen yang separuh
+  // isinya selalu mati.
   if (MOBILE) return <MobileReminderCard S={S} update={update} toast={toast} />
-  return <PushCard S={S} update={update} toast={toast} />
+  return <WebNotifCard />
 }
 
 // Mobile build: the reminder is a native local notification scheduled on planned weekdays —
@@ -319,28 +338,22 @@ function MobileReminderCard({ S, update, toast }) {
   )
 }
 
-function PushCard({ S, update, toast }) {
-  const [on, setOn] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const supported = pushSupported()
-
-  useEffect(() => {
-    if (!supported) return
-    navigator.serviceWorker.ready.then(reg => reg.pushManager.getSubscription()).then(sub => setOn(!!sub)).catch(() => {})
-  }, [supported])
-
-  const toggle = async v => {
-    setBusy(true)
-    try {
-      if (!v) { await disablePush(); setOn(false); toast(t('Notifications off')) }
-      else { await enablePush(); setOn(true); toast(t('Notifications on')) }
-    } catch (e) { toast(e.message || t('Could not change notification settings')) }
-    setBusy(false)
-  }
-  const test = async () => {
-    try { await sendTestPush(); toast(t('Test sent — should arrive any second')) }
-    catch (e) { toast(e.message || t('Test failed')) }
-  }
+// Build web: alarm rest timer adalah notifikasi LOKAL (lihat maybeRestNotification di
+// store/useUI.js) — dia jalan tanpa server, dan yang dibutuhkan cuma izin browser. Jadi kartu
+// ini cuma mengurus izin itu.
+//
+// Web Push DICABUT bersama lib/push.js. Dia butuh server yang menyimpan kunci VAPID dan
+// mengirim pushnya, dan kita tidak punya. Lebih penting: satu-satunya hal yang dia tambahkan
+// di atas notifikasi lokal adalah "walau app tertutup" untuk rest timer — dan itu persis yang
+// dilarang aturan #2 CLAUDE.md, karena menambah titik gagal jaringan tepat di detik timer
+// habis. Jadi mencabutnya bukan kemunduran; dia memang tidak boleh ada.
+//
+// Pengingat hari latihan di WEB memang belum ada: dia butuh penjadwal (Vercel Cron / pg_cron),
+// dan itu pekerjaan tersendiri. Yang tidak dilakukan di sini adalah menampilkan sakelar yang
+// tidak melakukan apa pun.
+function WebNotifCard() {
+  const supported = typeof window !== 'undefined' && 'Notification' in window
+  const [perm, setPerm] = useState(() => (supported ? Notification.permission : 'unsupported'))
 
   if (!supported) return (
     <Section title={t('Notifications')}>
@@ -348,31 +361,21 @@ function PushCard({ S, update, toast }) {
     </Section>
   )
 
-  return <>
-    <Section
-      title={t('Notifications')}
-      footer={on && S.reminder?.on
-        ? t("Only sent on days you have a routine planned and haven't logged a workout yet.") +
-          (S.reminder?.tz ? ' ' + t('Timezone: {0} (auto-detected, updates if you travel).', S.reminder.tz) : '')
-        : null}
-    >
-      <Row icon="bell" iconTint="var(--red)" title={t('Push notifications')} subtitle={t('Rest-timer alerts, even if Halal Pro Gym is closed.')}>
-        <Switch checked={on} disabled={busy} onChange={toggle} />
-      </Row>
-      {on && (
-        <Row icon="calendar" iconTint="var(--orange)" title={t('Workout day reminder')}>
-          <Switch checked={!!S.reminder?.on} onChange={() => update(s => { s.reminder = { ...(s.reminder || DEF.reminder), on: !s.reminder?.on, tz: localTZ() } })} />
-        </Row>
-      )}
-      {on && S.reminder?.on && (
-        <Row icon="clock" iconTint="var(--purple)" title={t('Reminder time')}>
-          <input type="time" className="timef" value={S.reminder?.time || DEF.reminder.time}
-            onChange={e => update(s => { s.reminder = { ...(s.reminder || DEF.reminder), time: e.target.value, tz: localTZ() } })} />
-        </Row>
-      )}
+  const ask = async () => {
+    try { setPerm(await Notification.requestPermission()) } catch { /* ditolak browser */ }
+  }
+
+  return (
+    <Section title={t('Notifications')}
+      footer={t('Workout-day reminders come from the Android app for now.')}>
+      <Row icon="bell" iconTint="var(--red)" title={t('Rest timer alert')}
+        subtitle={perm === 'granted' ? t('On — shown when a rest finishes.')
+          : perm === 'denied' ? t('Blocked in your browser settings.')
+            : t('Off — a beep still plays while the app is open.')}
+        accessory={perm === 'default' ? 'chevron' : undefined}
+        onClick={perm === 'default' ? ask : undefined} />
     </Section>
-    {on && <div style={{ marginTop: -12, marginBottom: 22 }}><Button size="sm" icon="bell" onClick={test}>{t('Send test notification')}</Button></div>}
-  </>
+  )
 }
 
 // Equipment profiles ("Home", "Gym", ...) — each an id/name/eq-list; the active one filters
@@ -406,56 +409,36 @@ function EquipmentCard({ S, update }) {
   </Section>
 }
 
-// Lets the mobile app's "connect to my server" mode (lib/remote.js) authenticate without a
-// WebAuthn ceremony of its own — the code is minted here, from an already signed-in session,
-// and redeemed by the app for a bearer token. See /api/pair/create in api/server.js.
-function PairSheet({ close }) {
-  const [code, setCode] = useState(null)
-  const [err, setErr] = useState(null)
-  useEffect(() => { api('/api/pair/create', { method: 'POST', body: '{}' }).then(r => setCode(r.code)).catch(e => setErr(e.message || t('Could not generate a code'))) }, [])
-  return <>
-    <h3>{t('Pair the mobile app')}</h3>
-    <div className="muted small" style={{ marginBottom: 14 }}>
-      {t('On the Halal Pro Gym app, choose “Connect to my server”, then enter this address and the code below. It expires in 5 minutes.')}
-    </div>
-    {err ? <div className="dim small">{err}</div> : (
-      <div className="card" style={{ textAlign: 'center', fontSize: 30, fontWeight: 700, letterSpacing: '.16em', padding: '18px 0' }}>
-        {code || '········'}
-      </div>
-    )}
-    <div style={{ height: 12 }} />
-    <Button onClick={close}>{t('Done')}</Button>
-  </>
-}
+// Magic link, dari Pengaturan. Sheet-nya TIDAK ditutup sendiri setelah terkirim: langkah
+// berikutnya ada di aplikasi email, dan sheet yang menutup diri membuat orang bertanya-tanya
+// apakah tadi berhasil.
+function EmailInline({ close, toast }) {
+  const [email, setEmail] = useState('')
+  const [sent, setSent] = useState(false)
+  const [busy, setBusy] = useState(false)
 
-// The same registration as the sign-in screen's, reached from Settings instead. It asks for
-// the invite code on the same terms: an invite-only instance rejects a registration without
-// one, so a form that cannot collect it is a form that cannot succeed.
-function RegisterInline({ close, setUser, pushState, pullState, toast }) {
-  const nameRef = useRef(null)
-  const [code, setCode] = useState('')
-  const [inviteOnly, setInviteOnly] = useState(false)
-  useEffect(() => { api('/api/config').then(c => setInviteOnly(!!c.invite_only)).catch(() => {}) }, [])
   const go = async () => {
-    const n = (nameRef.current.value || '').trim()
-    if (!n) { toast(t('Enter a name')); return }
-    if (inviteOnly && !code.trim()) { toast(t('An invite code is required')); return }
-    try {
-      const u = await passkeyRegister(n, code.trim()); setUser(u); close()
-      if (hasData(useStore.getState().S)) { await pushState(); toast(t('Profile created — data moved into it')) }
-      else { await pullState(); toast(t('Welcome, {0}', u.name)) }
-    } catch (e) { if (e.name !== 'NotAllowedError' && e.name !== 'AbortError') toast(e.message || t('Registration failed')) }
+    if (!looksLikeEmail(email)) { toast(t('Enter a valid email address')); return }
+    setBusy(true)
+    try { await signInWithEmail(email); setSent(true) }
+    catch (e) { toast(e?.message || t('Could not send the link')) }
+    finally { setBusy(false) }
   }
+
+  if (sent) return <>
+    <h3>{t('Check your email')}</h3>
+    <div className="muted small" style={{ marginBottom: 14 }}>
+      {t('A sign-in link is on its way to {0}. Open it on this device — the link signs you in here.', email.trim())}
+    </div>
+    <Button variant="primary" onClick={close}>{t('Done')}</Button>
+  </>
+
   return <>
-    <h3>{t('Create your profile')}</h3>
-    <div className="muted small" style={{ marginBottom: 14 }}>{t('Pick a name, then confirm with your device.')}</div>
-    <TextField ref={nameRef} placeholder={t('Your name')} maxLength={40} />
-    {inviteOnly && <>
-      <div style={{ height: 10 }} />
-      <input className="input" placeholder={t('Invite code')} maxLength={40} value={code}
-        onChange={e => setCode(e.target.value.toUpperCase())} style={{ letterSpacing: '.14em', fontWeight: 600, textAlign: 'center' }} />
-      <div className="dim small" style={{ marginTop: 6 }}>{t('This app is invite-only — enter the code you were given.')}</div>
-    </>}
-    <div style={{ height: 12 }} /><Button variant="primary" onClick={go}>{t('Create passkey')}</Button>
+    <h3>{t('Sign in with email')}</h3>
+    <div className="muted small" style={{ marginBottom: 14 }}>{t('No password. We send a link — opening it signs you in.')}</div>
+    <TextField type="email" placeholder="you@example.com" maxLength={120}
+      value={email} onChange={e => setEmail(e.target.value)} />
+    <div style={{ height: 12 }} />
+    <Button variant="primary" onClick={go} disabled={busy}>{busy ? t('Sending…') : t('Send the link')}</Button>
   </>
 }

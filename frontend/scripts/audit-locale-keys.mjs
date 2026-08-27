@@ -94,6 +94,35 @@ console.log('\n' + used.size + ' kunci literal terlihat di kode.')
 // berbulan-bulan tanpa ada yang gagal. Pemeriksaan ini yang menutupnya.
 const { CATALOGUE, BODYPARTS } = await import('file://' + join(SRC, 'lib', 'exercises.ts').replace(/\\/g, '/'))
 
+// ---------------------------------------------------------------------------------------------
+// KUNCI LITERAL BARU YANG BELUM DISEBAR KE PACK MANA PUN
+//
+// Ini titik buta yang sama dengan 'full body', cuma sumbernya berbeda: kunci `t('...')` yang
+// baru ditulis di kode dan belum ada di satu pun dari 13 pack. check-locales.mjs mustahil
+// melihatnya — dia membandingkan pack lawan pack lewat gabungan kunci, dan kunci yang hilang di
+// SEMUA pack tidak pernah masuk gabungan itu.
+//
+// Waktu pemeriksaan katalog ditambahkan, celah ini SENGAJA saya tutup separuh: cuma nilai
+// katalog yang diperiksa, bukan kunci literal. Lalu satu batch fitur baru ditulis dan
+// belasan kunci lolos tanpa suara. Jadi separuh itu ditutup di sini.
+// Dibandingkan ke GABUNGAN semua pack, bukan ke satu pack rujukan. Percobaan pertama saya
+// memakai de.js saja, dan hasilnya sepuluh tuduhan palsu: kunci build demo yang sudah ada di
+// id.js tapi memang tidak pernah dibawa 12 pack warisan. Yang dicari di sini bukan "hilang di
+// satu pack" — itu tugas check-locales.mjs — tapi "hilang di SEMUA pack".
+const anyPackKeys = new Set()
+for (const f of packs) {
+  const mod = await import('file://' + join(SRC, 'locales', f).replace(/\\/g, '/'))
+  for (const k of Object.keys(mod.default)) anyPackKeys.add(k)
+}
+const notInAnyPack = [...used].filter(k => !anyPackKeys.has(k)).sort()
+
+if (notInAnyPack.length) {
+  bad += notInAnyPack.length
+  console.log('\n' + notInAnyPack.length + ' kunci dipakai di kode tapi tidak ada di pack mana pun:')
+  for (const k of notInAnyPack) console.log('    ' + JSON.stringify(k))
+  console.log('  (sebar ke 13 pack, atau daftarkan kalau memang sengaja Inggris di semuanya)')
+}
+
 const rendered = new Set(BODYPARTS)
 for (const e of CATALOGUE) {
   if (e.tg || e.bp) rendered.add(e.tg || e.bp)

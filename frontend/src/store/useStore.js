@@ -1,11 +1,12 @@
 import { create } from 'zustand'
-import { api, setRemoteAuth } from '../lib/api.js'
 import { localTZ } from '../lib/format.js'
 import { registerCustom } from '../lib/exercises.js'
 import { DEMO, DEMO_SEEDED } from '../lib/demo.js'
-import { guestAllowed } from '../lib/guest.js'
 import { MOBILE, nativeLoad, nativeSave, syncReminder, writeAutoBackup } from '../lib/mobile.js'
-import { loadRemote, chooseLocal, forgetRemote, connect } from '../lib/remote.js'
+import { currentUser, signOutEverywhere, signOutHere, toAppUser } from '../lib/auth.js'
+import { supa } from '../lib/supabase.js'
+import { deleteRemoteState, fetchRemoteState, pushRemoteState } from '../lib/remote-state.js'
+import { applyRemote, decideSync } from '../lib/sync.js'
 
 const KEY = 'gym_state_v1'
 export const DEF = {
@@ -18,9 +19,6 @@ export const DEF = {
   // server pull, backup import) still falls back to the `showRir` boolean this replaced and
   // keeps the column it had. See effortOf.
   reminder: { on: false, time: '08:00', tz: null }, effort: null, autoBackup: false,
-  // Kota untuk waktu salat. Dipilih dari daftar, bukan geolocation: tanpa izin browser,
-  // jalan offline, dan untuk waktu salat presisi GPS tidak dibutuhkan. Lihat lib/prayer.ts.
-  city: 'jakarta',
   // Kota untuk waktu salat. Dipilih dari daftar, bukan geolocation: tanpa izin browser,
   // jalan offline, dan untuk waktu salat presisi GPS tidak dibutuhkan. Lihat lib/prayer.ts.
   city: 'jakarta',
@@ -98,7 +96,6 @@ export const useStore = create((set, get) => {
     S: (() => { const s = loadState(); registerCustom(s.customEx); return s })(),
     user: (() => { try { return JSON.parse(localStorage.getItem('gym_user')) || null } catch { return null } })(),
     ready: false,
-    needsMobileOnboarding: false,   // mobile build only — set true by boot() on a genuine first launch
 
     // Mutate a draft of S via producer fn, then persist + schedule sync.
     update(mut, push = true) {
@@ -119,81 +116,81 @@ export const useStore = create((set, get) => {
     isGuest: () => localStorage.getItem('gym_guest') === '1',
     setGuest(v) { if (v) localStorage.setItem('gym_guest', '1'); else localStorage.removeItem('gym_guest'); set({}) },
 
-    // Public config from /api/config (invite_only, allow_guest). null until the first successful
-    // fetch — the login screen and boot both read it, so it is fetched once and cached here
-    // rather than by each screen that happens to need it.
-    config: null,
-    async loadConfig() {
-      if (get().config) return get().config
-      try { const c = await api('/api/config'); set({ config: c }); return c }
-      catch { return null }
-    },
-
     setUser(u) {
       if (u) { localStorage.setItem('gym_user', JSON.stringify(u)); localStorage.removeItem('gym_guest') }
       else localStorage.removeItem('gym_user')
       set({ user: u })
     },
 
+    // Penanda "ada perubahan lokal yang belum sampai ke server". Tetap di localStorage, bukan
+    // di memori: push yang gagal karena tab ditutup harus tetap terbaca di boot berikutnya.
+    isDirty: () => localStorage.getItem('gym_dirty') === '1',
+
     async pushState() {
-      if (!get().user) return
+      const u = get().user
+      if (!u) return
       clearTimeout(pushTm)
-      try { await api('/api/data', { method: 'PUT', body: JSON.stringify({ state: get().S }) }); localStorage.removeItem('gym_dirty') }
-      catch (e) { localStorage.setItem('gym_dirty', '1') }
+      const ok = await pushRemoteState(u.id, get().S)
+      if (ok) localStorage.removeItem('gym_dirty')
+      else localStorage.setItem('gym_dirty', '1')
     },
+
+    // Menyelaraskan perangkat ini dengan server. Keputusan siapa yang menang ada di
+    // lib/sync.ts — di sini cuma jaringan dan efeknya, supaya keputusannya bisa ditesnya
+    // tanpa jaringan sama sekali.
     async pullState() {
-      try {
-        const { state } = await api('/api/data')
-        const S = get().S
-        const dirty = localStorage.getItem('gym_dirty') === '1'
-        if (state && (!hasData(S) || ((state._ts || 0) >= (S._ts || 0) && !dirty))) {
-          const active = S.active
-          const next = Object.assign(clone(DEF), state)
-          if (active) next.active = active
-          persist(next, false)
-        } else if (hasData(S)) { await get().pushState() }
-      } catch (e) { /* offline — keep local */ }
+      const u = get().user
+      if (!u) return
+      const res = await fetchRemoteState(u.id)
+      // Gagal jaringan BUKAN "server kosong". Menganggapnya kosong akan mendorong state lokal
+      // ke atas state server yang sebenarnya lebih baru, dan itu kehilangan data yang sunyi.
+      if (!res.ok) return
+      const local = get().S
+      const action = decideSync({ local, remote: res.state, dirty: get().isDirty() })
+      if (action.use === 'remote' && res.state) {
+        persist(applyRemote(res.state, local, clone(DEF)), false)
+        localStorage.removeItem('gym_dirty')
+        return
+      }
+      if (action.use === 'local' && action.push) await get().pushState()
     },
 
     async signOut() {
-      try { await get().pushState(); await api('/api/logout', { method: 'POST', body: '{}' }) } catch (e) { /* */ }
+      await get().pushState()   // tidak melempar — menandai kotor lalu lanjut kalau offline
+      await signOutHere()
       clearLocalSession()
     },
 
-    // Mobile-only ("connect to my server" onboarding, see App.jsx's needsMobileOnboarding).
-    // Picking local — even before there's any data — persists the choice so onboarding never
-    // asks again.
-    async chooseLocalMode() {
-      await chooseLocal()
-      set({ needsMobileOnboarding: false })
+    // "Keluar dari semua perangkat". Berbeda dari signOut, request ini TIDAK ditelan: kalau dia
+    // gagal, sesi di perangkat lain semuanya masih hidup, dan menghapus salinan data di
+    // perangkat ini justru mengeluarkan orang dari satu-satunya tempat yang tidak terjangkau.
+    // Pemanggil yang melaporkan errornya.
+    async signOutAll() {
+      await get().pushState()   // tidak melempar — menandai kotor lalu lanjut kalau offline
+      await signOutEverywhere()
+      clearLocalSession()
     },
-    // Redeems the pairing code shown in the browser (Settings → "Pair the mobile app") and
-    // switches this device over to that account, same as signing in on the web does.
-    async connectToServer(url, code) {
-      const user = await connect(url, code)   // throws on a bad URL/expired code — caller shows it
+
+    // Masuk berhasil (Google atau magic link). Dipanggil dari listener onAuthStateChange, jadi
+    // satu jalur untuk semua provider dan untuk sesi yang dipulihkan setelah redirect.
+    async onSignedIn(user) {
       get().setUser(user)
       await get().pullState()
-      syncReminder(get().S)
-      set({ needsMobileOnboarding: false })
-    },
-    // Leaves remote mode and drops cleanly back to local-only, without losing whatever was last
-    // synced (signOut() already pushes before it clears).
-    async disconnectServer() {
-      await get().signOut()
-      await forgetRemote()
-      get().setGuest(true)
+      const tz = localTZ()
+      if (get().S.reminder?.on && get().S.reminder.tz !== tz) {
+        get().update(s => { s.reminder = { ...s.reminder, tz } })
+      }
       set({ ready: true })
     },
 
-    // "Sign out everywhere": the server bumps this profile's session version, which kills every
-    // session it has on any device — this browser included, so the app has to end up exactly
-    // where a normal signOut leaves it. Unlike signOut the request is NOT swallowed: if it fails
-    // the sessions elsewhere are all still valid, and wiping this device's copy of the data
-    // would sign the user out of the one place the bump didn't reach. Caller reports the error.
-    async signOutAll() {
-      await get().pushState()   // never throws — stores gym_dirty and moves on when offline
-      await api('/api/logout/all', { method: 'POST', body: '{}' })
-      clearLocalSession()
+    // "Hapus semua data" untuk pengguna yang masuk harus ikut menghapus barisnya di server.
+    // Kalau barisnya ditinggal, boot berikutnya menariknya kembali dan penghapusannya terasa
+    // tidak berlaku — pull memang akan melihat lokal kosong dan mengambil server.
+    async wipeEverything() {
+      const u = get().user
+      if (u) await deleteRemoteState(u.id)
+      localStorage.removeItem('gym_dirty')
+      persist(clone(DEF), false)
     },
 
     // Demo build only: drop the seeded example profile back in (Settings → "Reset demo data").
@@ -204,44 +201,27 @@ export const useStore = create((set, get) => {
       persist(Object.assign(clone(DEF), buildDemoState()), false)
     },
 
-    // Boot: ask the server who we are, then pull.
+    // Boot.
+    //
+    // ATURAN YANG MEMBENTUK URUTAN DI SINI: app TIDAK BOLEH menunggu jaringan untuk terbuka.
+    // Orang latihan di basement gym dengan sinyal jelek, dan layar yang menggantung menunggu
+    // Supabase adalah kegagalan yang paling terasa. Jadi state lokal sudah termuat sebelum
+    // fungsi ini jalan (lihat loadState di atas), dan yang dikerjakan boot cuma: cari tahu
+    // apakah ada sesi, lalu selaraskan di belakang.
     async boot() {
-      // Mobile build: no backend by default — restore from the file mirror (the durable copy;
-      // localStorage may have been evicted since the last run) and go straight in. Unless this
-      // device was paired to a server ("connect to my server" mode, lib/remote.js), in which
-      // case it behaves exactly like the signed-in web flow below, straight from here.
+      // Build mobile: tidak ada backend sama sekali secara default — pulihkan dari cermin
+      // berkas (salinan yang awet; localStorage bisa ter-evict) lalu masuk.
       if (MOBILE) {
-        const remote = await loadRemote()
-        if (remote?.mode === 'remote') {
-          setRemoteAuth(remote.base, remote.token)
-          try {
-            const me = await api('/api/me')   // also catches a token revoked elsewhere (sign out everywhere)
-            get().setUser(me.user)
-            await get().pullState()
-          } catch (e) {
-            if (e.status === 401) { await forgetRemote(); get().setGuest(true) }
-            else get().setUser(remote.user)   // offline — keep going from the last-synced local copy
-          }
-          syncReminder(get().S)
-          set({ ready: true })
-          return
-        }
         const saved = await nativeLoad()
         const S = get().S
         if (saved && (!hasData(S) || (saved._ts || 0) >= (S._ts || 0))) {
           persist(Object.assign(clone(DEF), saved), false)
         } else if (hasData(S)) {
-          nativeSave(S)   // first run after an update from a file-less version: seed the mirror
+          nativeSave(S)   // run pertama setelah update dari versi tanpa berkas: isi cerminnya
         }
-        get().setGuest(true)
         syncReminder(get().S)
-        // Only a genuinely first launch — nothing chosen yet and nothing to lose either — offers
-        // the choice. Picking local (even with no data yet) persists that choice below and this
-        // never asks again.
-        set({ ready: true, needsMobileOnboarding: !remote && !hasData(get().S) })
-        return
       }
-      // Demo build (GitHub Pages): no backend at all — seed once, stay in guest mode.
+      // Build demo (GitHub Pages): seed sekali, tetap tamu.
       if (DEMO) {
         if (!localStorage.getItem(DEMO_SEEDED)) {
           localStorage.setItem(DEMO_SEEDED, '1')
@@ -251,25 +231,41 @@ export const useStore = create((set, get) => {
         set({ ready: true })
         return
       }
-      // Guests never authenticate, so an instance that turned guest mode off has no request to
-      // refuse — the only way the switch reaches someone already inside is here, on their next
-      // boot. Ending the session needs a positive `allow_guest: false`; see lib/guest.js for why
-      // an unreachable server must not be allowed to lock anyone out (#42).
-      const cfg = await get().loadConfig()
-      if (!guestAllowed(cfg)) get().setGuest(false)
-      try {
-        const me = await api('/api/me')
-        get().setUser(me.user)
-        await get().pullState()
-        // Re-stamp the reminder's timezone on every load — keeps it correct if you're travelling,
-        // without needing to revisit Settings.
-        const tz = localTZ()
-        if (get().S.reminder?.on && get().S.reminder.tz !== tz) {
-          get().update(s => { s.reminder = { ...s.reminder, tz } })
-        }
-      } catch (e) {
-        if (e.status === 401) get().setUser(null)
+
+      const sb = supa()
+      // Tanpa kredensial Supabase, masuk-dengan-akun tidak ada. Itu bukan kerusakan: mode tamu
+      // adalah jalur yang didukung, dan `npm run dev` tanpa .env.local memang harus membuka app
+      // yang berfungsi. Yang tidak boleh terjadi adalah UI menawarkan jalan yang mustahil —
+      // itu dijaga oleh SUPABASE_READY di layar masuk.
+      if (!sb) {
+        get().setGuest(true)
+        set({ ready: true })
+        return
       }
+
+      // Perubahan sesi didengarkan SEBELUM getSession dipanggil, supaya token yang datang
+      // sebagai fragmen URL setelah redirect OAuth tidak terlewat di celah antara keduanya.
+      sb.auth.onAuthStateChange((event, session) => {
+        const u = toAppUser(session?.user)
+        if (u) {
+          // Refresh token tidak perlu memicu pull ulang — dia terjadi diam-diam tiap jam, dan
+          // pull di situ berarti satu request tiap jam tanpa alasan.
+          if (event === 'TOKEN_REFRESHED' && get().user?.id === u.id) { get().setUser(u); return }
+          get().onSignedIn(u)
+        } else if (event === 'SIGNED_OUT') {
+          clearLocalSession()
+          get().setGuest(true)
+          set({ ready: true })
+        }
+      })
+
+      const user = await currentUser()
+      if (user) {
+        await get().onSignedIn(user)
+        return
+      }
+      // Belum masuk. Tamu selalu boleh — produk ini satu pengguna per akun, tidak ada
+      // invite-only dan tidak ada admin yang bisa mematikan mode tamu.
       set({ ready: true })
     }
   }

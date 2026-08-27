@@ -38,7 +38,12 @@ describe('Brazilian Portuguese locale', () => {
     // 293 -> 294: 'No exercises yet.' juga berbeda regional. Portugal menulis "Ainda sem
     // exercícios."; Brasil memakai bentuk "Ainda não há", persis seperti kunci sebelahnya yang
     // sudah lama di-override. Jadi dia override, bukan warisan.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(294)
+    //
+    // 294 -> 260: turun 34, dan itu PEMBERSIHAN bukan kehilangan. Lapis auth upstream dicabut
+    // (passkey, self-host, pairing app HP, dasbor admin, web push), jadi override untuk
+    // string-string itu tidak menunjuk apa pun lagi. Plus 12 override baru untuk auth Supabase.
+    // Selisihnya: 294 - 46 dihapus + 12 baru = 260.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(260)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -50,7 +55,11 @@ describe('Brazilian Portuguese locale', () => {
     // Kunci catatan waktu salat TIDAK ada di sini — dia jadi override, lihat di atas.
     // Selisihnya cocok tanpa sisa: itu reviewnya. Hash diambil dari
     // scripts/pt-br-inheritance-fingerprint.mjs, bukan ditempel dari pesan kegagalan.
-    expect(inherited).toHaveLength(459)
+    //
+    // 459 -> 445: sama, pencabutan lapis auth. Kunci warisan untuk passkey/self-host/push ikut
+    // pergi, dan 11 kunci auth Supabase yang kata Brasilnya sama dengan Portugal masuk sebagai
+    // warisan baru.
+    expect(inherited).toHaveLength(445)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -59,7 +68,7 @@ describe('Brazilian Portuguese locale', () => {
     // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
     // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
     // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('8c19537c9a09375b4ea9a5c20f903cd31bb777d9d8e1084ee260e52d846760ad')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('c5ca27435998b165aff2fbcfce1ab9485ed7efb5fc51becdc839204ebafcf77e')
   })
 
   test('does not leak European Portuguese UI terms', () => {
@@ -72,7 +81,13 @@ describe('Brazilian Portuguese locale', () => {
     expect(ptBR['Delete workout']).toBe('Excluir treino')
     expect(ptBR.Superset).toBe('Superset')
     expect(ptBR['Guest mode — data lives only in this browser.']).toContain('visitante')
-    expect(ptBR['Sign in with passkey']).toContain('chave de acesso')
+    // Dulu di sini dipaku 'Sign in with passkey' -> 'chave de acesso'. Kunci itu pergi bersama
+    // pencabutan lapis auth passkey. Penggantinya memaku kelas kebocoran yang SAMA dan lebih
+    // penting: Portugal menulis "iniciar sessão", Brasil "entrar". Kalau pt-BR mulai berbunyi
+    // "iniciar sessão", itu persis pt-PT yang bocor.
+    expect(ptBR['Sign in with email']).toBe('Entrar com e-mail')
+    expect(ptBR['Sign in with email']).not.toContain('sessão')
+    expect(ptBR['Continue with Google']).toContain('Continuar')
     expect(ptBR.band).toBe('elástico')
     expect(ptBR['resistance band']).toBe('faixa elástica')
     expect(ptBR.soleus).toBe('sóleo')

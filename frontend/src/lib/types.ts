@@ -248,4 +248,19 @@ export interface AppState {
    */
   effort?: string | null
   showRir?: boolean
+  /**
+   * Jam KLIEN saat state ini terakhir dipersist, dari `Date.now()`. Dipakai lib/sync.ts untuk
+   * memutuskan lokal atau server yang lebih baru.
+   *
+   * Sengaja jam klien, bukan jam server: perangkat bisa offline berjam-jam sebelum push, jadi
+   * jam server cuma bercerita kapan datanya SAMPAI, bukan kapan orangnya latihan. Konsekuensinya
+   * dua perangkat bisa beda jam, dan sync.ts menanganinya dengan ambang toleransi — bukan
+   * dengan berpura-pura jamnya tepat.
+   */
+  _ts?: number
+  /**
+   * Sesi yang sedang berjalan, atau null. **Tidak pernah disinkronkan** — lihat stateForPush di
+   * lib/sync.ts untuk alasannya.
+   */
+  active?: unknown
 }

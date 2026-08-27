@@ -73,7 +73,6 @@ export default {
   'Skip': 'Lewati',
   'Remove': 'Hapus',
   'Edit': 'Ubah',
-  'On': 'Nyala',
   'Off': 'Mati',
   'All': 'Semua',
 
@@ -167,11 +166,8 @@ export default {
     'Ditambahkan sebelum set kerja, dan tidak dihitung ke volume, rekor, maupun progresi. Masing-masing menutup separuh jarak ke beban kerja — semuanya masih bisa kamu ubah di tengah sesi.',
   'Added {0} routines to your plan': '{0} rutin ditambahkan ke rencanamu',
   'Additional muscle groups': 'Kelompok otot tambahan',
-  'Admin dashboard': 'Dasbor admin',
   'All data reset': 'Semua data direset',
-  'All data stays on this phone': 'Semua data tinggal di HP ini',
   'Always for this exercise': 'Selalu untuk latihan ini',
-  'An invite code is required': 'Kode undangan wajib diisi',
   'Any equipment': 'Semua alat',
   'Appearance': 'Tampilan',
   'Applies to every exercise in this routine that does not set its own rule.':
@@ -203,28 +199,16 @@ export default {
   'Chosen': 'Dipilih',
   'Confirm the weight you worked with — your highest becomes the default next time.':
     'Konfirmasi beban yang kamu pakai — yang tertinggi jadi default berikutnya.',
-  'Connect': 'Sambungkan',
-  'Connect the Halal Pro Gym app on your phone to this account.':
-    'Sambungkan app Halal Pro Gym di HP-mu ke akun ini.',
-  'Connect to my server': 'Sambungkan ke server saya',
-  'Connected': 'Tersambung',
-  'Connecting…': 'Menyambungkan…',
   'Continue without account': 'Lanjut tanpa akun',
   'Continue workout': 'Lanjutkan sesi',
   'Could not change notification settings': 'Gagal mengubah pengaturan notifikasi',
-  'Could not connect': 'Gagal menyambung',
-  'Could not generate a code': 'Gagal membuat kode',
   'Could not read that file': 'Berkas itu tidak bisa dibaca',
   'Could not sign out everywhere — you are still signed in.':
     'Gagal keluar dari semua perangkat — kamu masih masuk.',
   'Create exercise': 'Buat latihan',
-  'Create new profile': 'Buat profil baru',
   'Create one and start with this exercise': 'Buat satu dan mulai dengan latihan ini',
   'Create one or load the starter plan.': 'Buat satu, atau muat rencana awal.',
-  'Create passkey': 'Buat passkey',
-  'Create passkey profile': 'Buat profil passkey',
   'Create your own exercise': 'Buat latihan sendiri',
-  'Create your profile': 'Buat profilmu',
   'Delete everything': 'Hapus semuanya',
   'Delete exercise': 'Hapus latihan',
   'Delete profile?': 'Hapus profil?',
@@ -242,14 +226,9 @@ export default {
   'Discard': 'Buang',
   'Discard the running workout': 'Buang sesi yang sedang jalan',
   'Discard workout?': 'Buang sesi ini?',
-  'Disconnect': 'Putuskan',
-  'Disconnect from your server?': 'Putuskan dari servermu?',
-  'Disconnected — back to local-only': 'Terputus — kembali ke lokal saja',
   'Duration': 'Durasi',
   'Duration (min)': 'Durasi (menit)',
   'During a workout': 'Saat sesi berjalan',
-  'Each profile keeps its own plan, workouts & body weight.':
-    'Tiap profil punya rencana, sesi, dan berat badannya sendiri.',
   'Edit custom exercise': 'Ubah latihan buatan sendiri',
   'Edit or delete this exercise': 'Ubah atau hapus latihan ini',
   'Edit profile': 'Ubah profil',
@@ -258,11 +237,9 @@ export default {
     'Effort per set sedang mati — nyalakan di Pengaturan kalau mau terus merating.',
   'Ends this profile’s sessions on all your devices.':
     'Mengakhiri sesi profil ini di semua perangkatmu.',
-  'Enter a name': 'Isi namanya',
   'Enter a valid weight': 'Isi beban yang valid',
   'Enter a weight and 1–{0} reps — beyond that an estimate is guesswork.':
     'Isi beban dan 1–{0} reps — lebih dari itu estimasinya jadi tebakan.',
-  'Enter your server address and the code': 'Isi alamat servermu dan kodenya',
   'Epley formula — a calculation from one set, not a tested max.':
     'Rumus Epley — hitungan dari satu set, bukan maksimum yang diuji.',
   'Equipment': 'Alat',
@@ -332,7 +309,6 @@ export default {
   'Hard': 'Berat',
   'Hi {0}': 'Hai {0}',
   'Hold logged': 'Tahanan dicatat',
-  'How do you want to use Halal Pro Gym?': 'Mau pakai Halal Pro Gym dengan cara apa?',
   'How hard a set was, logged next to weight and reps. Two scales for the same judgement, counted from opposite ends.':
     'Seberapa berat satu set, dicatat di sebelah beban dan reps. Dua skala untuk penilaian yang sama, dihitung dari ujung yang berlawanan.',
   'How it felt': 'Terasa seberapa berat',
@@ -352,13 +328,11 @@ export default {
   'In Chrome: ⋮ menu → Add to Home screen': 'Di Chrome: menu ⋮ → Tambahkan ke layar utama',
   'In Safari: Share → Add to Home Screen': 'Di Safari: Bagikan → Tambahkan ke Layar Utama',
   'Intervals': 'Interval',
-  'Invite code': 'Kode undangan',
   'It will be removed from your routines. Already-logged workouts keep their sets.':
     'Latihan itu akan dihapus dari rutinmu. Sesi yang sudah dicatat tetap menyimpan setnya.',
   'Just close': 'Tutup saja',
   'Keep going — tap “+ Add exercise” below': 'Lanjut — ketuk “+ Tambah latihan” di bawah',
   'Keep screen awake': 'Biarkan layar menyala',
-  'Keeps your data safe and separate per person.': 'Menjaga datamu aman dan terpisah per orang.',
   'Last time': 'Terakhir',
   'Less': 'Kurang',
   'Less time': 'Kurangi waktu',
@@ -366,8 +340,6 @@ export default {
     'Demo langsung — semuanya tinggal di browser ini.',
   'Load starter plan (PPL)': 'Muat rencana awal (PPL)',
   'Load starter plan (Push / Pull / Legs)': 'Muat rencana awal (Push / Pull / Legs)',
-  'Local keeps everything on this phone. Connecting syncs to your own Halal Pro Gym server instead — you can switch later in Settings.':
-    'Mode lokal menyimpan semuanya di HP ini. Kalau disambungkan, datanya sinkron ke server Halal Pro Gym milikmu sendiri — bisa diganti nanti di Pengaturan.',
   'Log': 'Catat',
   'Log body weight': 'Catat berat badan',
   'Longest hold per workout': 'Tahanan terlama per sesi',
@@ -394,8 +366,6 @@ export default {
   'New routine': 'Rutin baru',
   'Next': 'Berikutnya',
   'Nice!': 'Mantap!',
-  'No account, no cloud — back it up anytime with Export below.':
-    'Tanpa akun, tanpa cloud — cadangkan kapan saja lewat Ekspor di bawah.',
   'No data yet': 'Belum ada data',
   'No entries yet — log your weight to start the curve. It\'s also asked before every workout.':
     'Belum ada catatan — catat beratmu untuk memulai kurvanya. Ini juga ditanyakan sebelum tiap sesi.',
@@ -427,26 +397,9 @@ export default {
   'Nothing new to import': 'Tidak ada yang baru untuk diimpor',
   'Nothing to import from that file': 'Tidak ada yang bisa diimpor dari berkas itu',
   'Notifications': 'Notifikasi',
-  'Notifications off': 'Notifikasi mati',
-  'Notifications on': 'Notifikasi nyala',
-  'On the Halal Pro Gym app, choose “Connect to my server”, then enter this address and the code below. It expires in 5 minutes.':
-    'Di app Halal Pro Gym, pilih “Sambungkan ke server saya”, lalu isi alamat ini dan kode di bawah. Kodenya kedaluwarsa dalam 5 menit.',
-  'Only sent on days you have a routine planned and haven\'t logged a workout yet.':
-    'Cuma dikirim di hari yang ada rutinnya dan kamu belum mencatat sesi.',
-  'Open Settings → “Pair the mobile app” on the Halal Pro Gym site you’re already signed into, then enter its address and the code shown there.':
-    'Buka Pengaturan → “Sambungkan app HP” di situs Halal Pro Gym yang sudah kamu masuki, lalu isi alamatnya dan kode yang tampil di sana.',
   'Other routines': 'Rutin lain',
   'PRs': 'PR',
-  'Pair the mobile app': 'Sambungkan app HP',
-  'Pairing code': 'Kode penyambungan',
-  'Passkey sign-in, sync across your devices, your own data.':
-    'Masuk dengan passkey, sinkron antar perangkat, datamu sendiri.',
-  'Passkeys not supported in this browser.': 'Passkey tidak didukung di browser ini.',
-  'Passkeys use {0} — no passwords.': 'Passkey memakai {0} — tanpa kata sandi.',
   'Pick a body part': 'Pilih bagian tubuh',
-  'Pick a name, then confirm with your device.': 'Pilih nama, lalu konfirmasi dengan perangkatmu.',
-  'Pick a name, then confirm with {0}. The passkey is saved in your device — no password needed.':
-    'Pilih nama, lalu konfirmasi dengan {0}. Passkey-nya tersimpan di perangkatmu — tanpa kata sandi.',
   'Pick a routine — sets, reps & weight come next.': 'Pilih rutin — set, reps, dan beban menyusul.',
   'Pick an icon': 'Pilih ikon',
   'Plan file saved — send it to a friend': 'Berkas rencana disimpan — kirim ke temanmu',
@@ -456,13 +409,9 @@ export default {
   'Previous best:': 'Terbaik sebelumnya:',
   'Primary muscle groups': 'Kelompok otot utama',
   'Print / Save as PDF': 'Cetak / Simpan sebagai PDF',
-  'Profile created — data from this device moved into it':
-    'Profil dibuat — data dari perangkat ini dipindahkan ke dalamnya',
-  'Profile created — data moved into it': 'Profil dibuat — datanya dipindahkan ke dalamnya',
   'Profile name': 'Nama profil',
   'Progress & history': 'Progres & riwayat',
   'Progression': 'Progresi',
-  'Push notifications': 'Notifikasi push',
   'Puts the example plan, workouts and weigh-ins back the way they started.':
     'Mengembalikan rencana, sesi, dan penimbangan contoh ke keadaan awalnya.',
   'Quick check-in': 'Cek cepat',
@@ -474,7 +423,6 @@ export default {
   'Recent weigh-ins': 'Penimbangan terakhir',
   'Recent workouts': 'Sesi terakhir',
   'Recovering': 'Pulih',
-  'Registration failed': 'Pendaftaran gagal',
   'Reload Halal Pro Gym': 'Muat ulang Halal Pro Gym',
   'Reminder time': 'Waktu pengingat',
   'Reminds you at this time on days that have a routine planned.':
@@ -506,8 +454,6 @@ export default {
     'Rest-pause selalu dijalankan sebagai satu set warm-up di jumlah reps ini, lalu satu set kerja rest-pause — "Set" tidak dipakai.',
   'Rest-pause reps': 'Reps rest-pause',
   'Rest-pause rest': 'Istirahat rest-pause',
-  'Rest-timer alerts, even if Halal Pro Gym is closed.':
-    'Peringatan timer istirahat, bahkan saat Halal Pro Gym tertutup.',
   'Resume': 'Lanjutkan',
   'Routine': 'Rutin',
   'Routines': 'Rutin',
@@ -524,12 +470,8 @@ export default {
   'Seat height, pin position, a form cue — shown every session.':
     'Tinggi kursi, posisi pin, patokan gerakan — ditampilkan tiap sesi.',
   'Seconds': 'Detik',
-  'Self-host Halal Pro Gym': 'Pasang Halal Pro Gym di server sendiri',
-  'Self-host it in a minute →': 'Pasang di server sendiri dalam semenit →',
-  'Send test notification': 'Kirim notifikasi uji',
   'Send your routines to a friend, or put your week on paper.':
     'Kirim rutinmu ke teman, atau cetak pekanmu di kertas.',
-  'Server address (e.g. gym.example.com)': 'Alamat server (misal gym.example.com)',
   'Session note': 'Catatan sesi',
   'Set up your weekly routine to get going — or load a ready-made Push / Pull / Legs plan.':
     'Susun rutin pekananmu untuk mulai — atau muat rencana Push / Pull / Legs yang sudah jadi.',
@@ -542,17 +484,14 @@ export default {
   'Showing what you have in "{0}"': 'Menampilkan yang kamu punya di "{0}"',
   'Sick, missed a day or want a different session? Pick what to train instead.':
     'Sakit, bolong sehari, atau mau sesi lain? Pilih mau melatih apa sebagai gantinya.',
-  'Sign in with passkey': 'Masuk dengan passkey',
   'Sign out': 'Keluar',
   'Sign out everywhere': 'Keluar dari semua perangkat',
   'Sign out everywhere?': 'Keluar dari semua perangkat?',
   'Sign out?': 'Keluar?',
   'Sign-in failed': 'Gagal masuk',
-  'Signed in with passkey — data syncs to this profile.':
-    'Masuk dengan passkey — data disinkronkan ke profil ini.',
   'Signed out on all devices': 'Keluar dari semua perangkat',
-  'Signs this profile out on every device, including this one. Your passkeys keep working — sign in with them again anytime.':
-    'Mengeluarkan profil ini dari setiap perangkat, termasuk yang ini. Passkey-mu tetap berfungsi — pakai lagi kapan pun untuk masuk.',
+  'Signs this profile out on every device, including this one. You can sign in again anytime.':
+    'Mengakhiri sesi profil ini di setiap perangkat, termasuk yang ini. Kamu bisa masuk lagi kapan pun.',
   'Slide or tap to set your weight — tracked before every workout so your curve stays honest.':
     'Geser atau ketuk untuk menyetel berat badanmu — dicatat sebelum tiap sesi supaya kurvanya jujur.',
   'Something went wrong': 'Ada yang tidak beres',
@@ -573,9 +512,6 @@ export default {
   'Superset with exercise above': 'Superset dengan latihan di atas',
   'Superset · do these back-to-back, rest when done':
     'Superset · kerjakan berurutan tanpa jeda, istirahat setelah beres',
-  'Sync this device to your own self-hosted Halal Pro Gym instead.':
-    'Sinkronkan perangkat ini ke Halal Pro Gym milikmu sendiri.',
-  'Synced with your Halal Pro Gym server.': 'Tersinkron dengan server Halal Pro Gym-mu.',
   'System': 'Sistem',
   'Tap a muscle to see its exercises.': 'Ketuk satu otot untuk melihat latihannya.',
   'Tap a trained day for details · tap any other day to plan a session':
@@ -583,8 +519,6 @@ export default {
   'Tap the link button on an exercise to superset it with the one above — you’ll do them back-to-back.':
     'Ketuk tombol tautan di sebuah latihan untuk men-superset-nya dengan latihan di atasnya — keduanya dikerjakan berurutan tanpa jeda.',
   'Target weight': 'Beban target',
-  'Test failed': 'Uji gagal',
-  'Test sent — should arrive any second': 'Uji terkirim — mestinya sampai sebentar lagi',
   'That file is empty': 'Berkas itu kosong',
   'That file\'s columns aren\'t recognised — see the docs for supported apps.':
     'Kolom di berkas itu tidak dikenali — lihat dokumentasinya untuk app yang didukung.',
@@ -604,14 +538,6 @@ export default {
   'Then finish the superset partner.': 'Lalu selesaikan pasangan superset-nya.',
   'These are added as new routines — nothing you already have is changed.':
     'Ini ditambahkan sebagai rutin baru — yang sudah kamu punya tidak diubah.',
-  'This app is invite-only — enter the code you were given.':
-    'App ini khusus undangan — isi kode yang kamu terima.',
-  'This browser doesn\'t support passkeys — you can still use Halal Pro Gym locally on this device.':
-    'Browser ini tidak mendukung passkey — Halal Pro Gym masih bisa dipakai secara lokal di perangkat ini.',
-  'This browser doesn\'t support passkeys, and this instance requires an account. Try a browser or device with passkey support.':
-    'Browser ini tidak mendukung passkey, dan instance ini mewajibkan akun. Coba browser atau perangkat yang mendukung passkey.',
-  'This demo runs entirely in your browser on example data — nothing is sent anywhere. Passkey sign-in and sync across your devices come with the Halal Pro Gym server, which you get by self-hosting it.':
-    'Demo ini jalan sepenuhnya di browser-mu dengan data contoh — tidak ada yang dikirim ke mana pun. Masuk dengan passkey dan sinkron antar-perangkat datang bersama server Halal Pro Gym, yang kamu dapat dengan memasangnya sendiri.',
   'This month': 'Bulan ini',
   'This removes it from your history for good.': 'Ini menghapusnya dari riwayatmu untuk selamanya.',
   'This replaces all current data with the backup file.':
@@ -621,8 +547,6 @@ export default {
   'This session': 'Sesi ini',
   'This week': 'Pekan ini',
   'Time': 'Waktu',
-  'Timezone: {0} (auto-detected, updates if you travel).':
-    'Zona waktu: {0} (dideteksi otomatis, ikut berubah kalau kamu bepergian).',
   'Today\'s plan': 'Rencana hari ini',
   'Top of the range': 'Ujung atas rentang',
   'Top set': 'Set terberat',
@@ -631,7 +555,6 @@ export default {
   'Trained': 'Dilatih',
   'Unknown exercise': 'Latihan tak dikenal',
   'Unpair': 'Lepas sambungan',
-  'Use on this device': 'Pakai di perangkat ini',
   'Use this weekly schedule': 'Pakai jadwal pekanan ini',
   'Warm-up sets': 'Set warm-up',
   'Wed': 'Rab',
@@ -648,9 +571,7 @@ export default {
   'Weight drop (%)': 'Penurunan beban (%)',
   'Weight saved': 'Beban tersimpan',
   'Weight unit': 'Satuan beban',
-  'Welcome back, {0}': 'Selamat datang kembali, {0}',
   'Welcome!': 'Selamat datang!',
-  'Welcome, {0}': 'Selamat datang, {0}',
   'What are RIR and RPE?': 'Apa itu RIR dan RPE?',
   'What this session hits': 'Yang dikerjakan sesi ini',
   'What you just trained': 'Yang baru saja kamu latih',
@@ -665,17 +586,12 @@ export default {
     'Kamu belum menandai satu set pun. Selesaikan sesinya saja?',
   'You still log the total: {0} is {1} per side.':
     'Yang dicatat tetap totalnya: {0} berarti {1} per sisi.',
-  'Your data': 'Datamu',
   'Your data is synced to your profile first, then cleared from this device.':
     'Datamu disinkronkan ke profilmu dulu, lalu dihapus dari perangkat ini.',
-  'Your data is synced to your server first, then this device switches back to local-only.':
-    'Datamu disinkronkan ke servermu dulu, lalu perangkat ini kembali ke mode lokal saja.',
   'Your data syncs with your profile — sign in anywhere to see it.':
     'Datamu tersinkron dengan profilmu — masuk dari mana saja untuk melihatnya.',
   'Your goal is drawn as a line through the weight charts, and gains/losses are colored by whether they move toward it.':
     'Targetmu digambar sebagai garis di grafik berat badan, dan naik/turunnya diberi warna sesuai apakah bergerak ke arah target itu.',
-  'Your name': 'Namamu',
-  'Your server': 'Servermu',
   'Your weekly routine': 'Rutin pekananmu',
   'Your workouts. Your weights. Your profile.': 'Sesimu. Bebanmu. Profilmu.',
   'You’re in the demo': 'Kamu sedang di demo',
@@ -752,8 +668,6 @@ export default {
   'Easy — warm-up territory': 'Ringan — wilayah warm-up',
   'Every rep last time — {0} {1} more.': 'Semua reps kena terakhir — tambah {0} {1}.',
   'Glutes': 'Gluteus',
-  'Guest mode — data lives only in this browser. Create a passkey profile to keep it safe and separate per person.':
-    'Mode tamu — data cuma ada di browser ini. Buat profil passkey supaya aman dan terpisah per orang.',
   'Held every set for the full time — target up by {0}s.':
     'Semua set tertahan penuh — target naik {0}s.',
   'Hit every rep in every set and the weight goes up. Repeated misses trigger a deload.':
@@ -763,7 +677,6 @@ export default {
   'Last set hit {0} reps — twice the target, so take a double jump of {1} {2}.':
     'Set terakhir dapat {0} reps — dua kali targetnya, jadi lompat dobel {1} {2}.',
   'Last time came up short — same target again.': 'Terakhir belum sampai — target yang sama lagi.',
-  'Last time you hit all reps — try {0}': 'Terakhir kamu dapat semua reps — coba {0}',
   'Linear progression': 'Progresi linear',
   'Missed reps last time — same weight again ({0} of {1} to go).':
     'Reps gagal terakhir — beban yang sama lagi (sisa {0} dari {1}).',
@@ -776,19 +689,14 @@ export default {
   'Nothing logged yet — this session sets the baseline.':
     'Belum ada catatan — sesi ini yang jadi patokan awal.',
   'Oct': 'Okt',
-  'Off 🔕': 'Mati 🔕',
-  'On 🔔': 'Nyala 🔔',
   'One more rep in the tank': 'Sisa satu reps lagi',
   'Quads': 'Kuadrisep',
   'Recovery': 'Pemulihan',
-  'Resume ▶': 'Lanjutkan ▶',
   'Same weight — aim for {0} reps this time.': 'Beban sama — incar {0} reps kali ini.',
   'Serratus': 'Seratus',
   'Short {0} sessions in a row — back off to {1}s and build up again.':
     'Kurang dari target {0} sesi berturut-turut — turun ke {1}s dan bangun lagi dari situ.',
   'Stalled {0} sessions — deload to {1} {2}.': 'Mandek {0} sesi — deload ke {1} {2}.',
-  'Start {0} ▶': 'Mulai {0} ▶',
-  'Start ▶': 'Mulai ▶',
   'Targets stay where you set them.': 'Target tetap di angka yang kamu setel.',
   'Three more reps': 'Sisa tiga reps',
   'Top of the rep range in every set — {0} {1} more, back to {2} reps.':
@@ -797,7 +705,6 @@ export default {
   'Two more reps': 'Sisa dua reps',
   'Two straight sets plus a final set taken to failure. Beat the target on that set and the weight goes up — double if you double the reps. One failure resets 10 %.':
     'Dua set lurus plus satu set terakhir sampai gagal angkat. Lewati target di set itu dan bebannya naik — dua kali lipat kalau repsnya kamu dobel. Sekali gagal, turun 10 %.',
-  'Weights bumped to {0}': 'Beban dinaikkan ke {0}',
   'Work up through a rep range at the same weight. Reach the top of the range in every set and the weight goes up, reps back to the bottom.':
     'Naik lewat rentang reps di beban yang sama. Capai ujung atas rentangnya di semua set dan bebannya naik, repsnya kembali ke bawah.',
   'abdominals': 'otot perut',
@@ -856,8 +763,6 @@ export default {
   'stationary bike': 'sepeda statis',
   'stepmill machine': 'mesin stepmill',
   'sternocleidomastoid': 'sternokleidomastoid',
-  'tap to pause': 'ketuk untuk jeda',
-  'tap to play': 'ketuk untuk jalan',
   'tire': 'ban',
   'trapezius': 'trapesius',
   'traps': 'trapesius',
@@ -896,5 +801,37 @@ export default {
   '{0} to lose': 'turun {0}',
   '{0} workout': '{0} sesi',
   '{0} workout total': 'total {0} sesi',
-  '{0} workouts total': 'total {0} sesi'
+  '{0} workouts total': 'total {0} sesi',
+
+  /* --- auth Supabase + notifikasi (2026-08-28) --- */
+  'A sign-in link is on its way to {0}. Open it on this device — the link signs you in here.':
+    'Tautan masuk sedang dikirim ke {0}. Buka di perangkat ini — tautannya yang memasukkanmu di sini.',
+  'All data stays on this device': 'Semua data tinggal di perangkat ini',
+  'Blocked in your browser settings.': 'Diblokir di pengaturan browser-mu.',
+  'Check your email': 'Cek emailmu',
+  'Continue with Google': 'Lanjut dengan Google',
+  'Could not send the link': 'Gagal mengirim tautan',
+  'Deletes your plan, workouts and body weight — on this device and in your account. This cannot be undone.':
+    'Menghapus rencana, sesi, dan berat badanmu — di perangkat ini dan di akunmu. Tidak bisa dibatalkan.',
+  'Enter a valid email address': 'Isi alamat email yang valid',
+  'No account sync is set up in this build — everything stays on this device.':
+    'Sinkronisasi akun tidak disetel di build ini — semuanya tinggal di perangkat ini.',
+  'No password. We send a link — opening it signs you in.':
+    'Tanpa password. Kami kirim tautan — membukanya memasukkanmu.',
+  'Off — a beep still plays while the app is open.':
+    'Mati — bunyi bip tetap ada selama app terbuka.',
+  'On — shown when a rest finishes.': 'Nyala — ditampilkan waktu istirahat habis.',
+  'Rest timer alert': 'Alarm timer istirahat',
+  'Send the link': 'Kirim tautannya',
+  'Sending…': 'Mengirim…',
+  'Sign in with email': 'Masuk dengan email',
+  'Signing in only syncs your data — your workouts stay yours.':
+    'Masuk cuma menyinkronkan datamu — sesimu tetap milikmu.',
+  'Source code': 'Kode sumber',
+  'Syncs your plan and history across your devices.':
+    'Menyinkronkan rencana dan riwayatmu antar-perangkat.',
+  'This demo runs entirely in your browser on example data — nothing is sent anywhere.':
+    'Demo ini jalan sepenuhnya di browser-mu dengan data contoh — tidak ada yang dikirim ke mana pun.',
+  'Workout-day reminders come from the Android app for now.':
+    'Pengingat hari latihan untuk sekarang datang dari app Android.'
 }
