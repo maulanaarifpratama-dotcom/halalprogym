@@ -113,6 +113,23 @@ langsung, membuka boleh punya berat.
 
 `prefers-reduced-motion` dihormati: semua durasi ke ~0, tidak ada transform.
 
+## Demo gerakan — dua bingkai, bukan animasi
+
+Foto free-exercise-db datang berpasangan: posisi awal dan posisi akhir. Tap membolak-baliknya.
+
+Itu bukan kompromi dari GIF yang hilang. Dua posisi diam yang bisa ditatap **lebih baik** untuk
+mempelajari bentuk gerakan daripada animasi tiga detik yang berputar terus, karena kamu bisa
+berhenti di posisi yang ingin kamu tiru. GIF menang untuk tempo — dan tempo bukan yang dicari
+orang saat menatap demo di antara set.
+
+Untuk 995 latihan yang tidak terpetakan: **diagram otot, dan itu bukan keadaan error.** Dia
+menjawab pertanyaan yang berbeda dan sering lebih berguna — otot mana yang dikerjakan gerakan
+ini — yang tidak pernah dijawab foto maupun GIF. Jadi jangan diberi nada "gambar tidak tersedia".
+
+Thumbnail 50px terlalu kecil untuk peta otot, jadi di sana ikon **per bagian tubuh**, bukan satu
+ikon dumbbell untuk semuanya: daftar latihan diurut alfabet, dan satu layar bisa berisi puluhan
+baris tanpa foto berturut-turut. Ikon yang berbeda membuat daftar itu bisa dipindai mata.
+
 ## Yang tidak boleh masuk
 
 - Figur manusia berpakaian minim sebagai demo gerakan — soal aurat **dan** lisensi

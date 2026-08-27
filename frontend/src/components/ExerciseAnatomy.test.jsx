@@ -18,6 +18,7 @@ vi.mock('../store/useStore.js', async () => {
 const { default: ExerciseAnatomy } = await import('./ExerciseAnatomy.jsx')
 const { default: Media, Thumb } = await import('./Media.jsx')
 const { EXDB } = await import('../lib/exercises-data.js')
+const { demoFrames } = await import('../lib/exercise-media.js')
 
 // Barbell bench press: tg 'pectorals' (primer), sm ['triceps', 'shoulders'] (sekunder).
 // Dipilih karena punya SATU primer dan DUA sekunder — jadi pemisahan dua tingkatnya benar-benar
@@ -102,28 +103,67 @@ describe('ExerciseAnatomy', () => {
   })
 })
 
-describe('Media tanpa media', () => {
-  it('jatuh ke peta otot, BUKAN kotak kosong, saat latihan tidak punya animasi', async () => {
-    // Ini regresi yang dijaga: jalur lama mengembalikan null di sini. Itu benar waktu cuma
-    // latihan buatan user yang tanpa media — tapi gambar Gym visual sudah dicabut karena
-    // lisensi, jadi null berarti setiap latihan kehilangan visualnya.
-    const noMedia = { ...BENCH, gif: '', img: '' }
-    await render(<Media ex={noMedia} />)
+describe('Media — tiga tingkat demo gerakan', () => {
+  // Foto free-exercise-db (Unlicense). '0025' = barbell bench press, ada di petanya.
+  const WITH_DEMO = Object.values(EXDB).find(e => e.id === '0025')
+  // '0002' = 45° side bend — sengaja TIDAK ada di peta: nama tidak cocok aman ke dataset
+  // mana pun, dan itu justru kasus yang harus jatuh ke diagram otot.
+  const NO_DEMO = Object.values(EXDB).find(e => e.id === '0002')
+
+  it('memakai fixture yang bentuknya memang diuji', () => {
+    expect(demoFrames(WITH_DEMO).length).toBe(2)
+    expect(demoFrames(NO_DEMO).length).toBe(0)
+  })
+
+  it('menampilkan foto demo dari CDN terpin kalau latihannya terpetakan', async () => {
+    await render(<Media ex={WITH_DEMO} />)
+    const img = container.querySelector('img')
+    expect(img).toBeTruthy()
+    // Commit terpin, bukan `main`: peta dan gambarnya dibangun terhadap commit yang sama,
+    // jadi `main` yang bergerak bisa memisahkan keduanya tanpa suara.
+    expect(img.getAttribute('src')).toContain('free-exercise-db@')
+    expect(container.querySelector('.exanat')).toBeNull()
+  })
+
+  it('tap membolak-balik posisi awal dan posisi akhir', async () => {
+    await render(<Media ex={WITH_DEMO} />)
+    const first = container.querySelector('img').getAttribute('src')
+    expect(container.querySelector('.gifhint').textContent).toContain('start position')
+
+    await act(async () => { container.querySelector('.exmedia').click() })
+    const second = container.querySelector('img').getAttribute('src')
+    expect(second).not.toBe(first)
+    expect(container.querySelector('.gifhint').textContent).toContain('end position')
+
+    // Dan berputar kembali ke bingkai pertama.
+    await act(async () => { container.querySelector('.exmedia').click() })
+    expect(container.querySelector('img').getAttribute('src')).toBe(first)
+  })
+
+  it('jatuh ke peta otot, BUKAN kotak kosong, kalau tidak ada foto yang terpetakan', async () => {
+    // Regresi yang dijaga: jalur lama mengembalikan null di sini. Itu benar waktu cuma latihan
+    // buatan user yang tanpa media — tapi gambar Gym visual sudah dicabut karena lisensi, jadi
+    // null berarti ribuan latihan kehilangan visualnya.
+    await render(<Media ex={NO_DEMO} />)
     expect(container.querySelector('.exmedia.anat')).toBeTruthy()
     expect(container.querySelector('.exanat')).toBeTruthy()
     expect(container.querySelector('img')).toBeNull()
   })
 
-  it('mencoba media dulu kalau ada — self-host berlisensi sendiri harus tetap tampil', async () => {
-    await render(<Media ex={BENCH} />)
-    const img = container.querySelector('img')
-    expect(img).toBeTruthy()
-    expect(img.getAttribute('src')).toContain(BENCH.gif)
-    expect(container.querySelector('.exmedia.anat')).toBeNull()
+  it('gagal muat pun jatuh ke peta otot, bukan ikon gambar-rusak browser', async () => {
+    await render(<Media ex={WITH_DEMO} />)
+    expect(container.querySelector('img')).toBeTruthy()
+    await act(async () => {
+      container.querySelector('img').dispatchEvent(new dom.Event('error', { bubbles: false }))
+    })
+    expect(container.querySelector('.exmedia.anat')).toBeTruthy()
   })
 
-  it('Thumb memakai ikon, bukan peta otot — 50px terlalu kecil untuk terbaca', async () => {
-    await render(<Thumb ex={{ ...BENCH, img: '' }} />)
+  it('Thumb memakai bingkai pertama kalau ada, ikon kalau tidak — 50px terlalu kecil untuk peta otot', async () => {
+    await render(<Thumb ex={WITH_DEMO} />)
+    expect(container.querySelector('img.thumb')?.getAttribute('src')).toContain('free-exercise-db@')
+
+    await render(<Thumb ex={NO_DEMO} />)
     expect(container.querySelector('.thumb-x')).toBeTruthy()
     expect(container.querySelector('.exanat')).toBeNull()
   })

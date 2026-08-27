@@ -32,6 +32,20 @@ with the AGPL, provided the corresponding source code remains available under th
 the project repository. This permission applies to the distribution channel only and does
 not otherwise limit the license.
 
+## Exercise demo photos
+
+Movement demo photos come from [**free-exercise-db**](https://github.com/yuhonas/free-exercise-db),
+released under the **Unlicense** — a public-domain dedication, verified via GitHub's licence API
+(`spdx_id: "Unlicense"`) rather than from a README badge. 873 exercises, each with a start-position
+and an end-position photo.
+
+Halal Pro Gym does not redistribute these files; it loads them from a **pinned commit** on jsDelivr,
+so the mapping and the images can never drift apart. The catalogue-id to photo mapping is built by
+`scripts/build-exercise-media.mjs` and committed as `frontend/src/lib/exercise-media.json`.
+
+The Unlicense requires no attribution. It is given here anyway, because knowing where a dataset
+came from is what lets the next person verify it.
+
 ## Body diagram geometry
 
 The muscle outlines the body maps are drawn from (`frontend/src/lib/body-paths.js`) are derived

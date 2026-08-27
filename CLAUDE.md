@@ -21,20 +21,36 @@ Konsekuensi yang harus dijaga di kode:
   Kalau link itu hilang, kita melanggar lisensi. Jangan hapus.
 - `LICENSE` dan `NOTICE.md` jangan pernah dihapus atau dipangkas.
 
-## Aset latihan — satu jebakan hukum yang mahal
+## Aset latihan — tiga lisensi berbeda, jangan dicampur
 
 | Bagian | Lisensi | Boleh dipakai? |
 | --- | --- | --- |
-| Nama + instruksi 1.324 latihan | MIT (ExerciseDB v1) | **Ya**, komersial pun |
-| **Gambar + GIF** | **© Gym visual** | **TIDAK.** Butuh lisensi sendiri. |
-| Path diagram otot (`lib/body-paths.js`) | MIT (MuscleMap) | **Ya** |
+| Nama + instruksi 1.324 latihan | MIT (ExerciseDB) | **Ya**, komersial pun |
+| **Gambar + GIF asal openGym** | **© Gym visual** | **TIDAK.** Butuh lisensi sendiri. |
+| **Foto demo free-exercise-db** | **Unlicense** (domain publik) | **Ya**, tanpa syarat |
+| Diagram otot (`lib/body-paths.js`) | MIT (MuscleMap) | **Ya** |
 
 **Jangan pernah** mengunduh, meng-commit, atau menautkan media Gym visual — termasuk lewat CDN
 jsDelivr seperti yang dilakukan upstream. Fig-leaf "diunduh runtime, tidak kami distribusikan"
 milik upstream **tidak berlaku untuk produk komersial.**
 
-Sampai aset sendiri ada: tampilkan **diagram otot MuscleMap + teks instruksi**. Itu license-clean,
-nol biaya, dan sekaligus menyelesaikan soal aurat — tidak ada figur berpakaian minim.
+Yang dipakai sekarang: **foto free-exercise-db**, lisensinya Unlicense, diverifikasi lewat API
+GitHub (`spdx_id`) bukan badge README. 329 dari 1.324 latihan terpetakan, dan **24,8% itu angka
+yang disengaja** — lihat `scripts/build-exercise-media.mjs`. Aturannya konservatif: nama identik,
+atau selisih kata tanpa makna gerakan DAN otot primer setuju.
+
+**Skor kemiripan DILARANG untuk pencocokan ini.** Percobaan dengan Jaccard >= 0.6 menghasilkan
+490 kecocokan, dan kesalahannya justru yang paling berbahaya: "rear delt raise" -> "rear delt
+ROW", "REVERSE close-grip bench press" -> "close-grip bench press". Kata yang hilang persis kata
+yang menentukan variannya, dan orang meniru demo yang dia lihat. Kalau menaikkan cakupan,
+naikkan lewat alias yang diperiksa manusia — jangan lewat skor.
+
+Latihan tanpa foto mendapat **diagram otot MuscleMap** (`components/ExerciseAnatomy.jsx`), bukan
+kotak kosong. Itu license-clean, dan menjawab pertanyaan yang berbeda: otot mana yang dikerjakan.
+
+Commit free-exercise-db **di-pin** di dua tempat yang harus tetap sama:
+`scripts/build-exercise-media.mjs` dan `lib/exercise-media.ts`. Kalau dinaikkan, jalankan
+`node scripts/build-exercise-media.mjs --report` dan **periksa mata** kecocokan yang tidak identik.
 
 ## Stack
 

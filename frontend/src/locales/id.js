@@ -104,6 +104,10 @@ export default {
   /** Penghubung di keterangan peta otot: "Dada · juga Bahu, Triceps". */
   'also': 'juga',
 
+  /* ---- label dua bingkai demo gerakan ---- */
+  'start position': 'posisi awal',
+  'end position': 'posisi akhir',
+
   /* ---- tampilan ---- */
   'Language': 'Bahasa',
   'Theme': 'Tema',

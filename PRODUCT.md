@@ -40,9 +40,10 @@ Tidak ada feed sosial, leaderboard, atau gamifikasi. Bukan app nutrisi.
 ## Batasan yang mengikat desain
 
 - **AGPL-3.0.** Repo publik, link source wajib ada di dalam app.
-- **Gambar latihan © Gym visual — tidak boleh dipakai.** Nama dan instruksi (MIT) boleh.
-  Sampai aset sendiri ada, demo gerakan pakai **diagram otot MuscleMap (MIT)** + teks.
-  Ini sekaligus menyelesaikan soal aurat: nol figur berpakaian minim.
+- **Gambar asal openGym © Gym visual — tidak boleh dipakai.** Diganti foto
+  **free-exercise-db (Unlicense, domain publik)**: 329 latihan dapat foto posisi awal dan akhir.
+  Sisanya dapat **diagram otot MuscleMap (MIT)**, yang menjawab pertanyaan berbeda dan bukan
+  keadaan error. Nama dan instruksi tetap MIT (ExerciseDB).
 - Android + PWA. iOS ditunda (butuh Mac + $99/tahun).
 - Offline-first: localStorage source of truth, Supabase target sync.
 - Target siap **pertengahan Januari 2027**, tiga minggu sebelum Ramadan 1448 (≈ 8 Feb 2027).

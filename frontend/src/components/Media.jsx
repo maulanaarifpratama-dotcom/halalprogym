@@ -1,29 +1,41 @@
 import { useState } from 'react'
 import { imgSrc, gifSrc } from '../lib/exercises.js'
+import { demoFrames } from '../lib/exercise-media.js'
 import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 import ExerciseAnatomy from './ExerciseAnatomy.jsx'
 
-// Big autoplaying animation; tap toggles to the still frame. `compact` shrinks it (superset cards).
-// `minimizable` (workout view) adds a persistent minimize/expand control so the animation stops
-// eating the screen; the chosen size is saved to settings and carries across exercises and
-// future workouts (issue #12).
+// Demo gerakan. `compact` mengecilkannya (kartu superset); `minimizable` (layar Workout)
+// menambah kontrol kecilkan/besarkan yang pilihannya tersimpan di Settings (issue #12).
 //
-// TANPA MEDIA, SLOT INI TIDAK DIBIARKAN KOSONG.
+// TIGA TINGKAT, urut dari yang paling spesifik:
 //
-// Jalur lama mengembalikan null kalau `ex.gif` tidak ada — benar waktu itu, karena cuma
-// latihan buatan user yang tidak punya media. Sekarang tidak: gambar Gym visual dicabut dari
-// build ini karena lisensinya, jadi TIDAK ADA latihan yang punya media sampai aset sendiri
-// dibuat. Slot kosong di setiap latihan berarti app kehilangan hal paling intinya.
+//   1. VITE_DEMO_BASE / media lokal kalau VITE_IMG_BASE disetel eksplisit — jalur untuk yang
+//      self-host dengan lisensi medianya sendiri. Tidak aktif secara default.
+//   2. Foto free-exercise-db (Unlicense, domain publik) — dua bingkai, posisi awal dan akhir.
+//      Tap membolak-balik keduanya. Ini yang dipakai 329 latihan.
+//   3. Diagram otot MuscleMap (MIT) untuk sisanya.
 //
-// Jadi absennya media atau gagal-muat jatuh ke peta otot (MuscleMap, MIT) — lihat
-// ExerciseAnatomy.jsx untuk alasan lengkapnya. Media tetap DICOBA lebih dulu: yang self-host
-// dengan lisensi Gym visual sendiri, atau nanti aset kita sendiri, tetap tampil seperti biasa.
+// Tingkat 3 bukan keadaan error, dan penting untuk tidak memperlakukannya begitu: dia menjawab
+// pertanyaan yang berbeda — otot mana yang dikerjakan — yang justru tidak pernah dijawab foto
+// atau GIF. Lihat ExerciseAnatomy.jsx.
+//
+// Gagal muat di tingkat mana pun jatuh ke tingkat 3. Tidak ada kotak kosong, tidak ada ikon
+// gambar-rusak bawaan browser.
+
+const ENV = (typeof import.meta !== 'undefined' && import.meta.env) || {}
+// Hanya kalau di-set EKSPLISIT saat build. Jalur warisan menunjuk media Gym visual yang tidak
+// kita distribusikan, jadi dia mati kecuali seseorang sengaja menyalakannya.
+const LEGACY_MEDIA = !!ENV.VITE_IMG_BASE
+
 export default function Media({ ex, id, compact, minimizable }) {
-  const [playing, setPlaying] = useState(true)
-  // Disimpan sebagai id, bukan boolean: satu komponen Media dipakai ulang saat latihan berganti
-  // di dalam sesi, dan boolean akan membawa kegagalan latihan sebelumnya ke latihan berikutnya.
+  // Bingkai mana yang ditampilkan. Bukan "playing": tidak ada yang berputar — dua posisi diam
+  // yang bisa ditatap justru lebih berguna untuk mempelajari bentuk gerakan daripada animasi
+  // tiga detik, karena kamu bisa berhenti di posisi yang ingin kamu tiru.
+  const [frame, setFrame] = useState(0)
+  // Disimpan sebagai id latihan, bukan boolean: satu komponen Media dipakai ulang saat latihan
+  // berganti di dalam sesi, dan boolean akan membawa kegagalan latihan sebelumnya ke berikutnya.
   const [failedId, setFailedId] = useState(null)
   const gifSize = useStore(s => s.S.gifSize)
   const update = useStore(s => s.update)
@@ -35,47 +47,80 @@ export default function Media({ ex, id, compact, minimizable }) {
       <Icon name={mini ? 'expand' : 'minimize'} />{mini ? t('Expand') : t('Minimize')}
     </button>
   )
+  const cls = extra => 'exmedia' + extra + (compact ? ' compact' : '') + (mini ? ' mini' : '')
 
-  const noMedia = !ex.gif || failedId === ex.id
-  if (noMedia) {
-    const anat = <ExerciseAnatomy ex={ex} compact={compact} mini={mini} />
-    if (!anat) return null
+  const frames = demoFrames(ex)
+  const failed = failedId === ex.id
+  const legacy = LEGACY_MEDIA && ex.gif
+
+  if (!failed && (frames.length > 0 || legacy)) {
+    const srcs = legacy ? [gifSrc(ex), imgSrc(ex)] : frames
+    const shown = srcs[frame % srcs.length]
+    const many = srcs.length > 1
     return (
-      <div className={'exmedia anat' + (compact ? ' compact' : '') + (mini ? ' mini' : '')} id={id}>
-        {anat}
+      <div className={cls('')} id={id} onClick={many ? () => setFrame(f => f + 1) : undefined}>
+        <img
+          decoding="async"
+          src={shown}
+          alt={exerciseNameFor(ex)}
+          onError={() => setFailedId(ex.id)}
+        />
         {sizeToggle}
+        {!mini && many && (
+          <span className="gifhint">
+            <Icon name="reset" />
+            {frame % srcs.length === 0 ? t('start position') : t('end position')}
+          </span>
+        )}
       </div>
     )
   }
 
+  const anat = <ExerciseAnatomy ex={ex} compact={compact} mini={mini} />
+  if (!anat) return null
   return (
-    <div className={'exmedia' + (compact ? ' compact' : '') + (mini ? ' mini' : '')} id={id} onClick={() => setPlaying(p => !p)}>
-      <img
-        decoding="async"
-        src={playing ? gifSrc(ex) : imgSrc(ex)}
-        alt={exerciseNameFor(ex)}
-        onError={() => setFailedId(ex.id)}
-      />
+    <div className={cls(' anat')} id={id}>
+      {anat}
       {sizeToggle}
-      {!mini && (
-        <span className="gifhint">
-          <Icon name={playing ? 'pause' : 'play'} />{playing ? t('tap to pause') : t('tap to play')}
-        </span>
-      )}
     </div>
   )
 }
 
+/**
+ * Ikon cadangan thumbnail, mengikuti BAGIAN TUBUH.
+ *
+ * Peta otot tidak terbaca pada 50px, jadi thumbnail memakai ikon. Tapi ikon dumbbell yang sama
+ * di setiap baris tidak memberi informasi apa pun — dan daftar latihan diurut alfabet, jadi
+ * satu layar bisa berisi 37 baris tanpa foto berturut-turut. Ikon per bagian tubuh membuat
+ * daftar itu bisa dipindai mata: kamu melihat kelompok latihannya tanpa membaca namanya.
+ */
+const BP_ICON = {
+  chest: 'figureStrength',
+  back: 'pullup',
+  shoulders: 'dumbbell',
+  'upper arms': 'arm',
+  'lower arms': 'arm',
+  waist: 'abs',
+  'upper legs': 'legs',
+  'lower legs': 'legs',
+  neck: 'person',
+  cardio: 'figureRun'
+}
+
 export function Thumb({ ex }) {
   const [failed, setFailed] = useState(false)
-  // Peta otot tidak terbaca pada 50px, jadi thumbnail tetap memakai ikon — tapi sekarang juga
-  // saat gambarnya GAGAL muat, bukan cuma saat tidak ada. Tanpa itu setiap baris daftar
-  // menampilkan ikon gambar-rusak bawaan browser.
-  if (!ex.img || failed) return <div className="thumb thumb-x"><Icon name="dumbbell" /></div>
+  // Bingkai pertama demo kalau ada; ikon kalau tidak — termasuk saat gambarnya GAGAL muat,
+  // bukan cuma saat tidak ada. Tanpa itu setiap baris daftar menampilkan ikon gambar-rusak
+  // bawaan browser.
+  const frames = demoFrames(ex)
+  const src = frames[0] || (LEGACY_MEDIA && ex.img ? imgSrc(ex) : null)
+  if (!src || failed) {
+    return <div className="thumb thumb-x"><Icon name={BP_ICON[ex.bp] || 'dumbbell'} /></div>
+  }
   return (
     <img
       className="thumb" loading="lazy" decoding="async"
-      src={imgSrc(ex)} alt="" onError={() => setFailed(true)}
+      src={src} alt="" onError={() => setFailed(true)}
     />
   )
 }
