@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { effectiveRoutine, effectiveRoutineId, streakWeeks, lastBW, setsDoneActive } from '../lib/history.js'
@@ -7,6 +7,7 @@ import { t, dateLocale } from '../lib/i18n.js'
 import { getLang } from '../lib/i18n-core.js'
 import { fmtHijri } from '../lib/hijri.js'
 import { totalsOn } from '../lib/nutrition.js'
+import { prefetchRoutine } from '../lib/prefetch.js'
 import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, loadStarterPlan, bwDeltaColor } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
@@ -28,6 +29,15 @@ export default function Home() {
   const kcalToday = totalsOn(S.meals, S.foods, todayISO()).kcal
   const kcalTarget = S.nutritionTarget?.kcal || 0
   const routine = effectiveRoutine(S, todayISO())
+
+  // Siapkan foto rencana HARI INI selagi masih di jaringan yang baik. Urutan yang sebenarnya
+  // terjadi: orang membuka app di rumah pakai wifi untuk melihat rencananya, lalu berangkat ke
+  // gym — dan di sanalah sinyalnya jelek dan fotonya dibutuhkan. Cache yang diisi saat
+  // dibutuhkan selalu terlambat satu langkah.
+  //
+  // Sepenuhnya opsional dan tidak ditunggu: nol service worker, koneksi hemat data, atau tidak
+  // ada foto untuk rencana hari ini semuanya berarti tidak terjadi apa-apa. Lihat lib/prefetch.ts.
+  useEffect(() => { prefetchRoutine(routine) }, [routine])
   const todayOvr = S.dayPlan[todayISO()] !== undefined
   const bw = lastBW(S)
   const prevBW = S.bodyweight.length > 1 ? S.bodyweight[S.bodyweight.length - 2] : null
