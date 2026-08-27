@@ -27,16 +27,22 @@ describe('Brazilian Portuguese locale', () => {
       .sort(byCodeUnit)
     const fingerprint = createHash('sha256').update(JSON.stringify(inherited)).digest('hex')
 
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(291)
-    // 449 -> 452: tiga kunci demo gerakan ('also', 'start position', 'end position') ditambahkan
-    // ke pt DAN pt-BR dengan nilai yang sama, jadi ketiganya masuk sebagai warisan, bukan
-    // override. Selisihnya persis tiga — itu reviewnya: jumlahnya cocok tanpa sisa, dan tidak
-    // ada kata pt-PT lain yang berubah. Hash baru diambil dari alat yang disediakan repo ini,
-    // bukan ditempel dari pesan kegagalan.
-    expect(inherited).toHaveLength(452)
+    // 291 -> 292: kunci catatan waktu salat masuk PT_BR_OVERRIDES, karena dia memang
+    // berbeda regional — Portugal menulis "Ramadão", Brasil "Ramadã". Ditaruh di overrides
+    // dan bukan ditempel di ekor default export, supaya dia tidak TERLIHAT diwarisi padahal
+    // sebenarnya di-override; itu justru drift yang tes ini ada untuk menangkapnya.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(292)
+    // 449 -> 452 -> 457. Dua gelombang:
+    //   +3  demo gerakan ('also', 'start position', 'end position')
+    //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
+    // Semuanya ditambahkan ke pt DAN pt-BR dengan nilai identik, jadi masuk sebagai warisan.
+    // Kunci catatan waktu salat TIDAK ada di sini — dia jadi override, lihat di atas.
+    // Selisihnya cocok tanpa sisa: itu reviewnya. Hash diambil dari
+    // scripts/pt-br-inheritance-fingerprint.mjs, bukan ditempel dari pesan kegagalan.
+    expect(inherited).toHaveLength(457)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('744ca025f8b0efb82f326ff63c7e68c9faab3b862bc26a4fd6fac20e4d993983')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('0e2b96c501f16f28dd4895626c372f57be918c6d1cb3008220bca02756427cf6')
   })
 
   test('does not leak European Portuguese UI terms', () => {

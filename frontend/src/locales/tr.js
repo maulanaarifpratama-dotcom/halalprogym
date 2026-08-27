@@ -677,5 +677,13 @@ export default {
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
   'also': 'ayrıca',
   'start position': 'başlangıç pozisyonu',
-  'end position': 'bitiş pozisyonu'
+  'end position': 'bitiş pozisyonu',
+  /* waktu salat */
+  'Prayer times': 'namaz vakitleri',
+  'Prayer city': 'namaz vakitleri için şehir',
+  'Imsak': 'İmsak',
+  'tomorrow': 'yarın',
+  '{0} now': 'şimdi {0}',
+  'Calculated times. For Ramadan, check your local official schedule.':
+    'Hesaplanmış vakitler. Ramazanda yerel resmî takvimle karşılaştır.'
 }

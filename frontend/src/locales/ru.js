@@ -677,5 +677,13 @@ export default {
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
   'also': 'также',
   'start position': 'начальная позиция',
-  'end position': 'конечная позиция'
+  'end position': 'конечная позиция',
+  /* waktu salat */
+  'Prayer times': 'время молитв',
+  'Prayer city': 'город для времени молитв',
+  'Imsak': 'Имсак',
+  'tomorrow': 'завтра',
+  '{0} now': 'сейчас {0}',
+  'Calculated times. For Ramadan, check your local official schedule.':
+    'Расчётное время. В Рамадан сверяйся с местным официальным расписанием.'
 }

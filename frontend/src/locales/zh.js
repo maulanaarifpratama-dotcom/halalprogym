@@ -677,5 +677,13 @@ export default {
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
   'also': '还有',
   'start position': '起始姿势',
-  'end position': '结束姿势'
+  'end position': '结束姿势',
+  /* waktu salat */
+  'Prayer times': '礼拜时间',
+  'Prayer city': '礼拜时间所用城市',
+  'Imsak': '封斋时',
+  'tomorrow': '明天',
+  '{0} now': '现在{0}',
+  'Calculated times. For Ramadan, check your local official schedule.':
+    '计算得出的时间。斋月请以当地官方时间表为准。'
 }

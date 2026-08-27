@@ -677,5 +677,13 @@ export default {
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
   'also': '또한',
   'start position': '시작 자세',
-  'end position': '끝 자세'
+  'end position': '끝 자세',
+  /* waktu salat */
+  'Prayer times': '기도 시간',
+  'Prayer city': '기도 시간 기준 도시',
+  'Imsak': '임사크',
+  'tomorrow': '내일',
+  '{0} now': '지금 {0}',
+  'Calculated times. For Ramadan, check your local official schedule.':
+    '계산된 시간입니다. 라마단에는 현지 공식 시간표를 확인하세요.'
 }

@@ -4,6 +4,9 @@
 import pt from './pt.js'
 
 export const PT_BR_OVERRIDES = {
+  // Override regional yang disengaja: Portugal menulis "Ramadão", Brasil "Ramadã".
+  'Calculated times. For Ramadan, check your local official schedule.':
+    'Horários calculados. No Ramadã, confira com o calendário oficial local.',
   'Press back again to exit': 'Pressione voltar novamente para sair',
   'Delete': 'Excluir',
   'Save': 'Salvar',
@@ -309,5 +312,11 @@ export default { ...pt, ...PT_BR_OVERRIDES,
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
   'also': 'também',
   'start position': 'posição inicial',
-  'end position': 'posição final'
+  'end position': 'posição final',
+  /* waktu salat */
+  'Prayer times': 'horários de oração',
+  'Prayer city': 'cidade para os horários',
+  'Imsak': 'Imsak',
+  'tomorrow': 'amanhã',
+  '{0} now': '{0} agora',
 }
