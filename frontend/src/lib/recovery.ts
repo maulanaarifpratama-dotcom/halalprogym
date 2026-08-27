@@ -1,14 +1,16 @@
 import { EXIDX } from './exercises.js'
 import { MUSCLES, musclesOf } from './muscles.js'
 import { isWarmupRow, dropsOf } from './workout-model.js'
-import type { Exercise, SetRow, Workout, WorkoutEntry } from './types.js'
+import type { Exercise, MuscleMap, MuscleSource, SetRow, Workout, WorkoutEntry } from './types.js'
 
 // EXIDX diisi dinamis di exercises.js yang masih JS. Dilebarkan sekali di batasnya dengan
 // bentuk sebenarnya, pola yang sama dengan progression.ts.
 const EX_INDEX = EXIDX as Record<string, Exercise | undefined>
 
-/** Nilai per slug otot. Selalu memuat SETIAP otot yang bisa digambar. */
-export type MuscleMap = Record<string, number>
+// MuscleMap tinggal di types.ts sekarang — muscles.ts memakainya juga, dan satu alias
+// yang terdefinisi di dua modul itu utang yang menunggu melenceng. Di-re-export karena
+// dia bagian dari API publik berkas ini.
+export type { MuscleMap }
 
 /**
  * Rekaman tersimpan boleh membawa field warisan yang tidak ada di tipe bersama - cap unit
@@ -302,7 +304,9 @@ function sessionTonnages(
   const sums = emptyMuscleMap(0)
   const oneRms = session1RMs(workout, opts)
   for (const entry of (workout?.entries || []) as LooseEntry[]) {
-    const weights = musclesOf(EX_INDEX[entry.id as string]) as MuscleMap
+    // Exercise itu interface tertutup dan musclesOf menerima rekaman terbuka; entri katalog
+    // memang sumber metadata otot yang sah, jadi cast-nya menyatakan itu, bukan melemahkan apa pun.
+    const weights = musclesOf(EX_INDEX[entry.id as string] as MuscleSource | undefined)
     for (const set of (entry.sets || []) as LooseSet[]) {
       if (set?.done !== true) continue
       const measured = setTonnage(
@@ -433,7 +437,7 @@ export function strengthOf(
     if (!Number.isFinite(timestamp)) continue
     for (const entry of workout.entries || []) {
       if (!(entry.sets || []).some(set => set?.done === true && !isWarmupRow(set))) continue
-      for (const slug of Object.keys(musclesOf(EX_INDEX[entry.id as string]))) {
+      for (const slug of Object.keys(musclesOf(EX_INDEX[entry.id as string] as MuscleSource | undefined))) {
         if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug)
           && timestamp > (latest[slug] ?? -Infinity)) {
           latest[slug] = timestamp

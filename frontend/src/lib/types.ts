@@ -10,6 +10,21 @@
  * mulai hidup — bukan di file SQL terpisah yang langsung melenceng.
  */
 
+/**
+ * Nilai per slug otot. Fungsi yang mengembalikannya selalu memuat SETIAP otot yang bisa
+ * digambar, jadi pemanggil tidak perlu menjaga slug yang hilang.
+ */
+export type MuscleMap = Record<string, number>
+
+/**
+ * Sumber metadata otot: bisa latihan katalog, entri riwayat, atau snapshot yang tertinggal
+ * di riwayat setelah latihan buatan user dihapus. Sengaja bertipe rekaman terbuka, karena
+ * itulah kenyataannya — muscles.ts membaca belasan nama kunci alternatif (`primaries` /
+ * `primaryMuscles` / `primary`, `muscleGroups` / `muscles` / `targetMuscles`) supaya data
+ * warisan dan hasil impor tetap terbaca. Toleransi itu fiturnya, bukan kelalaian tipe.
+ */
+export type MuscleSource = { [k: string]: unknown }
+
 export type SetPhase = 'work' | 'warmup'
 export type SetType = 'straight' | 'dropset' | 'restpause'
 export type SetMode = 'reps' | 'time' | 'cardio'
