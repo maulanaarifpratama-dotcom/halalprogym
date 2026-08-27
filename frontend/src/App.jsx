@@ -38,8 +38,11 @@ function applyPrefs(theme, accent) {
   const de = document.documentElement
   de.dataset.theme = resolveTheme(theme)
   de.dataset.accent = ACCENTS[accent] ? accent : 'lime'
+  // Dibaca dari token, bukan dihardcode: dua nilai lama (#f2f2f7 / #000000) sudah melenceng
+  // dari palet setelah rebrand, dan seam-nya kelihatan di HP — chrome browser hitam pekat di
+  // atas latar app #050806. Membaca --bg berarti tidak bisa melenceng lagi.
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.content = de.dataset.theme === 'light' ? '#f2f2f7' : '#000000'
+  if (meta) meta.content = getComputedStyle(de).getPropertyValue('--bg').trim() || '#050806'
 }
 
 function Shell() {

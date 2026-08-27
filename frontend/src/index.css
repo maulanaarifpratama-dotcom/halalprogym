@@ -1,5 +1,6 @@
 /* ============================================================================
-   openGym — design system
+   Halal Pro Gym — design system
+   Palet dari halalpro.id. Alasan tiap keputusan ada di DESIGN.md di root repo.
    ----------------------------------------------------------------------------
    Rebuilt around four rules, each aimed at a specific "generated" tell in the
    previous sheet:
@@ -18,73 +19,95 @@
 
 /* ---------------------------------------------------------------- tokens -- */
 :root {
-  /* surfaces — dark is the default */
-  --bg:        #000000;
-  --bg-el:     #0e0e10;   /* elevated backdrop (sheets, bars) */
-  --surface:   #1c1c1e;   /* card / grouped-list fill */
-  --surface-2: #2c2c2e;   /* pressed + nested fill */
-  --surface-3: #3a3a3c;   /* controls (segmented track, switch off) */
+  /* brand — halalpro.id */
+  --lime:      #94e900;
+  --lime-soft: #b4f43f;
+  --deep:      #008140;
 
-  /* text */
-  --label:     #ffffff;
-  --label-2:   rgba(235,235,245,.60);
-  --label-3:   rgba(235,235,245,.32);
-  --label-4:   rgba(235,235,245,.18);
+  /* surfaces — dark is the default.
+     Tangga ink brand cuma 4 langkah dan sangat rapat (#050806 -> #111a12): benar untuk situs
+     dua-tiga bidang besar, salah untuk app yang butuh kartu bisa dibedakan dari latarnya.
+     Jadi diperpanjang ke atas dengan hue dipertahankan — R/G ~.60, B/G ~.68 di setiap langkah,
+     pola yang sama dengan ink brand. Kanal G: 8 -> 18 -> 28 -> 42 -> 56, separasi setara
+     tangga netral yang digantikan. */
+  --bg:        #050806;   /* --ink brand, apa adanya */
+  --bg-el:     #0a120c;   /* elevated backdrop (sheets, bars) */
+  --surface:   #101c13;   /* card / grouped-list fill */
+  --surface-2: #182a1c;   /* pressed + nested fill */
+  --surface-3: #213826;   /* controls (segmented track, switch off) */
 
-  /* lines */
-  --sep:       rgba(84,84,88,.60);
-  --sep-op:    rgba(84,84,88,.34);   /* for edges sitting over blur */
+  /* text — putih pecah bernada hijau, dari --fg brand */
+  --label:     #eaf3e6;
+  --label-2:   rgba(234,243,230,.66);
+  --label-3:   rgba(234,243,230,.40);
+  --label-4:   rgba(234,243,230,.20);
+
+  /* lines — hairline bernada lime, detail paling khas brand-nya.
+     Situs pakai .14 untuk belasan garis; app punya ratusan, dan pada kepadatan itu .14 mulai
+     menghijaukan seluruh UI. Pada .12 satu garis terbaca netral yang nyaris hangat — yang
+     terasa cuma kumpulannya. */
+  --sep:       rgba(148,233,0,.12);
+  --sep-op:    rgba(148,233,0,.08);   /* for edges sitting over blur */
   --hair:      .5px;
 
   /* system palette (iOS dark values) */
-  --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a;
+  /* status tetap netral — semantik, bukan brand. Menghijaukan --red/--orange berarti
+     mengurangi kejelasan demi konsistensi. Hanya --green di-brand, karena "berhasil"
+     dan brand memang kebetulan warna yang sama. */
+  --blue:#0a84ff; --green:#0db800; --red:#ff453a; --orange:#ff9f0a;
   --yellow:#ffd60a; --teal:#40c8e0; --indigo:#5e5ce6; --pink:#ff375f;
   --purple:#bf5af2; --mint:#63e6e2; --brown:#ac8e68; --grey:#8e8e93;
 
   /* accent (per-account, synced) */
-  --acc:  var(--green);
-  --acc-2:#248a3d;
-  --on-acc:#000000;
+  --acc:  var(--lime);
+  --acc-2:var(--green);
+  --on-acc:#06140a;   /* --btn-fg brand */
   --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
   --acc-line: color-mix(in srgb, var(--acc) 38%, transparent);
 
   /* geometry */
-  --r-sm:8px; --r:12px; --r-lg:16px; --r-xl:22px; --r-card:14px;
+  /* 10/18/28 adalah radius halalpro.id apa adanya; 14/16 mengisi celah khas app.
+     Radius brand penuh (sampai 40px) terlihat seperti mainan pada kartu daftar. */
+  --r-sm:10px; --r:14px; --r-lg:18px; --r-xl:28px; --r-card:16px;
   --pad:16px;
   --icon-stroke:1.7;
 
   /* motion */
   --ease:cubic-bezier(.32,.72,0,1);
   --fast:140ms; --med:220ms;
+  --exit:200ms;   /* keluar selalu mengalahkan masuk — aturan brand, dan benar:
+                     menutup harus terasa langsung, membuka boleh punya berat */
 
   --sab:env(safe-area-inset-bottom,0px);
   --sat:env(safe-area-inset-top,0px);
 }
 
 :root[data-theme="light"] {
-  --bg:        #f2f2f7;
-  --bg-el:     #f7f7fa;
+  /* --paper / --paper-2 / --paper-fg brand */
+  --bg:        #f3f7ef;
+  --bg-el:     #f7faf4;
   --surface:   #ffffff;
-  --surface-2: #ececef;
-  --surface-3: #e3e3e8;
+  --surface-2: #e8efe1;
+  --surface-3: #dde6d5;
 
-  --label:     #000000;
-  --label-2:   rgba(60,60,67,.60);
-  --label-3:   rgba(60,60,67,.30);
-  --label-4:   rgba(60,60,67,.16);
+  --label:     #0a1109;
+  --label-2:   rgba(10,17,9,.66);
+  --label-3:   rgba(10,17,9,.40);
+  --label-4:   rgba(10,17,9,.18);
 
-  --sep:       rgba(60,60,67,.29);
-  --sep-op:    rgba(60,60,67,.20);
+  /* di atas paper, lime .12 nyaris hilang — garis terang pakai tinta, bukan aksen */
+  --sep:       rgba(10,17,9,.14);
+  --sep-op:    rgba(10,17,9,.10);
 
-  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500;
+  --blue:#007aff; --green:#0a9a00; --red:#ff3b30; --orange:#ff9500;
   --yellow:#ffcc00; --teal:#30b0c7; --indigo:#5856d6; --pink:#ff2d55;
   --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
-  --acc-2:#248a3d;
-  --on-acc:#ffffff;
+  --acc-2:var(--green);
+  --on-acc:#06140a;   /* lime terlalu terang untuk teks putih di tema mana pun */
 }
 
 /* accents — Apple's system colours, so a recolour never looks off-system */
-:root[data-accent="lime"]  { --acc:var(--green);  --acc-2:#248a3d; --on-acc:#000 }
+:root[data-accent="lime"]  { --acc:var(--lime);  --acc-2:var(--green); --on-acc:#06140a }
 :root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
 :root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
 :root[data-accent="violet"]{ --acc:var(--purple); --acc-2:#8944ab; --on-acc:#fff }
@@ -93,11 +116,12 @@
 :root[data-accent="teal"]  { --acc:var(--teal);   --acc-2:#0071a4; --on-acc:#000 }
 :root[data-accent="gold"]  { --acc:var(--yellow); --acc-2:#b25000; --on-acc:#000 }
 /* Label colour on a filled accent button is picked per accent by measured contrast,
-   not by taste. Button text is 17px/600, so the AA bar is 3:1 (large text). White on
-   the light-theme green is 2.22:1 and on teal 2.57:1 — both fail, and green is the
-   DEFAULT accent, so every primary button in light mode was failing. Black scores
-   9.46 / 8.16 there. Blue, purple, pink and red keep white (3.5–4.1:1), which both
-   passes and matches the platform convention. */
+   not by taste. Button text is 17px/600, so the AA bar is 3:1 (large text).
+   Aturan ini diwarisi dan tetap berlaku — dan aksen default sekarang JUSTRU memperkuatnya:
+   lime brand (#94e900) lebih terang lagi dari hijau iOS yang digantikannya, jadi teks putih
+   gagal lebih jauh dan teks gelap makin jelas benar. Karena itu --on-acc lime dipatok
+   #06140a (nilai --btn-fg brand) di kedua tema, bukan putih di tema terang.
+   Blue, purple, pink dan red tetap putih (3.5-4.1:1) — lolos, dan sesuai konvensi platform. */
 :root[data-theme="light"][data-accent="lime"],
 :root[data-theme="light"][data-accent="teal"]  { --on-acc:#000 }
 :root[data-theme="light"][data-accent="sky"],
@@ -228,7 +252,12 @@ h4.sec{
 .lrow-i{
   width:29px;height:29px;border-radius:7px;flex:none;font-size:18px;
   display:flex;align-items:center;justify-content:center;
-  background:var(--tint,var(--acc));color:#fff;
+  /* Glyph GELAP, bukan putih. Aksen brand itu lime #94e900 (luminance .646): putih di
+     atasnya cuma 1.51:1 — praktis tak terlihat. Dan ini memperbaiki bug yang sudah ada:
+     putih di atas --yellow cuma 1.35:1. Diukur untuk setiap tint yang benar-benar
+     dipakai (acc, blue, red, yellow, indigo, grey), tinta gelap menang di semuanya:
+     12.6 / 5.9 / 6.5 / 14 / 4.3 / 6.0 : 1. */
+  background:var(--tint,var(--acc));color:var(--on-acc);
 }
 .lrow-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .lrow-t{font-size:17px;letter-spacing:-.012em;line-height:1.25}
@@ -344,7 +373,7 @@ h4.sec{
    fully opaque instead. Keep this in sync with the rules above. */
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   #tabbar{background:var(--bg-el)}
-  :root[data-theme="light"] #tabbar{background:#f9f9fb}
+  :root[data-theme="light"] #tabbar{background:#f7faf4}
   #timer{background:var(--surface)}
   #toast{background:var(--surface-2)}
 }
@@ -376,7 +405,7 @@ h4.sec{
   transition:background var(--fast);text-align:left;width:100%;
 }
 .item:active{background:var(--surface-2)}
-.thumb{width:50px;height:50px;border-radius:9px;object-fit:cover;background:#fff;flex:none}
+.thumb{width:50px;height:50px;border-radius:9px;object-fit:cover;background:var(--surface-2);flex:none}
 .thumb-x{
   display:flex;align-items:center;justify-content:center;font-size:21px;
   background:var(--surface-2);color:var(--label-2);
@@ -453,6 +482,9 @@ h4.sec{
 .sw .knob{
   width:27px;height:27px;border-radius:50%;background:#fff;
   box-shadow:0 3px 8px rgba(0,0,0,.15),0 1px 1px rgba(0,0,0,.16);
+  /* Detektor menandai animasi lebar di sini. DISENGAJA: ini squash khas switch iOS,
+     140ms sekali toggle di elemen 27px. Dampak layout-nya nihil, dan menggantinya
+     dengan transform menghilangkan rasa yang memang dicari. Jangan "diperbaiki". */
   transition:transform var(--med) var(--ease),width var(--fast) var(--ease);
 }
 .sw.on{background:var(--acc)}
@@ -561,8 +593,12 @@ h4.sec{
 
 /* ------------------------------------------------------------- workout --- */
 .wprog{height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:16px}
+/* Animasi lebar di sini juga DISENGAJA: menyala sekali per set selesai (~60-120 detik),
+   bukan per frame. Dan berbeda dari bar timer, elemen INI yang punya border-radius:99px —
+   scaleX akan memipihkan cap membulatnya. Frekuensi rendah, biaya visual tinggi: biarkan. */
 .wprog i{display:block;height:100%;background:var(--acc);border-radius:99px;transition:width var(--med) var(--ease)}
-.exmedia{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#fff;margin-bottom:12px}
+/* was #fff — berkedip putih di app gelap sebelum gambar/diagram muncul */
+.exmedia{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--surface-2);margin-bottom:12px}
 .exmedia img{width:100%;height:320px;object-fit:contain;display:block}
 .exmedia .gifhint,.exmedia .giftoggle{
   position:absolute;bottom:9px;display:inline-flex;align-items:center;gap:4px;
@@ -667,7 +703,14 @@ h4.sec{
 @keyframes slideup{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
 #timer .t{font-size:26px;font-weight:600;letter-spacing:-.026em;font-variant-numeric:tabular-nums;min-width:66px}
 #timer .bar{flex:1;height:4px;background:var(--surface-3);border-radius:99px;overflow:hidden}
-#timer .bar i{display:block;height:100%;background:var(--acc);transition:width 1s linear}
+/* transform, BUKAN lebar. Timer diperbarui tiap detik, jadi transisi lebar 1 detik
+   akan restart terus dan berjalan nonstop sepanjang istirahat (60-180 detik) — layout+paint
+   di main thread, terus-menerus, di elemen yang paling ditatap orang. scaleX aman di
+   sini karena border-radius:99px ada di induknya yang overflow:hidden; anak ini tidak
+   punya radius, jadi tidak ada cap membulat yang terdistorsi. will-change terbatas:
+   komponennya unmount begitu istirahat selesai. */
+#timer .bar i{display:block;height:100%;width:100%;background:var(--acc);
+  transform-origin:left center;will-change:transform;transition:transform 1s linear}
 /* rest variant: −15/+15/Skip and the clock won't share one line on a phone, so the clock and
    bar take the top row and the controls take their own. The work timer keeps a single row —
    it only ever has two buttons. */

@@ -1,0 +1,63 @@
+# PRODUCT.md — Halal Pro Gym
+
+> Disusun 2026-08-27 dari brief percakapan, **bukan dari wawancara terstruktur** — user
+> menginstruksikan jalan terus tanpa berhenti. Asumsi ditandai `[ASUMSI]` dan layak dikoreksi.
+
+## Apa ini
+
+App latihan pribadi untuk brand **Halal Pro** ("Stay Fit Stay Halal"). Fork openGym, di-rework
+supaya tahu dua hal yang tidak diketahui app latihan lain: **kapan penggunanya salat, dan kapan
+penggunanya puasa.**
+
+## Siapa penggunanya
+
+Muslim Indonesia yang latihan beban, punya HP Android, dan mencatat latihannya sendiri.
+Individu — **bukan** pemilik gym, bukan pelatih dengan daftar klien. Satu akun satu orang.
+
+Yang membedakan mereka dari pengguna app latihan pada umumnya:
+- Latihannya dipotong lima waktu salat, tiap hari, dan jadwalnya bergeser sepanjang tahun
+- Sebulan penuh setahun sekali mereka puasa, dan performanya turun — itu normal, bukan gagal
+- Sebagian puasa Senin–Kamis sepanjang tahun
+- Jumat siang hilang untuk Jumu'ah
+- Sebagian besar tidak nyaman menatap figur berpakaian minim sebagai demo gerakan
+
+## Scene pemakaian sebenarnya — ini yang menyetir desain
+
+**Di gym, satu tangan, layar cerah, sinyal jelek, di antara set, 60–120 detik.**
+
+Konsekuensinya keras:
+- Target sentuh harus besar dan di jangkauan jempol — tangan satunya pegang barbel
+- Angka harus terbaca sekilas, dari jarak lengan, kadang berkeringat dan silau
+- **Nol layar yang menunggu jaringan.** Basement gym tanpa sinyal harus tetap penuh fungsi
+- Timer tidak boleh goyang lebarnya tiap detik
+- Kalau waktu Maghrib masuk di tengah sesi, app yang benar **menjeda**, bukan diam
+
+## Yang bukan tujuan
+
+Bukan sistem manajemen gym. Tidak ada member, tagihan, absensi, kelas, multi-cabang, multi-tenant.
+Tidak ada feed sosial, leaderboard, atau gamifikasi. Bukan app nutrisi.
+
+## Batasan yang mengikat desain
+
+- **AGPL-3.0.** Repo publik, link source wajib ada di dalam app.
+- **Gambar latihan © Gym visual — tidak boleh dipakai.** Nama dan instruksi (MIT) boleh.
+  Sampai aset sendiri ada, demo gerakan pakai **diagram otot MuscleMap (MIT)** + teks.
+  Ini sekaligus menyelesaikan soal aurat: nol figur berpakaian minim.
+- Android + PWA. iOS ditunda (butuh Mac + $99/tahun).
+- Offline-first: localStorage source of truth, Supabase target sync.
+- Target siap **pertengahan Januari 2027**, tiga minggu sebelum Ramadan 1448 (≈ 8 Feb 2027).
+
+## Nada
+
+Tenang, tidak menghakimi, tidak memotivasi berlebihan. Tidak ada "Kamu luar biasa!!" —
+orang di gym sedang bekerja, bukan butuh sorakan. `[ASUMSI]` Bahasa Indonesia sehari-hari,
+bukan formal; istilah gerakan tetap Inggris (deadlift, bench press) karena itu yang dipakai
+orang di gym.
+
+Istilah keislaman ditulis apa adanya dan benar: **Ahad** bukan Minggu, **salat** bukan sholat/shalat
+`[ASUMSI — layak dikonfirmasi, ejaan ini pilihan]`, Jumu'ah, Maghrib, Ayyamul Bidh, Tarawih.
+
+## Yang perlu dikonfirmasi
+
+- Ejaan pilihan: "salat" (KBBI) vs "sholat" (lebih umum dipakai sehari-hari)?
+- Apakah demo bergender (versi akhwat berpakaian syar'i) masuk lingkup, atau satu set netral cukup?

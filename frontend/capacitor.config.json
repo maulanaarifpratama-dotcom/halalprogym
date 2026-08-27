@@ -2,7 +2,7 @@
   "appId": "id.halalpro.gym",
   "appName": "Halal Pro Gym",
   "webDir": "dist",
-  "backgroundColor": "#0c0e12",
+  "backgroundColor": "#050806",
   "android": {
     "allowMixedContent": false
   }
