@@ -150,6 +150,28 @@ Kredensial: `.env.local` (diabaikan git). `VITE_SUPABASE_URL` dan
 (`service_role`, `sb_secret_*`, password DB) **tidak boleh ada di repo ini sama sekali**, dan
 nilainya tidak pernah disalin ke vault, catatan, atau output percakapan.
 
+## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
+
+GitHub melaporkan 11 kerentanan (8 high, 1 critical) di repo ini. Semuanya satu rantai:
+
+    @capacitor/assets -> sharp@0.32.6 -> CVE libvips
+
+**`npm audit --omit=dev` = 0.** Nol yang sampai ke pengguna. `@capacitor/assets` adalah
+devDependency yang cuma jalan saat men-generate ikon dan splash platform, dan
+`@capacitor/assets@3.0.5` sudah versi terbaru — **tidak ada versi perbaikannya**, jadi
+menaikkan versi tidak menyelesaikan apa pun (PR Dependabot yang masuk cuma bump paket lain).
+
+Jalan keluar yang sebenarnya ada dua, dan keduanya sudah ditimbang:
+
+1. **Cabut `@capacitor/assets`.** Ditolak: dia alat yang tepat untuk pekerjaannya — ikon
+   adaptif Android dan splash butuh lebih dari sekadar me-resize PNG. Mencabut alat yang
+   dibutuhkan supaya sebuah badge hijau adalah menukar kualitas dengan penampilan.
+2. **Terima dan catat.** Dipilih. Ini catatannya.
+
+Kalau nanti ada rilis `@capacitor/assets` yang membawa `sharp` baru, naikkan. Sampai itu ada,
+peringatan itu **bukan pekerjaan** — dan sesi berikutnya tidak perlu menemukan ulang kesimpulan
+ini dari nol.
+
 ## Git
 
 ```

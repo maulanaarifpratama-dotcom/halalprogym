@@ -1,9 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512">
-  <!-- App-icon source == the PWA icon (public/icon-512.png), geometry traced 1:1 so the
-       native app, the home-screen PWA and the website favicon all show the same icon.
-       Generate platform icons + splash via `npx @capacitor/assets generate` — docs/MOBILE.md. -->
-  <rect width="512" height="512" fill="#0c0e12"/>
-  <g fill="#a3e635">
+  <!-- Sumber ikon app == ikon PWA (public/icon-512.png), geometrinya dijiplak 1:1 supaya app
+       native, PWA di home screen, dan favicon situs menampilkan ikon yang sama.
+       Ikon platform + splash: `npx @capacitor/assets generate` — docs/MOBILE.md.
+
+       Bentuk barbell-nya DIPERTAHANKAN dari upstream, dan itu keputusan, bukan kemalasan:
+       dia terbaca seketika pada 40px di home screen yang penuh, dan itu satu-satunya ukuran
+       yang benar-benar penting untuk ikon app. Menambah bulan sabit atau kubah akan
+       terlalu gamblang DAN berlumpur di ukuran itu — brand-nya hidup di warnanya.
+
+       Warna diganti ke token Halal Pro: --ink #050806 dan --lime #94e900 (halalpro.id).
+       Sebelumnya #0c0e12 / #a3e635, warna upstream. -->
+  <rect width="512" height="512" fill="#050806"/>
+  <g fill="#94e900">
     <rect x="80" y="242" width="352" height="28"/>
     <rect x="80" y="199" width="36" height="114"/>
     <rect x="131" y="169" width="47" height="174"/>
