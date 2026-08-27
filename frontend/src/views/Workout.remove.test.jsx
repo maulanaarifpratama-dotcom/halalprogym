@@ -110,8 +110,10 @@ describe('remove-exercise locale coverage', () => {
   ]
   const packs = import.meta.glob('../locales/*.js', { eager: true, import: 'default' })
 
-  it('defines every new prompt in all twelve locale packs', () => {
-    expect(Object.keys(packs)).toHaveLength(12)
+  it('defines every new prompt in all thirteen locale packs', () => {
+    // 13 sejak locales/id.js ditambahkan. Pack id sengaja belum lengkap — `t()` jatuh ke
+    // Inggris per-kunci — tapi LIMA kunci ini tetap wajib ada, dan itulah gunanya tes ini.
+    expect(Object.keys(packs)).toHaveLength(13)
     Object.entries(packs).forEach(([path, pack]) => {
       required.forEach(key => expect(pack, `${path} is missing ${key}`).toHaveProperty(key))
     })

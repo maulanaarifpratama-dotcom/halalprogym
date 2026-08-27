@@ -4,7 +4,9 @@
 // loads, the React subscription hook) live in i18n.js and re-export from here.
 
 export const LANGS = {
-  en: 'English', de: 'Deutsch', es: 'Español', fr: 'Français', it: 'Italiano',
+  // id ditaruh kedua, bukan menurut alfabet: itu bahasa pasar sasaran app ini.
+  en: 'English', id: 'Bahasa Indonesia',
+  de: 'Deutsch', es: 'Español', fr: 'Français', it: 'Italiano',
   pt: 'Português (Portugal)', 'pt-BR': 'Português (Brasil)', pl: 'Polski',
   tr: 'Türkçe', ru: 'Русский', zh: '中文',
   ko: '한국어', hi: 'हिन्दी'
@@ -12,7 +14,7 @@ export const LANGS = {
 export const INSTR_LANGS = ['en', 'es', 'fr', 'it', 'tr', 'ru', 'zh', 'hi', 'pl', 'ko', 'pt-BR']
 export const EXERCISE_NAME_LANGS = ['pt-BR']
 export const DATE_LOCALES = {
-  en: 'en-GB', de: 'de-DE', es: 'es-ES', fr: 'fr-FR', it: 'it-IT', pt: 'pt-PT', 'pt-BR': 'pt-BR',
+  en: 'en-GB', id: 'id-ID', de: 'de-DE', es: 'es-ES', fr: 'fr-FR', it: 'it-IT', pt: 'pt-PT', 'pt-BR': 'pt-BR',
   pl: 'pl-PL', tr: 'tr-TR', ru: 'ru-RU', zh: 'zh-CN', ko: 'ko-KR', hi: 'hi-IN'
 }
 

@@ -54,10 +54,20 @@ orang di gym sedang bekerja, bukan butuh sorakan. `[ASUMSI]` Bahasa Indonesia se
 bukan formal; istilah gerakan tetap Inggris (deadlift, bench press) karena itu yang dipakai
 orang di gym.
 
-Istilah keislaman ditulis apa adanya dan benar: **Ahad** bukan Minggu, **salat** bukan sholat/shalat
-`[ASUMSI — layak dikonfirmasi, ejaan ini pilihan]`, Jumu'ah, Maghrib, Ayyamul Bidh, Tarawih.
+Istilah keislaman ditulis benar mengikuti KBBI: **Ahad** bukan Minggu, **salat** bukan
+sholat/shalat, Jumu'ah, Ramadan, Tarawih, Ayyamul Bidh. Gender disebut **Ikhwan / Akhwat**.
+Daftar lengkap dan alasannya: `docs/GLOSARIUM-ID.md`.
+
+## Keputusan yang sudah ditutup
+
+- **Ejaan mengikuti KBBI** (2026-08-27): "salat", bukan "sholat". KBBI ada, jadi dipakai.
+- **Ikhwan / Akhwat sebagai istilah** (2026-08-27) — melabeli diagram tubuh.
+- **Demo gerakan satu set netral untuk semua** (2026-08-27). Tidak ada aset bergender. Aurat
+  dijaga lewat gaya visualnya (line-art / diagram otot), bukan lewat dua set terpisah. Ini
+  menghapus penggandaan aset dari jalur kritis — dan jalur kritis itu jalur terpanjang.
 
 ## Yang perlu dikonfirmasi
 
-- Ejaan pilihan: "salat" (KBBI) vs "sholat" (lebih umum dipakai sehari-hari)?
-- Apakah demo bergender (versi akhwat berpakaian syar'i) masuk lingkup, atau satu set netral cukup?
+- Ejaan nama waktu salat: KBBI menulis **Magrib** (tanpa h), **Asar** (tanpa h), **Zuhur**.
+  Itu benar tapi terasa asing bagi banyak orang yang biasa menulis "Maghrib"/"Ashar". Aturan
+  "ikut KBBI" bilang pakai KBBI; kalau mau yang lebih lazim, ini titik wajar untuk mengecualikan.
