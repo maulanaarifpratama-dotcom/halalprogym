@@ -671,5 +671,19 @@ export default {
     'Aynı muamele, sadece o iki günde — ve bütün bunları Ramazan’dan önce test etmenin yolu.',
   'Sunnah fasting (Mon & Thu)': 'Sünnet orucu (Pzt & Per)',
   'Work sets kept': 'Korunan çalışma setleri',
-  '{0} to {1} in {2}': '{2} için {0} - {1}'
+  '{0} to {1} in {2}': '{2} için {0} - {1}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'Kapat',
+  'Pause for prayer': 'Namaz için duraklat',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    '{0}’a kadar. Setlerin kaydı duruyor — kaldığın yerden devam et.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Seansın ortasında namaz vakti girdiğinde dinlenme süresi durur ve uygulama bunu söyler.',
+  '{0} — session paused': '{0} — seans duraklatıldı',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': 'H',
+  'Hijri date offset': 'Hicri tarih kaydırması',
+  'Today: {0}': 'Bugün: {0}'
 }

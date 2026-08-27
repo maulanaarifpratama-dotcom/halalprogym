@@ -671,5 +671,19 @@ export default {
     'To samo, tylko w te dwa dni — i sposób, by przetestować to wszystko przed Ramadanem.',
   'Sunnah fasting (Mon & Thu)': 'Post sunna (pn i czw)',
   'Work sets kept': 'Zachowane serie robocze',
-  '{0} to {1} in {2}': '{0} do {1} w {2}'
+  '{0} to {1} in {2}': '{0} do {1} w {2}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'Zamknij',
+  'Pause for prayer': 'Przerwa na modlitwę',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    'Do {0}. Twoje serie są zapisane — wróć tam, gdzie skończyłeś.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Gdy w środku sesji nadchodzi czas modlitwy, minutnik się zatrzymuje, a aplikacja to mówi.',
+  '{0} — session paused': '{0} — sesja wstrzymana',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': 'AH',
+  'Hijri date offset': 'Przesunięcie daty hidżry',
+  'Today: {0}': 'Dziś: {0}'
 }

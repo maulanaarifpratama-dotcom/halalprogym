@@ -672,5 +672,19 @@ export default {
     'El mismo trato, solo esos dos días — y una forma de probar todo esto antes del Ramadán.',
   'Sunnah fasting (Mon & Thu)': 'Ayuno sunna (lun y jue)',
   'Work sets kept': 'Series de trabajo que se mantienen',
-  '{0} to {1} in {2}': 'de {0} a {1} en {2}'
+  '{0} to {1} in {2}': 'de {0} a {1} en {2}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'Cerrar',
+  'Pause for prayer': 'Pausa para la oración',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    'Hasta {0}. Tus series están guardadas — continúa donde lo dejaste.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Si llega una hora de oración a mitad de sesión, el temporizador se detiene y la app lo dice.',
+  '{0} — session paused': '{0} — sesión en pausa',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': 'AH',
+  'Hijri date offset': 'Desfase de la fecha hiyri',
+  'Today: {0}': 'Hoy: {0}'
 }

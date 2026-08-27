@@ -47,7 +47,9 @@ describe('Brazilian Portuguese locale', () => {
     // 260 -> 266: mode Ramadan. Enam kunci berbeda regional, dan lima di antaranya karena satu
     // kata: Portugal menulis "Ramadão", Brasil "Ramadã" — pembeda yang sudah tercatat di pack
     // ini sejak kunci waktu salat masuk.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(266)
+    // 266 -> 268: jeda salat. Dua kunci berbeda regional ("guardadas/parastes" vs
+    // "salvas/parou", dan "temporizador" vs "cronometro").
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(268)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -65,7 +67,9 @@ describe('Brazilian Portuguese locale', () => {
     // warisan baru.
     //
     // 445 -> 450: lima kunci mode Ramadan yang kata Brasilnya sama dengan Portugal.
-    expect(inherited).toHaveLength(450)
+    // 450 -> 453: tiga kunci jeda salat yang kata Brasilnya sama dengan Portugal.
+    // 453 -> 456: tiga kunci tanggal Hijriah, kata Brasilnya sama dengan Portugal.
+    expect(inherited).toHaveLength(456)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -74,7 +78,7 @@ describe('Brazilian Portuguese locale', () => {
     // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
     // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
     // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('ecdfd43b6b77b1105f631710f1c3f2a5ab6446671fb92b75f6d55ced24d54d1b')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('ec27556ba374e329f7b34ebce7113756095a28c37ca61edcdd7cbc9bfbdd716e')
   })
 
   test('does not leak European Portuguese UI terms', () => {

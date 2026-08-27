@@ -28,6 +28,14 @@ export const DEF = {
   // sehari lebih lambat berarti satu hari puasa yang dibaca mesin sebagai kegagalan.
   // Lihat lib/ramadan.ts.
   ramadan: { on: false, sunnah: false, volumeKeepPct: 65 },
+  // Jeda otomatis saat waktu salat masuk di tengah sesi. Default NYALA: ini salah satu alasan
+  // app ini ada. Bisa dimatikan, karena orang yang salat di gym punya kebiasaan berbeda dan
+  // app tidak berhak memaksa satu di antaranya.
+  prayerPause: true,
+  // Geseran tanggal Hijriah, -2..+2 hari. Nol berarti pakai hisab Umm al-Qura apa adanya.
+  // Ada karena sidang isbat Kemenag bisa berbeda sehari dari hisab, dan satu hari itu
+  // menentukan hari pertama Ramadan. Lihat lib/hijri.ts.
+  hijriOffset: 0,
   // Equipment profiles (issue: filter Library/picker/routines by what you actually own —
   // e.g. "Home" vs "Gym" — building on the session-only equipment filter from issue #6).
   equipProfiles: [], activeEquipId: null, equipFilterOn: false,

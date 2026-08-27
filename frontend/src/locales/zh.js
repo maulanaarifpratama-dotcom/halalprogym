@@ -665,5 +665,18 @@ export default {
     '同样的处理，只在这两天 — 也是在斋月前验证这一切的方式。',
   'Sunnah fasting (Mon & Thu)': '主孤断食（周一和周四）',
   'Work sets kept': '保留的工作组',
-  '{0} to {1} in {2}': '{2}：{0} 至 {1}'
+  '{0} to {1} in {2}': '{2}：{0} 至 {1}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': '关闭',
+  'Pause for prayer': '礼拜时暂停',
+  'Until {0}. Your sets are saved — pick up where you left off.': '至 {0}。你的组数已保存 — 回来接着做就好。',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    '训练中途遇到礼拜时间时，休息计时会停下，应用也会告知你。',
+  '{0} — session paused': '{0} — 训练已暂停',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': '年',
+  'Hijri date offset': '伊斯兰历日期偏移',
+  'Today: {0}': '今天：{0}'
 }

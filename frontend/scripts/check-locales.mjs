@@ -62,6 +62,8 @@ const ID_KEEPS_ENGLISH = new Set([
   'Feb',
   'Freestyle',
   'Greyskull LP',
+  // Penanda tahun Hijriah. Indonesia memang menulis 'H'; bahasa lain 'AH' (Anno Hegirae).
+  'H',
   'Hamstrings',
   'Intensifier',
   'Jan',

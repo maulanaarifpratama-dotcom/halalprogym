@@ -850,5 +850,18 @@ export default {
     'Perlakuan sama, hanya di dua hari itu — sekaligus cara menguji semua ini sebelum Ramadan.',
   'Sunnah fasting (Mon & Thu)': 'Puasa sunah (Senin & Kamis)',
   'Work sets kept': 'Set kerja dipertahankan',
-  '{0} to {1} in {2}': '{0} sampai {1} di {2}'
+  '{0} to {1} in {2}': '{0} sampai {1} di {2}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'Tutup',
+  'Pause for prayer': 'Jeda saat waktu salat',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    'Sampai {0}. Set-setmu tersimpan — lanjut dari tempat kamu berhenti.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Waktu salat masuk di tengah sesi: timer istirahat dihentikan, dan app mengatakannya.',
+  '{0} — session paused': '{0} — sesi dijeda',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'Hijri date offset': 'Geseran tanggal Hijriah',
+  'Today: {0}': 'Hari ini: {0}'
 }

@@ -670,5 +670,19 @@ export default {
     'वही तरीका, सिर्फ़ उन दो दिनों में — और रमज़ान से पहले सब परखने का तरीका भी।',
   'Sunnah fasting (Mon & Thu)': 'सुन्नत रोज़ा (सोम और गुरु)',
   'Work sets kept': 'बनाए रखे गए वर्क सेट',
-  '{0} to {1} in {2}': '{2} में {0} से {1}'
+  '{0} to {1} in {2}': '{2} में {0} से {1}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'बंद करें',
+  'Pause for prayer': 'नमाज़ के लिए रोकें',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    '{0} तक। आपके सेट सेव हैं — जहाँ रुके थे वहीं से आगे बढ़ें।',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'सेशन के बीच नमाज़ का वक्त आए तो रेस्ट टाइमर रुक जाता है, और ऐप बता देता है।',
+  '{0} — session paused': '{0} — सेशन रुका',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': 'हिं',
+  'Hijri date offset': 'हिजरी तारीख ऑफ़सेट',
+  'Today: {0}': 'आज: {0}'
 }

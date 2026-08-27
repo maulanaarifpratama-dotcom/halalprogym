@@ -671,5 +671,19 @@ export default {
     'То же самое, только в эти два дня — и способ проверить всё это до Рамадана.',
   'Sunnah fasting (Mon & Thu)': 'Пост сунна (пн и чт)',
   'Work sets kept': 'Сохраняемые рабочие подходы',
-  '{0} to {1} in {2}': 'с {0} до {1} в {2}'
+  '{0} to {1} in {2}': 'с {0} до {1} в {2}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': 'Закрыть',
+  'Pause for prayer': 'Пауза на молитву',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    'До {0}. Твои подходы сохранены — продолжи с того же места.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Если время молитвы наступает посреди тренировки, таймер отдыха останавливается, и приложение сообщает об этом.',
+  '{0} — session paused': '{0} — тренировка на паузе',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': 'г. х.',
+  'Hijri date offset': 'Сдвиг даты по хиджре',
+  'Today: {0}': 'Сегодня: {0}'
 }

@@ -11,6 +11,7 @@ import { setProgressHighWater, supersetFlowStep, restAfterSet, restOnRecheck } f
 import Media from '../components/Media.jsx'
 import { startFlow, exercisePicker, exConfigSheet, exerciseDetailSheet, topWeightSheet, finishWorkout, workoutCompleteSheet, confirmSheet, exerciseNoteSheet, sessionNoteSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
+import PrayerPause from '../components/PrayerPause.jsx'
 import { Button, Check, NumberField } from '../components/ui.jsx'
 import { nextPrescription, applyPrescription, defaultIncrement } from '../lib/progression.js'
 import { glyphOf } from '../lib/glyphs.js'
@@ -461,6 +462,10 @@ function ActiveWorkout() {
       <button className="iconbtn" style={{ color: 'var(--acc)' }} aria-label={t('Finish')} onClick={finishWorkout}><Icon name="check" /></button>
     </div>
     <div className="wprog"><i style={{ width: (total ? done / total * 100 : 0) + '%' }} /></div>
+
+    {/* Jeda salat. Di ATAS daftar latihan, bukan di bawah: kalau dia harus digulir untuk
+        ditemukan, dia tidak memberi tahu apa pun. */}
+    <PrayerPause />
 
     {A.entries.length ? <>
       <div className="muted small" style={{ marginBottom: 6 }}>{isSuperset ? t('Superset {0} / {1}', unitIdx + 1, units.length) : t('Exercise {0} / {1}', unitIdx + 1, units.length)}</div>

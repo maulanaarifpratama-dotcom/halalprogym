@@ -4,6 +4,8 @@ import { useStore } from '../store/useStore.js'
 import { effectiveRoutine, effectiveRoutineId, streakWeeks, lastBW, setsDoneActive } from '../lib/history.js'
 import { fmtNum, fmtDate, todayISO, isoOf, weekKey, DAYS, localeDateString, startOfWeek } from '../lib/format.js'
 import { t, dateLocale } from '../lib/i18n.js'
+import { getLang } from '../lib/i18n-core.js'
+import { fmtHijri } from '../lib/hijri.js'
 import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, loadStarterPlan, bwDeltaColor } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
@@ -19,6 +21,9 @@ export default function Home() {
   const [weekOffset, setWeekOffset] = useState(0)
 
   const today = new Date()
+  // Offset ±2 hari: hisab Umm al-Qura bisa berbeda sehari dari sidang isbat Kemenag, dan
+  // selisih itu menentukan hari pertama Ramadan. Lihat lib/hijri.ts.
+  const hijri = fmtHijri(today, getLang(), S.hijriOffset, t('H'))
   const routine = effectiveRoutine(S, todayISO())
   const todayOvr = S.dayPlan[todayISO()] !== undefined
   const bw = lastBW(S)
@@ -53,7 +58,14 @@ export default function Home() {
 
   return <div className="narrow">
     <div className="hdr">
-      <div><h1>{user ? t('Hi {0}', user.name) : 'Halal Pro Gym'}</h1><div className="sub">{localeDateString(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div></div>
+      <div>
+        <h1>{user ? t('Hi {0}', user.name) : 'Halal Pro Gym'}</h1>
+        <div className="sub">{localeDateString(today, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        {/* Tanggal Hijriah. Di bawah tanggal Gregorian, bukan menggantikannya: keduanya dipakai,
+            dan yang Gregorian yang menjawab "hari apa saya latihan". `null` kalau lingkungannya
+            tidak punya kalender Islam — barisnya hilang, bukan menampilkan tanggal yang salah. */}
+        {hijri && <div className="sub dim" style={{ marginTop: 1 }}>{hijri}</div>}
+      </div>
       <button className="iconbtn" onClick={() => nav('/settings')} aria-label={t('Settings')}><Icon name="gear" /></button>
     </div>
 

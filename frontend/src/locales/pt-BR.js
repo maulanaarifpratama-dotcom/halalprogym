@@ -299,7 +299,13 @@ export const PT_BR_OVERRIDES = {
     'Modo Ramadã — a carga mantém-se. Jejuar não é motivo para um deload.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':
     'Mesmo tratamento, só nesses dois dias — e uma forma de testar tudo isso antes do Ramadã.',
-  'Sunnah fasting (Mon & Thu)': 'Jejum sunna (seg e qui)'
+  'Sunnah fasting (Mon & Thu)': 'Jejum sunna (seg e qui)',
+
+  /* --- jeda salat: berbeda regional dari pt-PT --- */
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    'Até {0}. Suas séries estão salvas — continue de onde parou.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    'Se chegar um horário de oração no meio da sessão, o cronômetro para e o app te avisa.'
 }
 export default { ...pt, ...PT_BR_OVERRIDES,
   /* demo gerakan: dua bingkai, posisi awal dan akhir */

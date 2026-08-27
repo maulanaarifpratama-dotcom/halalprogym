@@ -5,6 +5,8 @@ import { useUI } from '../store/useUI.js'
 import { ACCENTS, todayISO, localTZ } from '../lib/format.js'
 import { CITIES, DEFAULT_CITY_ID, cityById, fmtPrayer } from '../lib/prayer.js'
 import { fastingWindow, isFastingDay } from '../lib/ramadan.js'
+import { clampOffset, fmtHijri } from '../lib/hijri.js'
+import { getLang } from '../lib/i18n-core.js'
 import { effortOf } from '../lib/history.js'
 import { IS_ANDROID } from '../lib/platform.js'
 import { authAvailable, looksLikeEmail, signInWithEmail, signInWithGoogle } from '../lib/auth.js'
@@ -149,6 +151,12 @@ export default function Settings() {
             onChange={v => update(s => { s.keepAwake = v })} />
         </Row>
       )}
+      {/* Jeda salat. Ditaruh di sini, bukan di dekat "Kota untuk waktu salat" di Tampilan:
+          yang ini mengubah apa yang terjadi DI TENGAH SESI, dan itu tempat orang mencarinya. */}
+      <Row icon="moon" iconTint="var(--acc)" title={t('Pause for prayer')}
+        subtitle={t('When a prayer time arrives mid-session, the rest timer stops and the app says so.')}>
+        <Switch checked={S.prayerPause !== false} onChange={v => update(s => { s.prayerPause = v })} />
+      </Row>
       <Row icon="bell" iconTint="var(--pink)" title={t('Sounds')}>
         <Switch checked={!!S.sound} onChange={v => update(s => { s.sound = v })} />
       </Row>
@@ -196,6 +204,24 @@ export default function Settings() {
         onChange={v => update(s => { s.city = v })}
         sheetTitle={t('Prayer city')}
       />
+
+      {/* Offset tanggal Hijriah. Ditaruh tepat di bawah kota waktu salat: keduanya soal kalender
+          dan waktu Islam, dan orang yang menggeser satu biasanya sedang memeriksa yang lain.
+
+          Kenapa offset-nya ADA sama sekali: konversi di app ini memakai hisab Umm al-Qura,
+          satu-satunya yang bisa dihitung offline. Awal bulan di Indonesia ditetapkan sidang
+          isbat Kemenag, yang mempertimbangkan rukyat, dan keduanya bisa berbeda sehari. Satu
+          hari itu menentukan hari pertama Ramadan dan Idulfitri, jadi app ini menampilkan hasil
+          hisab dan membiarkan pemiliknya menyesuaikan. */}
+      <Row icon="calendar" iconTint="var(--purple)" title={t('Hijri date offset')}
+        subtitle={t('Today: {0}', fmtHijri(new Date(), getLang(), S.hijriOffset, t('H')) || '—')}>
+        <Segmented
+          className="seg-inline"
+          options={[-2, -1, 0, 1, 2].map(v => ({ value: v, label: (v > 0 ? '+' : '') + v }))}
+          value={clampOffset(S.hijriOffset)}
+          onChange={v => update(s => { s.hijriOffset = clampOffset(v) })}
+        />
+      </Row>
 
       {/* Purely how the muscle map is drawn — nothing else in the app reads this. */}
       <Row icon="figureStrength" iconTint="var(--teal)" title={t('Body diagram')}>

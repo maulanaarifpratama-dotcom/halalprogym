@@ -667,5 +667,19 @@ export default {
     '같은 방식을 그 이틀에만 — 라마단 전에 이 전부를 시함해보는 방법이기도 해요.',
   'Sunnah fasting (Mon & Thu)': '숬나 단식 (월 · 목)',
   'Work sets kept': '유지하는 워킹 셋',
-  '{0} to {1} in {2}': '{2}: {0} ~ {1}'
+  '{0} to {1} in {2}': '{2}: {0} ~ {1}',
+
+  /* --- jeda salat (2026-08-28) --- */
+  'Dismiss': '닫기',
+  'Pause for prayer': '기도 시간에 일시정지',
+  'Until {0}. Your sets are saved — pick up where you left off.':
+    '{0}까지. 셋은 상 저장되어 있어요 — 마지리하던 곳부터 이어가세요.',
+  'When a prayer time arrives mid-session, the rest timer stops and the app says so.':
+    '운동 중간에 기도 시간이 되면 휴식 타이머가 지고 앱이 알려줍니다.',
+  '{0} — session paused': '{0} — 운동 일시정지',
+
+  /* --- tanggal Hijriah (2026-08-28) --- */
+  'H': '년',
+  'Hijri date offset': '하지라력 날짜 보정',
+  'Today: {0}': '오늘: {0}'
 }
