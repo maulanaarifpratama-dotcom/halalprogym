@@ -228,9 +228,12 @@ export default function Settings() {
         address bar and no about box, so without this there is no way to tell which build you
         are running, or whether an update actually installed. */}
     <div className="dim small" style={{ textAlign: 'center', marginTop: 4, lineHeight: 1.6 }}>
-      openGym v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
-      <a href="https://gitlab.com/DuarteSantos8/opengym" target="_blank" rel="noopener">source code</a> · exercise data: hasaneyldrm/exercises-dataset (MIT)<br />
-      exercise images and animations © <a href="https://gymvisual.com/" target="_blank" rel="noopener">Gym visual</a>
+      Halal Pro Gym v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
+      {/* AGPL v3 requires that people using this as a network service can get its source.
+          This link IS that offer — do not remove it. See CLAUDE.md. */}
+      <a href="https://github.com/maulanaarifpratama-dotcom/halalprogym" target="_blank" rel="noopener">kode sumber</a> ·
+      fork dari <a href="https://gitlab.com/DuarteSantos8/opengym" target="_blank" rel="noopener">openGym</a><br />
+      data latihan: ExerciseDB (MIT) · diagram otot: MuscleMap (MIT)
     </div>
   </div>
 }

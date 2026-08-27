@@ -1,5 +1,25 @@
 # Third-party notices
 
+## This is a fork
+
+**Halal Pro Gym** is a fork of [**openGym**](https://gitlab.com/DuarteSantos8/opengym) by
+Duarte Santos, used and redistributed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
+Their copyright on the inherited code stands; this fork's own changes are likewise AGPL v3.0.
+
+Halal Pro Gym replaces openGym's storage, authentication and UI layers, and adds Indonesian
+localisation, prayer-time-aware scheduling and a Ramadan training mode. The training-domain
+logic (progression rules, estimated 1RM, fatigue/recovery model, the in-session workout state
+machine and its supersets, warm-ups, drop-sets and rest-pause handling) is derived from
+openGym's `frontend/src/lib`, ported to TypeScript.
+
+Because this fork is deployed as a network service, the AGPL requires that its complete source
+be offered to the people using it. It is: <https://github.com/maulanaarifpratama-dotcom/halalprogym>
+
+Halal Pro Gym — Copyright (C) 2026 Maulana Arif Pratama.
+
+---
+
+
 openGym — Copyright (C) 2026 Duarte Santos.
 openGym's own code is licensed under the **GNU AGPL v3.0** (see [LICENSE](LICENSE)).
 
