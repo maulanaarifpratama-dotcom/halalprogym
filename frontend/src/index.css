@@ -872,6 +872,25 @@ h4.sec{
 }
 .hm-legend .hm-c{width:10px;height:10px}
 
+/* Slot demo tingkat TERAKHIR: tidak ada foto DAN tidak ada metadata otot.
+   Terjadi pada latihan buatan user yang bagian tubuhnya belum diisi, dan pada id yang tidak
+   dikenal. Sengaja dibuat terbaca sebagai "ada yang bisa kamu lakukan", bukan sebagai kotak
+   kosong yang cantik — kalau bagian tubuhnya diisi, latihan itu langsung dapat diagram otot,
+   dan menyembunyikan itu berarti menyembunyikan satu-satunya perbaikannya. */
+.exmedia.blank{
+  background:var(--surface);display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;min-height:150px;padding:22px 18px;text-align:center
+}
+.exmedia.blank .blank-i{font-size:34px;color:var(--label-4)}
+.exmedia.blank .blank-t{
+  font-size:12.5px;line-height:1.45;color:var(--label-3);max-width:24em;text-transform:capitalize
+}
+.exmedia.blank.compact{min-height:96px;padding:14px}
+.exmedia.blank.compact .blank-i{font-size:26px}
+.exmedia.blank.mini{min-height:70px;padding:10px;gap:4px}
+.exmedia.blank.mini .blank-i{font-size:20px}
+.exmedia.blank.mini .blank-t{font-size:11px}
+
 /* --- waktu salat ---
    Lima waktu dalam satu baris yang bisa dipindai sekilas, karena itu cara orang membacanya:
    mata mencari satu angka, bukan membaca daftar. Yang BERIKUTNYA ditandai aksen — pertanyaan

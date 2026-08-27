@@ -43,6 +43,17 @@ const SECONDARY_SHOWN = 3
 
 const nameOf = slug => t(MUSCLE_NAME[slug] || slug)
 
+/**
+ * Apakah latihan ini punya metadata otot untuk digambar?
+ *
+ * Diekspor, dan itu bukan kenyamanan: `<ExerciseAnatomy />` adalah React ELEMENT dan karena
+ * itu SELALU truthy — komponen yang mengembalikan null tidak membuat elemennya null. Media.jsx
+ * pernah memakai `if (anat)` dan akibatnya merender pembungkus `.exmedia.anat` yang KOSONG
+ * untuk latihan buatan user, alih-alih jatuh ke tingkat berikutnya. Predikat ini membuat
+ * keputusan itu bisa diambil SEBELUM elemennya dibuat.
+ */
+export const hasAnatomy = ex => Object.keys(musclesOf(ex)).length > 0
+
 export default function ExerciseAnatomy({ ex, compact, mini }) {
   const body = useStore(s => s.S.body)
   const load = musclesOf(ex)

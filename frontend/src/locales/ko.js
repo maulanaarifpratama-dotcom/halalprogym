@@ -685,5 +685,8 @@ export default {
   'tomorrow': '내일',
   '{0} now': '지금 {0}',
   'Calculated times. For Ramadan, check your local official schedule.':
-    '계산된 시간입니다. 라마단에는 현지 공식 시간표를 확인하세요.'
+    '계산된 시간입니다. 라마단에는 현지 공식 시간표를 확인하세요.',
+  /* tingkat terakhir slot demo: tanpa foto dan tanpa metadata otot */
+  'Set a body part to see which muscles this works':
+    '어떤 근육을 쓰는지 보려면 신체 부위를 설정하세요'
 }

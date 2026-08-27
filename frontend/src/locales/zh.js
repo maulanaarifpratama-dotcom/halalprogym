@@ -685,5 +685,8 @@ export default {
   'tomorrow': '明天',
   '{0} now': '现在{0}',
   'Calculated times. For Ramadan, check your local official schedule.':
-    '计算得出的时间。斋月请以当地官方时间表为准。'
+    '计算得出的时间。斋月请以当地官方时间表为准。',
+  /* tingkat terakhir slot demo: tanpa foto dan tanpa metadata otot */
+  'Set a body part to see which muscles this works':
+    '设置身体部位以查看锻炼的肌肉'
 }

@@ -159,6 +159,41 @@ describe('Media — tiga tingkat demo gerakan', () => {
     expect(container.querySelector('.exmedia.anat')).toBeTruthy()
   })
 
+  it('tingkat 4: latihan buatan user tanpa bagian tubuh TIDAK PERNAH kosong', async () => {
+    // Ini yang ditemukan audit. Latihan buatan user melewati foto (tidak terpetakan) DAN
+    // diagram otot (tidak ada bp/tg/sm untuk digambar), dan jalur lama mengembalikan null —
+    // slot demo benar-benar kosong tanpa penjelasan. Dan itu kasus yang sering: orang membuat
+    // latihan sendiri untuk mesin di gym-nya yang tidak ada di katalog.
+    const custom = { id: 'buatan-user-1', n: 'Mesin aneh di gym gue', bp: '', tg: '', eq: '', sm: [], st: [] }
+    await render(<Media ex={custom} />)
+    const blank = container.querySelector('.exmedia.blank')
+    expect(blank).toBeTruthy()
+    expect(container.querySelector('img')).toBeNull()
+    // ACTIONABLE, bukan hiasan: mengisi bagian tubuhnya menaikkan latihan itu ke tingkat 3.
+    expect(blank.textContent).toContain('body part')
+  })
+
+  it('tingkat 4 naik ke diagram otot begitu bagian tubuhnya diisi', async () => {
+    const withBp = { id: 'buatan-user-2', n: 'Mesin aneh', bp: 'chest', tg: '', eq: '', sm: [], st: [] }
+    await render(<Media ex={withBp} />)
+    expect(container.querySelector('.exmedia.anat')).toBeTruthy()
+    expect(container.querySelector('.exmedia.blank')).toBeNull()
+  })
+
+  it('AUDIT: setiap latihan katalog mendapat foto ATAU diagram otot — nol yang nihil', async () => {
+    // Audit permanen. Kalau seseorang mengubah musclesOf atau BY_BODYPART dan sebuah kelompok
+    // latihan kehilangan metadata ototnya, tes ini yang menangkapnya — bukan user yang
+    // menemukan slot kosong di tengah sesi.
+    const { musclesOf } = await import('../lib/muscles.js')
+    const all = Object.values(EXDB)
+    const nihil = all.filter(e =>
+      demoFrames(e).length === 0 && Object.keys(musclesOf(e)).length === 0)
+    expect(nihil.map(e => e.id + ' ' + e.n)).toEqual([])
+    // Dan cakupan fotonya tidak boleh turun tanpa disadari.
+    const berfoto = all.filter(e => demoFrames(e).length > 0).length
+    expect(berfoto).toBeGreaterThanOrEqual(340)
+  })
+
   it('Thumb memakai bingkai pertama kalau ada, ikon kalau tidak — 50px terlalu kecil untuk peta otot', async () => {
     await render(<Thumb ex={WITH_DEMO} />)
     expect(container.querySelector('img.thumb')?.getAttribute('src')).toContain('free-exercise-db@')

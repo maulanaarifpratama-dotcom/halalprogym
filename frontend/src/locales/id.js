@@ -108,6 +108,10 @@ export default {
   'start position': 'posisi awal',
   'end position': 'posisi akhir',
 
+  /** Tingkat terakhir slot demo: tidak ada foto dan tidak ada metadata otot. */
+  'Set a body part to see which muscles this works':
+    'Isi bagian tubuhnya untuk melihat otot yang dikerjakan',
+
   /* ---- waktu salat. Ejaan mengikuti KBBI: Magrib tanpa h, Asar tanpa h, Zuhur dengan Z.
      Lihat docs/GLOSARIUM-ID.md — itu keputusan, bukan salah tulis. ---- */
   'Prayer times': 'Waktu salat',

@@ -4,6 +4,9 @@
 import pt from './pt.js'
 
 export const PT_BR_OVERRIDES = {
+  // Override regional: Portugal "define uma zona", Brasil "defina uma regiao".
+  'Set a body part to see which muscles this works':
+    'defina uma região do corpo para ver os músculos trabalhados',
   // Override regional yang disengaja: Portugal menulis "Ramadão", Brasil "Ramadã".
   'Calculated times. For Ramadan, check your local official schedule.':
     'Horários calculados. No Ramadã, confira com o calendário oficial local.',

@@ -685,5 +685,8 @@ export default {
   'tomorrow': 'कल',
   '{0} now': 'अब {0}',
   'Calculated times. For Ramadan, check your local official schedule.':
-    'गणना किया गया समय। रमज़ान में अपने स्थानीय आधिकारिक समय से मिलाएँ।'
+    'गणना किया गया समय। रमज़ान में अपने स्थानीय आधिकारिक समय से मिलाएँ।',
+  /* tingkat terakhir slot demo: tanpa foto dan tanpa metadata otot */
+  'Set a body part to see which muscles this works':
+    'कौन सी मांसपेशियाँ काम करती हैं देखने के लिए शरीर का हिस्सा चुनें'
 }

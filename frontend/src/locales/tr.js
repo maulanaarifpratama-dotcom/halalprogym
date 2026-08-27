@@ -685,5 +685,8 @@ export default {
   'tomorrow': 'yarın',
   '{0} now': 'şimdi {0}',
   'Calculated times. For Ramadan, check your local official schedule.':
-    'Hesaplanmış vakitler. Ramazanda yerel resmî takvimle karşılaştır.'
+    'Hesaplanmış vakitler. Ramazanda yerel resmî takvimle karşılaştır.',
+  /* tingkat terakhir slot demo: tanpa foto dan tanpa metadata otot */
+  'Set a body part to see which muscles this works':
+    'çalışan kasları görmek için bir vücut bölgesi seç'
 }

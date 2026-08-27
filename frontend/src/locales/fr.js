@@ -685,5 +685,8 @@ export default {
   'tomorrow': 'demain',
   '{0} now': '{0} maintenant',
   'Calculated times. For Ramadan, check your local official schedule.':
-    'Heures calculées. Pendant le Ramadan, vérifie avec le calendrier officiel local.'
+    'Heures calculées. Pendant le Ramadan, vérifie avec le calendrier officiel local.',
+  /* tingkat terakhir slot demo: tanpa foto dan tanpa metadata otot */
+  'Set a body part to see which muscles this works':
+    'définis une zone du corps pour voir les muscles travaillés'
 }

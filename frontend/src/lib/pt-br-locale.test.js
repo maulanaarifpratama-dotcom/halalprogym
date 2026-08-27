@@ -31,7 +31,11 @@ describe('Brazilian Portuguese locale', () => {
     // berbeda regional — Portugal menulis "Ramadão", Brasil "Ramadã". Ditaruh di overrides
     // dan bukan ditempel di ekor default export, supaya dia tidak TERLIHAT diwarisi padahal
     // sebenarnya di-override; itu justru drift yang tes ini ada untuk menangkapnya.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(292)
+    // 292 -> 293: kunci tingkat-4 slot demo juga berbeda regional (Portugal "define uma
+    // zona", Brasil "defina uma regiao"). Perhatikan bahwa `inherited` dan hash-nya TIDAK
+    // berubah karenanya — kunci yang masuk overrides keluar dari himpunan warisan, dan itu
+    // justru bukti mekanismenya bekerja seperti yang dirancang.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(293)
     // 449 -> 452 -> 457. Dua gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
