@@ -13,8 +13,9 @@ Inggrisnya yang natural, **kuncinya tidak diisi sama sekali**; `t()` melakukan `
 jadi fallback yang mengerjakannya. Menerjemahkan "reps" jadi "repetisi" bikin app terasa seperti
 buku pelajaran, bukan seperti gym.
 
-**2. Istilah keislaman ditulis benar, mengikuti KBBI.** "Salat", bukan "sholat" atau "shalat" —
-diputuskan 2026-08-27; KBBI ada, jadi dipakai.
+**2. Semua istilah keislaman mengikuti KBBI, tanpa pengecualian.** Diputuskan 2026-08-27:
+KBBI adalah standar nasional, jadi ejaan yang terasa asing pun tetap dipakai. Konsekuensinya
+nyata dan disengaja — lihat "tiga yang akan terlihat seperti salah tulis" di bawah.
 
 **3. Sapaan santai, bukan formal.** "kamu", bukan "Anda". Orang di gym sedang bekerja, bukan
 sedang dilayani teller bank. Tidak ada tanda seru motivasional.
@@ -61,22 +62,40 @@ Nilai tersimpannya tetap `'male'` / `'female'` — nol migrasi data.
 
 ## Istilah keislaman
 
-| Istilah | Ejaan yang dipakai | Jangan |
+**Semua istilah mengikuti KBBI** — keputusan user 2026-08-27: *"kalau disalah-salahin kan itu
+standar nasional."* Tidak ada pengecualian, termasuk untuk ejaan yang terasa asing.
+
+| Istilah | Dipakai (KBBI) | Yang lazim tapi TIDAK dipakai |
 | --- | --- | --- |
 | salat | **salat** | sholat, shalat, solat |
-| Subuh · Zuhur · Asar · Magrib · Isya | seperti tertulis | Maghrib, Ashar, Isha |
-| Jumu'ah | **Jumu'ah** (salatnya) / Jumat (harinya) | Jumatan di teks UI |
+| Subuh | **Subuh** | Shubuh |
+| Zuhur | **Zuhur** | Dzuhur, Dhuhur |
+| Asar | **Asar** | Ashar, Ashr |
+| Magrib | **Magrib** | Maghrib |
+| Isya | **Isya** | Isyak, Isha |
 | Ramadan | **Ramadan** | Ramadhan, Romadhon |
-| Tarawih | **Tarawih** | Taraweh |
+| Tarawih | **Tarawih** | Taraweh, Tarowih |
+| sunah | **sunah** | sunnah |
 | sahur · imsak · berbuka | huruf kecil, kata biasa | — |
-| Ayyamul Bidh | **Ayyamul Bidh** | Ayyamul Bidh (13–15 Hijriah) |
 | Hijriah | **Hijriah** | Hijriyah |
-| puasa sunnah | huruf kecil | — |
+| Jumat | **Jumat** (hari) | — |
+| salat Jumat | **salat Jumat** | Jumu'ah, Jumatan |
 
-> **Perlu dikonfirmasi:** ejaan nama waktu salat mengikuti KBBI (**Magrib** tanpa h, **Asar**
-> tanpa h, **Zuhur**). Itu benar menurut KBBI tapi terasa asing bagi banyak orang, yang biasa
-> menulis "Maghrib" dan "Ashar". Aturan induk 2 bilang ikut KBBI; kalau kamu mau yang lebih
-> lazim dipakai, ini titik yang wajar untuk mengecualikan — dan lebih murah diputuskan sekarang.
+**Tiga yang akan terlihat seperti salah tulis, dan memang disengaja:**
+
+- **Magrib** tanpa h, **Asar** tanpa h, **Zuhur** dengan Z. Ini yang paling sering ditulis lain
+  di luar sana, dan yang paling mungkin dilaporkan sebagai bug. Bukan bug.
+- **sunah**, satu n. KBBI menulis begitu. Jadi "puasa sunah", bukan "puasa sunnah".
+- **salat Jumat**, bukan "Jumu'ah". Transliterasi Arab dipakai hanya kalau KBBI tidak punya
+  padanannya sama sekali.
+
+Yang KBBI **tidak** punya padanannya tetap transliterasi Arab: **Ayyamul Bidh**, **Ikhwan**,
+**Akhwat**.
+
+> Catatan pelaksanaan: ejaan di tabel ini ditulis dari pemahaman KBBI dan **layak dicek sekali**
+> ke kbbi.kemdikbud.go.id sebelum terjemahan massal Fase 4 — khususnya `sunah`, `akhwat`, dan
+> `ikhwan`. Setelah dicek, hapus catatan ini. Aturannya sudah final; yang perlu dipastikan
+> hanya isi entrinya.
 
 ## Latihan
 

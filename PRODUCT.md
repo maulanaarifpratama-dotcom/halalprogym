@@ -60,7 +60,8 @@ Daftar lengkap dan alasannya: `docs/GLOSARIUM-ID.md`.
 
 ## Keputusan yang sudah ditutup
 
-- **Ejaan mengikuti KBBI** (2026-08-27): "salat", bukan "sholat". KBBI ada, jadi dipakai.
+- **Semua istilah mengikuti KBBI** (2026-08-27), tanpa pengecualian — standar nasional.
+  Termasuk yang terasa asing: Magrib, Asar, Zuhur, sunah (satu n), salat Jumat.
 - **Ikhwan / Akhwat sebagai istilah** (2026-08-27) — melabeli diagram tubuh.
 - **Demo gerakan satu set netral untuk semua** (2026-08-27). Tidak ada aset bergender. Aurat
   dijaga lewat gaya visualnya (line-art / diagram otot), bukan lewat dua set terpisah. Ini
@@ -68,6 +69,5 @@ Daftar lengkap dan alasannya: `docs/GLOSARIUM-ID.md`.
 
 ## Yang perlu dikonfirmasi
 
-- Ejaan nama waktu salat: KBBI menulis **Magrib** (tanpa h), **Asar** (tanpa h), **Zuhur**.
-  Itu benar tapi terasa asing bagi banyak orang yang biasa menulis "Maghrib"/"Ashar". Aturan
-  "ikut KBBI" bilang pakai KBBI; kalau mau yang lebih lazim, ini titik wajar untuk mengecualikan.
+Tidak ada. Ejaan waktu salat mengikuti KBBI seperti semua istilah lain (Magrib, Asar, Zuhur),
+diputuskan 2026-08-27 bersamaan dengan aturan induknya.

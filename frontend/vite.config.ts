@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { defineConfig } from 'vite'
+// defineConfig dari vitest/config, bukan vite: dia memperluas opsi Vite dengan blok `test`
+// di bawah, jadi konfignya tetap satu berkas.
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
@@ -45,5 +47,14 @@ export default defineConfig({
       '/gif': { target: media, changeOrigin: true }
     }
   },
-  build: { chunkSizeWarningLimit: 1500 }
+  build: { chunkSizeWarningLimit: 1500 },
+  test: {
+    // Default vitest 5000ms terlalu ketat untuk suite ini. Beberapa tes memindai seluruh
+    // korpus 1.324 latihan lewat exercises-data.js yang 888 KB, dan di bawah beban paralel
+    // pt-br-instructions.test.js terukur 5163ms — lolos kalau dijalankan sendiri, gagal di
+    // run penuh. Itu flake, dan flake di jaring keselamatan utama migrasi ini jauh lebih
+    // mahal daripada tes yang lambat. 15s kira-kira 3x kasus terburuk yang terukur: cukup
+    // longgar supaya tidak flake, masih cukup ketat supaya hang yang sungguhan tetap gagal.
+    testTimeout: 15000
+  }
 })

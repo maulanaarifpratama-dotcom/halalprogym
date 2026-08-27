@@ -73,4 +73,12 @@ export interface Workout {
  */
 export interface AppState {
   workouts?: Workout[]
+  /**
+   * Skala effort yang dicatat: `'none' | 'rir' | 'rpe'`, atau **null** kalau profil belum
+   * pernah memilih. null itu bermakna, bukan sama dengan 'none' — profil yang belum memilih
+   * jatuh ke boolean `showRir` warisan yang digantikannya, dan dengan begitu tetap menampilkan
+   * kolom yang sudah dia punya. Lihat effortOf di history.
+   */
+  effort?: string | null
+  showRir?: boolean
 }
