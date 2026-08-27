@@ -34,11 +34,12 @@ Halal Pro Gym menyelesaikan itu:
   Senin–Kamis dan Ayyamul Bidh.
 - 🗓️ **Ahad, bukan Minggu** — dan tanggal Hijriah di samping Masehi, dengan offset yang bisa
   disetel ke sidang isbat.
-- 🇮🇩 **Bahasa Indonesia** — UI dan instruksi latihan. Nama gerakan dibiarkan Inggris, karena
-  itu yang dipakai orang di gym.
+- 🇮🇩 **Bahasa Indonesia** — UI, instruksi latihan, nama otot, dan nama alat. Nama gerakan dan
+  istilah gym dibiarkan Inggris (reps, barbell, dumbbell, cable, lats), karena itu yang dipakai
+  orang di gym Indonesia — bukan karena belum diterjemahkan.
 - 🏋️ **Mesin latihan yang serius** — progresi (linear, Greyskull LP, double progression), estimasi
-  1RM, peta kelelahan otot, superset, warm-up, drop-set, rest-pause. Diwarisi dari openGym dengan
-  533 unit test-nya.
+  1RM, peta kelelahan otot, superset, warm-up, drop-set, rest-pause. Diwarisi dari openGym, dan
+  sekarang dijaga 592 unit test.
 - 📴 **Offline dulu** — datamu di HP-mu. Sync ke server itu bonus, bukan syarat. Basement gym
   tanpa sinyal tetap jalan.
 

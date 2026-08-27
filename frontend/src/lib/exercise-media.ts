@@ -52,7 +52,7 @@ const BASE = ENV.VITE_DEMO_BASE || CDN
 
 const FRAMES = MAP as Record<string, string[] | undefined>
 
-/** Berapa latihan katalog yang punya foto demo. Dipakai tes dan layar Tentang. */
+/** Berapa latihan katalog yang punya foto demo. Ditampilkan di header Latihan. */
 export const DEMO_COUNT = Object.keys(FRAMES).length
 
 /** URL bingkai demo untuk satu latihan; kosong kalau tidak ada yang dipetakan dengan aman. */

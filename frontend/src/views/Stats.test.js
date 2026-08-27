@@ -22,6 +22,27 @@ describe('Stats mixed-entry metric contract', () => {
     expect(source).toContain('onClick={() => onExercise && onExercise(row.id)}')
   })
 
+  // Patokan di atas HIJAU selama berbulan-bulan di atas simbol yang tidak ada. `onExercise`
+  // tidak pernah dideklarasikan dan tidak pernah dikirim, jadi ketukan pertama pada baris itu
+  // melempar ReferenceError dan menjatuhkan seluruh layar Statistik ke error boundary.
+  //
+  // Pelajarannya bukan "jangan pakai patokan teks" — patokan itu berguna. Pelajarannya: patokan
+  // teks memeriksa BENTUK, bukan bahwa programnya utuh. Jadi kalau sebuah baris menyebut nama,
+  // tesnya harus ikut memaku dari mana nama itu datang.
+  it('menyambungkan onExercise dari Stats ke MuscleBalance, bukan cuma menyebut namanya', () => {
+    // Diterima sebagai prop di tanda tangannya...
+    expect(source).toMatch(/function MuscleBalance\(\{[^}]*\bonExercise\b[^}]*\}\)/)
+    // ...dan benar-benar dikirim di tempat pemakaiannya.
+    expect(source).toMatch(/<MuscleBalance[^>]*\bonExercise=\{showExercise\}/)
+    // Penangannya menolak latihan di luar exHist, karena `curEx` akan jatuh ke exHist[0] dan
+    // memindahkan grafik ke latihan yang TIDAK diketuk.
+    expect(source).toContain('if (!exHist.includes(id)) return')
+    // Dan menggulir ke kartunya, karena mengubah kartu di luar layar terlihat seperti tidak
+    // terjadi apa-apa.
+    expect(source).toContain('progressRef.current?.scrollIntoView')
+    expect(source).toMatch(/<div className="card" ref=\{progressRef\}>/)
+  })
+
   it('uses the shared metric mode and row helpers rather than entryMode as a chart gate', () => {
     expect(source).toContain('metricModeForEntry')
     expect(source).toContain('metricRowsForEntry')

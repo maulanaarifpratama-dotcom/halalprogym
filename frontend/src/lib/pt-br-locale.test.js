@@ -35,18 +35,31 @@ describe('Brazilian Portuguese locale', () => {
     // zona", Brasil "defina uma regiao"). Perhatikan bahwa `inherited` dan hash-nya TIDAK
     // berubah karenanya — kunci yang masuk overrides keluar dari himpunan warisan, dan itu
     // justru bukti mekanismenya bekerja seperti yang dirancang.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(293)
-    // 449 -> 452 -> 457. Dua gelombang:
+    // 293 -> 294: 'No exercises yet.' juga berbeda regional. Portugal menulis "Ainda sem
+    // exercícios."; Brasil memakai bentuk "Ainda não há", persis seperti kunci sebelahnya yang
+    // sudah lama di-override. Jadi dia override, bukan warisan.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(294)
+    // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
+    //   +2  dua celah lama yang tidak pernah ada di pack mana pun: 'Exercise' (tunggal) dan
+    //       'full body'. Yang kedua itu label chip filter di tiga layar dan tampil Inggris di
+    //       ke-13 bahasa; lihat scripts/audit-locale-keys.mjs untuk kenapa checker lain tidak
+    //       bisa melihatnya. Kata Brasilnya sama dengan Portugal, jadi keduanya diwarisi.
     // Semuanya ditambahkan ke pt DAN pt-BR dengan nilai identik, jadi masuk sebagai warisan.
     // Kunci catatan waktu salat TIDAK ada di sini — dia jadi override, lihat di atas.
     // Selisihnya cocok tanpa sisa: itu reviewnya. Hash diambil dari
     // scripts/pt-br-inheritance-fingerprint.mjs, bukan ditempel dari pesan kegagalan.
-    expect(inherited).toHaveLength(457)
+    expect(inherited).toHaveLength(459)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('0e2b96c501f16f28dd4895626c372f57be918c6d1cb3008220bca02756427cf6')
+    //
+    // Hash ini berubah lebih sering daripada jumlahnya, dan itu memang gunanya. Kali ini dua
+    // kunci warisan DIGANTI NAMA sekaligus diubah kata-katanya — 'no animation' jadi 'no demo
+    // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
+    // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
+    // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('8c19537c9a09375b4ea9a5c20f903cd31bb777d9d8e1084ee260e52d846760ad')
   })
 
   test('does not leak European Portuguese UI terms', () => {

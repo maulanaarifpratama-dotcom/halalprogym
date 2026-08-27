@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { EXIDX } from '../lib/exercises.js'
@@ -96,7 +96,12 @@ function fatigueLabel(value) {
   return t(state === 'ready' ? 'Ready' : state === 'recovering' ? 'Recovering' : 'Fatigued')
 }
 
-function MuscleBalance({ S }) {
+// `onExercise` datang dari Stats. Sebelumnya baris latihan per otot memanggil `onExercise`
+// tanpa ada yang pernah mengirimnya DAN tanpa dideklarasikan di mana pun — modul ESM selalu
+// strict, jadi klik pertama melempar ReferenceError dan menjatuhkan seluruh layar ke error
+// boundary. Baris itu bahkan dipaku oleh Stats.test.js, yang memeriksa teksnya, bukan apakah
+// simbolnya ada. Ditangkap oleh scripts/check-undefined-names.mjs.
+function MuscleBalance({ S, onExercise }) {
   const [view, setView] = useState('balance')
   const [win, setWin] = useState(7)
   const [hard, setHard] = useState(false)
@@ -280,6 +285,7 @@ export default function Stats() {
   const [range, setRange] = useState(90)
   const [exId, setExId] = useState(null)
   const [exMetric, setExMetric] = useState('top')
+  const progressRef = useRef(null)
   const now = Date.now()
   const kind = displayScale(S)
   const hd = scaleName(kind)
@@ -313,6 +319,19 @@ export default function Stats() {
   const exCurrent = Object.fromEntries(exHist.map(id => [id, currentOf(id)]))
   exHist.sort((a, b) => exCurrent[b].mx - exCurrent[a].mx || nameOf(a).localeCompare(nameOf(b)))
   const curEx = exId && exHist.includes(exId) ? exId : exHist[0] || null
+  // Mengetuk satu latihan di daftar otot memindahkan grafik progres ke latihan itu, lalu
+  // menggulir ke grafiknya — kartunya jauh di bawah, dan mengubahnya tanpa menggulir terlihat
+  // seperti ketukan yang tidak melakukan apa-apa.
+  //
+  // Penjaga exHist itu bukan formalitas: kalau id-nya tidak ada di situ, `curEx` di atas jatuh
+  // ke exHist[0], jadi grafiknya berpindah ke latihan yang TIDAK diketuk. Baris otot bisa
+  // memuat latihan buatan sendiri yang sudah dihapus dan namanya tak bisa lagi diselesaikan;
+  // untuk itu, tidak melakukan apa-apa lebih baik daripada berpindah diam-diam.
+  const showExercise = id => {
+    if (!exHist.includes(id)) return
+    setExId(id)
+    progressRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   // A completed reps work row is authoritative for strength metrics, even when the parent
   // target also contains timed/cardio work. Entries without reps rows use their selected mode.
   const curMode = curEx ? (() => {
@@ -406,7 +425,7 @@ export default function Stats() {
       <Heatmap S={S} onDay={iso => { const ws = workouts.filter(w => w.d === iso); if (ws.length === 1) workoutDetailSheet(ws[0]); else if (ws.length) calendarSheet(iso) }} />
     </div>
 
-    {workouts.length > 0 && <MuscleBalance S={S} />}
+    {workouts.length > 0 && <MuscleBalance S={S} onExercise={showExercise} />}
     {hasEffort(S) && <EffortCard S={S} />}
 
     <div className="cols">
@@ -423,7 +442,7 @@ export default function Stats() {
         <div className="chart"><LineChart points={bwPts} h={160} unit={S.unit} goal={S.targetW} /></div>
       </div>
 
-      <div className="card">
+      <div className="card" ref={progressRef}>
         <h2>{t('Exercise progress')}</h2>
         {exHist.length ? <>
           <div className="sect-b" style={{ marginBottom: 10 }}>

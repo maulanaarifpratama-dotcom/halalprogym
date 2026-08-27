@@ -28,7 +28,110 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 /** Locale yang masih dibangun bertahap. Keluarkan dari sini begitu lengkap. */
-const IN_PROGRESS = new Set(['id'])
+const IN_PROGRESS = new Set([])
+
+// KUNCI YANG SENGAJA TIDAK DITERJEMAHKAN DI id.js
+//
+// id.js sudah lengkap, dan daftar ini yang membuat kata "lengkap" bisa diperiksa. Header id.js
+// menyatakan prinsipnya: kalau istilah Inggrisnya justru yang natural, kuncinya TIDAK DIISI dan
+// `dict[s] || s` yang mengerjakannya. Menerjemahkan "reps" jadi "repetisi" atau "barbell" jadi
+// "palang besi" bikin app terasa seperti buku pelajaran, bukan seperti gym.
+//
+// Menuliskannya di sini, bukan membiarkan id.js duduk di IN_PROGRESS, mengubah artinya
+// sepenuhnya. IN_PROGRESS memaklumi SEMUA kunci yang hilang, jadi kunci baru yang lupa disebar
+// ke id.js lolos tanpa suara. Dengan daftar ini, yang hilang harus SAMA DENGAN daftar ini: satu
+// kunci baru yang belum diterjemahkan langsung gagal, dan satu keputusan yang berubah harus
+// dihapus dari sini secara sadar.
+//
+// Bulan pendek yang ejaannya memang sama (Jan, Feb, Mar, Apr, Jun, Jul, Sep, Nov) ikut di sini
+// dengan alasan yang sama: pemetaan identik bikin persentase cakupan bohong.
+const ID_KEEPS_ENGLISH = new Set([
+  '+ Burst',
+  '+ Drop',
+  'Apr',
+  'Burst {0}',
+  'Data',
+  'Drop {0}',
+  'Drop-set',
+  'Drop-set / rest-pause',
+  'Drops',
+  'Effort',
+  'Effort per set',
+  'Est. 1RM',
+  'Feb',
+  'Freestyle',
+  'Greyskull LP',
+  'Hamstrings',
+  'Intensifier',
+  'Jan',
+  'Jul',
+  'Jun',
+  'Mar',
+  'Nov',
+  'RIR',
+  'RPE',
+  'Reps',
+  'Rest-pause',
+  'Sep',
+  'Superset',
+  'Superset {0} / {1}',
+  'Tip',
+  'Volume',
+  'Warm-up',
+  'band',
+  'barbell',
+  'cable',
+  'core',
+  'dumbbell',
+  'ez barbell',
+  'hammer',
+  'hamstrings',
+  'kettlebell',
+  'latissimus dorsi',
+  'lats',
+  'olympic barbell',
+  'reps',
+  'roller',
+  'rotator cuff',
+  'smith machine',
+  'soleus',
+  'trap bar',
+])
+
+// KUNCI YANG TIDAK DIBAWA 12 PACK WARISAN
+//
+// Upstream tidak pernah menerjemahkan string build demo, dan ke-12 pack sama-sama tidak
+// punya kuncinya. Selama id.js masih kecil, celah ini tak terlihat: checker memakai gabungan
+// kunci semua pack, jadi kunci yang hilang di SEMUA pack tidak pernah muncul di gabungan itu.
+// Begitu id.js diisi, celahnya keluar sekaligus — 12 kunci, sama di setiap pack.
+//
+// Kenapa tidak diisi saja: semuanya cuma hidup di cabang DEMO (Login.jsx dan Settings.jsx saat
+// VITE_DEMO=1), dan itu deployment GitHub Pages upstream — bukan yang kita bangun. Menambal 12
+// kunci x 12 bahasa berarti 144 terjemahan yang tidak ada yang bisa memeriksanya, ke layar yang
+// tidak kita kirimkan. Lubang yang tercatat lebih jujur daripada terjemahan yang tidak diperiksa.
+//
+// id.js SUDAH menerjemahkan kedua belasnya — dia satu-satunya pack yang kita tulis sendiri, dan
+// bahasa Indonesia memang bisa kita periksa. Karena itu aturan "kunci cuma ada di satu pack"
+// juga dilonggarkan khusus untuk daftar ini: di sini satu-pembawa itu keadaan yang diharapkan,
+// bukan salah tulis.
+//
+// Jumlahnya DIPATOK. Kalau daftar ini bertambah, itu bukan lagi warisan upstream — itu kunci
+// baru yang lupa disebar, dan pin ini yang akan meneriakkannya.
+const UPSTREAM_GAP = new Set([
+  'Demo data reset',
+  'Example data, stored only in this browser — change anything you like.',
+  'Live demo — everything stays in this browser.',
+  'Passkey sign-in, sync across your devices, your own data.',
+  'Puts the example plan, workouts and weigh-ins back the way they started.',
+  'Reset demo data',
+  'Reset demo data?',
+  'Self-host Halal Pro Gym',
+  'Self-host it in a minute →',
+  'Start the demo',
+  'This demo runs entirely in your browser on example data — nothing is sent anywhere. Passkey sign-in and sync across your devices come with the Halal Pro Gym server, which you get by self-hosting it.',
+  'You’re in the demo',
+])
+const UPSTREAM_GAP_PINNED = 12
 
 const localesDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'locales')
 const files = readdirSync(localesDir).filter(f => f.endsWith('.js')).sort()
@@ -56,10 +159,30 @@ const union = [...seen.keys()]
 
 let failed = false
 const progress = []
+let idKeepsEnglish = 0
+
+if (UPSTREAM_GAP.size !== UPSTREAM_GAP_PINNED) {
+  failed = true
+  console.error(
+    `\nUPSTREAM_GAP berisi ${UPSTREAM_GAP.size} kunci, dipatok ${UPSTREAM_GAP_PINNED}. ` +
+    'Kalau memang menambah kunci warisan, naikkan pin-nya sambil menuliskan alasannya.'
+  )
+}
+
+// Kalau salah satu dari 12 pack warisan akhirnya menerjemahkannya, daftar ini basi. id.js
+// dikecualikan: dia memang pembawa tunggalnya.
+for (const [lang, keys] of locales) {
+  if (lang === 'id') continue
+  const stale = [...UPSTREAM_GAP].filter(k => keys.has(k))
+  if (!stale.length) continue
+  failed = true
+  console.error(`\n${lang}.js sudah menerjemahkan ${stale.length} kunci yang masih di UPSTREAM_GAP:`)
+  for (const k of stale) console.error(`  keluarkan dari daftar: ${JSON.stringify(k)}`)
+}
 
 for (const [lang, keys] of locales) {
-  const missing = union.filter(k => !keys.has(k))
-  const orphans = union.filter(k => keys.has(k) && seen.get(k) === 1)
+  const missing = union.filter(k => !keys.has(k) && !UPSTREAM_GAP.has(k))
+  const orphans = union.filter(k => keys.has(k) && seen.get(k) === 1 && !UPSTREAM_GAP.has(k))
 
   // Kunci yang cuma ada di satu pack tetap gagal, termasuk untuk pack bertahap: itu selalu
   // salah tulis pada kuncinya, bukan terjemahan yang belum sempat.
@@ -67,6 +190,27 @@ for (const [lang, keys] of locales) {
     failed = true
     console.error(`\n${lang}.js: ${orphans.length} kunci hanya ada di sini`)
     for (const k of orphans) console.error(`  only here: ${JSON.stringify(k)}`)
+  }
+
+  // id.js diperiksa PENUH lawan ID_KEEPS_ENGLISH, bukan dimaklumi. Dua arah, karena dua-duanya
+  // adalah kesalahan yang nyata: kunci hilang yang tidak terdaftar berarti ada yang lupa
+  // diterjemahkan, dan kunci terdaftar yang ternyata diterjemahkan berarti keputusannya sudah
+  // berubah tapi daftarnya belum.
+  if (lang === 'id') {
+    const takTerduga = missing.filter(k => !ID_KEEPS_ENGLISH.has(k))
+    const sudahDiisi = [...ID_KEEPS_ENGLISH].filter(k => keys.has(k))
+    if (takTerduga.length) {
+      failed = true
+      console.error(`\nid.js: ${takTerduga.length} kunci belum diterjemahkan dan tidak terdaftar`)
+      for (const k of takTerduga) console.error(`  terjemahkan, atau daftarkan: ${JSON.stringify(k)}`)
+    }
+    if (sudahDiisi.length) {
+      failed = true
+      console.error(`\nid.js: ${sudahDiisi.length} kunci diterjemahkan padahal terdaftar sengaja Inggris`)
+      for (const k of sudahDiisi) console.error(`  keluarkan dari ID_KEEPS_ENGLISH: ${JSON.stringify(k)}`)
+    }
+    if (!takTerduga.length && !sudahDiisi.length) idKeepsEnglish = missing.length
+    continue
   }
 
   if (!missing.length) continue
@@ -87,7 +231,10 @@ if (failed) {
 }
 
 const complete = locales.size - progress.length
-console.log(`${complete} locale lengkap, ${union.length} kunci masing-masing — sinkron.`)
+const shared = union.filter(k => !UPSTREAM_GAP.has(k)).length
+console.log(`${complete} locale lengkap, ${shared} kunci masing-masing — sinkron.`)
+console.log(`id.js lengkap — ${idKeepsEnglish} kunci sengaja tetap Inggris (istilah gym & alat).`)
+console.log(`${UPSTREAM_GAP.size} kunci build demo cuma ada di id.js — 12 pack warisan tidak pernah membawanya.`)
 for (const [lang, have, total] of progress) {
   const pct = (have / total * 100).toFixed(0)
   console.log(`${lang}.js: ${have}/${total} (${pct}%) — sengaja bertahap, sisanya jatuh ke Inggris`)
