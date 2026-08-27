@@ -29,8 +29,16 @@ export type SetPhase = 'work' | 'warmup'
 export type SetType = 'straight' | 'dropset' | 'restpause'
 export type SetMode = 'reps' | 'time' | 'cardio'
 
-/** Satu penurunan beban di dalam baris drop-set. */
-export interface Drop { w: number; r: number }
+/**
+ * Satu penurunan beban di dalam baris drop-set.
+ *
+ * `r` OPSIONAL, dan itu benar: drop yang DIRENCANAKAN mewarisi repetisi dari baris induknya,
+ * dan kalau konfigurasinya belum punya angka repetisi maka rencananya memang belum punya.
+ * Drop yang ditambahkan LIVE selalu punya (`addDrop` menulis `num(...)`). Memaksanya jadi 0
+ * akan menulis `"r": 0` ke JSON di tempat yang sebelumnya tidak punya kunci itu sama sekali —
+ * bentuk tersimpan berubah tanpa alasan. `extraVolumeOf` sudah menangani keduanya lewat num().
+ */
+export interface Drop { w: number; r?: number }
 
 /** Satu burst istirahat-pendek di dalam baris rest-pause. */
 export interface Cluster { r: number; restSec: number }
@@ -165,8 +173,36 @@ export interface ExerciseConfig {
   reps?: number
   repsMin?: number
   repsMax?: number
+  /** Detik per set untuk latihan berbasis waktu (plank, hang, loaded carry). */
   sec?: number
+  /** Menit dan kecepatan untuk kardio. */
+  min?: number
+  speed?: number
+  /** Beban yang direncanakan. Untuk latihan berat-badan ini beban TAMBAHAN, bukan total. */
+  weight?: number
   mode?: string
+  /** Berapa baris warm-up yang direncanakan; dibatasi MAX_PLANNED_WARMUPS. */
+  warmupSets?: number
+  /** Latihan unilateral: repetisi yang dilog tetap TOTAL kedua sisi, bukan per sisi. */
+  side?: boolean
+  /**
+   * Latihan tidak membawa beban sendiri, jadi `w` berarti beban TAMBAHAN. Ditulis lengkap,
+   * bukan `bw`, karena satu sesi sudah memakai `bw` untuk penimbangan badan — dua hal beda
+   * yang cuma selisih satu huruf itu bug yang menunggu.
+   */
+  bodyweight?: boolean
+  /** Id grup superset. Anggota yang bersebelahan dan ber-`sg` sama dikerjakan bergiliran. */
+  sg?: string
+  /** Catatan yang menempel pada latihan ini di dalam rutin ini. */
+  note?: string
+  /** Intensifier yang direncanakan — lihat docs/upstream/DOMAIN-NOTES-dropset-restpause.md. */
+  intensifier?: {
+    type?: string
+    count?: number
+    pct?: number
+    totalReps?: number
+    restSec?: number
+  }
   [k: string]: unknown
 }
 
@@ -188,6 +224,20 @@ export interface AppState {
   workouts?: Workout[]
   /** 'kg' atau 'lb'. Menentukan besar langkah beban default. */
   unit?: string
+  routines?: Routine[]
+  /** Rutin per hari dalam seminggu, dikunci indeks 0 = Ahad. */
+  week?: Record<string, string | null>
+  /** Penjadwalan ulang per tanggal ISO — menang atas `week` untuk hari itu. */
+  dayPlan?: Record<string, string | null>
+  /**
+   * Berat kerja terakhir per id latihan. Nilainya OBJEK, bukan angka — pemanggil membaca
+   * `(S.exWeights[id] || {}).w`, jadi bungkusnya yang membuat "belum ada" bisa dibedakan
+   * dari "nol".
+   */
+  exWeights?: Record<string, { w?: number } | undefined>
+  /** Catatan tetap per latihan: fakta yang benar setiap kali gerakan itu dilakukan. */
+  exNotes?: Record<string, string>
+  bodyweight?: Array<{ d?: string; t?: number; w?: number }>
   /**
    * Skala effort yang dicatat: `'none' | 'rir' | 'rpe'`, atau **null** kalau profil belum
    * pernah memilih. null itu bermakna, bukan sama dengan 'none' — profil yang belum memilih

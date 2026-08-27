@@ -159,7 +159,7 @@ export function readSession(
   fallback?: ExerciseConfig | SetRow | null
 ): SessionRead {
   const target = ((entry && entry.target) || fallback || {}) as SetRow & ExerciseConfig
-  const mode = modeOf({ ...target, id: entry && entry.id }) as SetMode
+  const mode = modeOf({ ...target, id: (entry && entry.id) || undefined }) as SetMode
   // Warm-up rows are prep, not the session: one filtered read beats guarding every consumer
   // below (an undone warm-up otherwise poisons `ok` forever and its reps drag `low`/`count`).
   const sets = ((entry && entry.sets) || []).filter(s => !isWarmupRow(s))
