@@ -61,6 +61,46 @@ const OUT = join(ROOT, 'frontend', 'src', 'lib', 'exercise-media.json')
 export const FEDB_COMMIT = 'b0eed061e1c832b3ed815fbaa4b45b3cdc14df49'
 const DATA_URL = `https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@${FEDB_COMMIT}/dist/exercises.json`
 
+/**
+ * ALIAS YANG DIPERIKSA MANUSIA.
+ *
+ * Ini satu-satunya jalan yang benar untuk menaikkan cakupan. Skor kemiripan dilarang (lihat
+ * catatan di kepala berkas); penilaian manusia per-baris tidak. Dikunci ke ID latihan, bukan
+ * nama: ID stabil dan bebas masalah encoding (katalog kita punya "sled 45 derajat leg press"
+ * dengan simbol derajat non-ASCII yang tidak selamat di semua alat).
+ *
+ * Setiap baris di bawah SUDAH diperiksa satu per satu terhadap nama, alat, dan otot primer di
+ * kedua dataset. Kalau menambah baris, periksa juga - dan tulis alasannya kalau tidak jelas.
+ *
+ * Prioritasnya latihan yang paling sering dipakai orang: enam dari sebelas ini ada di starter
+ * plan Push/Pull/Legs, yang berarti mereka latihan PERTAMA yang dilihat user baru.
+ */
+const HAND_ALIASES = {
+  '0334': 'Side Lateral Raise',                  // dumbbell lateral raise - "side" redundan
+  '0241': 'Triceps Pushdown - V-Bar Attachment', // cable triceps pushdown (v-bar) - V-bar di keduanya
+  '0201': 'Triceps Pushdown',                    // cable pushdown - tg=triceps di katalog kita
+  '0251': 'Dips - Chest Version',                // chest dip
+  '0085': 'Romanian Deadlift',                   // barbell romanian deadlift
+  '0739': 'Leg Press',                           // sled 45 derajat leg press - itu leg press standar
+  '0405': 'Seated Dumbbell Press',               // dumbbell seated shoulder press - duduk di keduanya
+  '0117': 'Sumo Deadlift',                       // barbell sumo deadlift
+  '0308': 'Dumbbell Flyes',                      // dumbbell fly
+  '0314': 'Incline Dumbbell Press',              // dumbbell incline bench press
+  '0274': 'Crunches'                             // crunch floor - tg=abs, eq=body weight
+}
+
+/**
+ * SENGAJA TIDAK DI-ALIAS, supaya keputusannya tidak hilang dan tidak ditanyakan ulang:
+ *
+ *   dumbbell standing overhead press - fedb cuma punya versi DUDUK ("Dumbbell Shoulder Press",
+ *        "Seated Dumbbell Press"). "Standing" itu kata postur yang membedakan: bedanya dukungan
+ *        torso, dan itu terlihat jelas di fotonya.
+ *   dumbbell romanian deadlift - fedb cuma punya "Stiff-Legged Dumbbell Deadlift". RDL dan
+ *        stiff-legged beda di fleksi lutut, dan itu perbedaan yang lifter memang perhatikan.
+ *
+ * Keduanya mendapat diagram otot, dan itu jawaban yang lebih jujur daripada foto yang salah.
+ */
+
 const argv = process.argv.slice(2)
 const DRY = argv.includes('--dry')
 const REPORT = argv.includes('--report')
@@ -146,10 +186,26 @@ async function main() {
   const notIdentical = []
   const ambiguous = []
 
+  // Indeks nama fedb yang tepat, untuk menyelesaikan HAND_ALIASES.
+  const byExactName = new Map(fedb.map(e => [e.name, e]))
+  const aliasMisses = []
+
   for (const ex of ours) {
     let found = null, tag = null
 
-    for (const [t, idx, kf] of TIER1) {
+    // Tingkat 0: alias yang diperiksa manusia. Menang atas semuanya - kalau seseorang sudah
+    // memeriksa satu baris, itu bukti yang lebih kuat daripada aturan apa pun di bawah.
+    const aliasName = HAND_ALIASES[ex.id]
+    if (aliasName) {
+      const g = byExactName.get(aliasName)
+      if (g) { found = g; tag = 'alias' }
+      // Nama alias yang tidak ditemukan berarti dataset upstream mengganti namanya. Itu harus
+      // BERISIK, bukan diam-diam jatuh ke aturan otomatis: aliasnya diperiksa manusia terhadap
+      // nama tertentu, dan kalau nama itu hilang, pemeriksaannya sudah tidak berlaku.
+      else aliasMisses.push([ex.id, ex.n, aliasName])
+    }
+
+    if (!found) for (const [t, idx, kf] of TIER1) {
       const g = idx.get(kf(ex.n))
       if (g) { found = g; tag = t; break }
     }
@@ -189,6 +245,15 @@ async function main() {
   if (REPORT) {
     console.log('\n=== kecocokan tidak identik — periksa mata sebelum menaikkan pin commit ===')
     notIdentical.forEach(([a, b]) => console.log(`  ${a.slice(0, 46).padEnd(48)} ${b}`))
+  }
+
+  if (aliasMisses.length) {
+    console.error('\\nALIAS TIDAK DITEMUKAN di dataset upstream - pemeriksaannya tidak lagi berlaku:')
+    for (const [id, ourName, want] of aliasMisses) {
+      console.error(`  ${id}  ${ourName}  ->  ${JSON.stringify(want)}`)
+    }
+    console.error('\\nDataset kemungkinan mengganti nama. Periksa ulang dan perbarui HAND_ALIASES.')
+    process.exit(1)
   }
 
   if (DRY) { console.log('\n--dry: tidak ada yang ditulis'); return }
