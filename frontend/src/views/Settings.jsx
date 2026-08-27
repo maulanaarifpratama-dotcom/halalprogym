@@ -177,6 +177,16 @@ export default function Settings() {
           onChange={v => update(s => { s.theme = v })}
         />
       </Row>
+      {/* Kota untuk waktu salat. Daftar, bukan geolocation — tanpa izin browser dan jalan
+          offline. Waktu salat tidak butuh presisi GPS: satu kota sudah cukup. */}
+      <SelectRow
+        icon="globe" iconTint="var(--acc)" title={t('Prayer city')}
+        value={S.city || 'jakarta'}
+        options={CITIES.map(c => ({ value: c.id, label: c.name }))}
+        onChange={v => update(s => { s.city = v })}
+        sheetTitle={t('Prayer city')}
+      />
+
       {/* Purely how the muscle map is drawn — nothing else in the app reads this. */}
       <Row icon="figureStrength" iconTint="var(--teal)" title={t('Body diagram')}>
         <Segmented

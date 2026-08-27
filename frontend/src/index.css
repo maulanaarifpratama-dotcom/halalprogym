@@ -872,6 +872,42 @@ h4.sec{
 }
 .hm-legend .hm-c{width:10px;height:10px}
 
+/* --- waktu salat ---
+   Lima waktu dalam satu baris yang bisa dipindai sekilas, karena itu cara orang membacanya:
+   mata mencari satu angka, bukan membaca daftar. Yang BERIKUTNYA ditandai aksen — pertanyaan
+   yang orang bawa ke app ini di antara set adalah "berapa lama lagi sampai Magrib", bukan
+   "kapan Subuh tadi". Angka pakai tabular-nums supaya kolomnya tidak goyang antar waktu. */
+.prayer-row{display:flex;gap:4px}
+.prayer-cell{
+  flex:1;min-width:0;text-align:center;padding:7px 2px;border-radius:var(--r-sm);
+  background:var(--surface-2);transition:background var(--med) var(--ease)
+}
+.prayer-cell .pl{font-size:11px;color:var(--label-2);letter-spacing:.01em;margin-bottom:2px}
+.prayer-cell .pt{
+  font-size:14.5px;font-weight:600;letter-spacing:-.015em;color:var(--label);
+  font-variant-numeric:tabular-nums
+}
+/* Berikutnya: aksen tipis. Sedang berlangsung: aksen penuh — itu keadaan yang paling
+   perlu terlihat dari jarak lengan, dan satu-satunya yang mengubah apa yang orang lakukan. */
+.prayer-cell.next{background:color-mix(in srgb,var(--acc) 16%,var(--surface-2))}
+.prayer-cell.next .pt{color:var(--acc)}
+.prayer-cell.on{background:var(--acc)}
+.prayer-cell.on .pl,.prayer-cell.on .pt{color:var(--on-acc)}
+
+/* Imsak dan terbit dipisah dari lima waktu di atas: keduanya BUKAN salat, dan menaruhnya
+   di antara yang lima membuat orang salah hitung. */
+.prayer-sub{
+  display:flex;gap:14px;margin-top:8px;font-size:12px;color:var(--label-2);
+  font-variant-numeric:tabular-nums
+}
+/* Catatan bahwa ini perhitungan. Sengaja terbaca tapi tidak menonjol — menyembunyikannya
+   supaya app terasa lebih pintar adalah kebohongan kecil yang mahal, terutama di Ramadan. */
+.prayer-note{
+  display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding-top:9px;
+  border-top:var(--hair) solid var(--sep);font-size:11.5px;line-height:1.45;color:var(--label-3)
+}
+.prayer-note .icn{flex:none;font-size:12px;margin-top:1px}
+
 /* --- muscle map --- */
 /* Reuses the .hm-c level ramp above, so one accent scale means one thing app-wide. */
 /* An untrained muscle is derived from the text colour rather than a fixed surface, so

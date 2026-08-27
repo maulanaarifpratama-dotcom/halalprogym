@@ -18,6 +18,12 @@ export const DEF = {
   // server pull, backup import) still falls back to the `showRir` boolean this replaced and
   // keeps the column it had. See effortOf.
   reminder: { on: false, time: '08:00', tz: null }, effort: null, autoBackup: false,
+  // Kota untuk waktu salat. Dipilih dari daftar, bukan geolocation: tanpa izin browser,
+  // jalan offline, dan untuk waktu salat presisi GPS tidak dibutuhkan. Lihat lib/prayer.ts.
+  city: 'jakarta',
+  // Kota untuk waktu salat. Dipilih dari daftar, bukan geolocation: tanpa izin browser,
+  // jalan offline, dan untuk waktu salat presisi GPS tidak dibutuhkan. Lihat lib/prayer.ts.
+  city: 'jakarta',
   // Equipment profiles (issue: filter Library/picker/routines by what you actually own —
   // e.g. "Home" vs "Gym" — building on the session-only equipment filter from issue #6).
   equipProfiles: [], activeEquipId: null, equipFilterOn: false,

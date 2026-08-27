@@ -108,6 +108,16 @@ export default {
   'start position': 'posisi awal',
   'end position': 'posisi akhir',
 
+  /* ---- waktu salat. Ejaan mengikuti KBBI: Magrib tanpa h, Asar tanpa h, Zuhur dengan Z.
+     Lihat docs/GLOSARIUM-ID.md — itu keputusan, bukan salah tulis. ---- */
+  'Prayer times': 'Waktu salat',
+  'Prayer city': 'Kota untuk waktu salat',
+  'Imsak': 'Imsak',
+  'tomorrow': 'besok',
+  '{0} now': 'Waktu {0}',
+  'Calculated times. For Ramadan, check your local official schedule.':
+    'Hasil perhitungan. Untuk Ramadan, cocokkan ke jadwal resmi daerahmu.',
+
   /* ---- tampilan ---- */
   'Language': 'Bahasa',
   'Theme': 'Tema',

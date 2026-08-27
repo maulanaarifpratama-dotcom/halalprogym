@@ -224,6 +224,8 @@ export interface AppState {
   workouts?: Workout[]
   /** 'kg' atau 'lb'. Menentukan besar langkah beban default. */
   unit?: string
+  /** Id kota untuk waktu salat — lihat CITIES di lib/prayer.ts. */
+  city?: string
   routines?: Routine[]
   /** Rutin per hari dalam seminggu, dikunci indeks 0 = Ahad. */
   week?: Record<string, string | null>

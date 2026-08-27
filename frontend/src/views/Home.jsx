@@ -7,6 +7,7 @@ import { t, dateLocale } from '../lib/i18n.js'
 import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, loadStarterPlan, bwDeltaColor } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
+import PrayerCard from '../components/PrayerCard.jsx'
 import { Button } from '../components/ui.jsx'
 import { glyphOf } from '../lib/glyphs.js'
 
@@ -97,6 +98,13 @@ export default function Home() {
         <div style={{ height: 8 }} /><Button onClick={() => nav('/plan')}>{t('Build my own plan')}</Button>
       </div>
     )}
+
+    {/* Jadwal salat ditaruh SETELAH latihan hari ini dan SEBELUM berat badan.
+        Yang pertama dilihat orang tetap "apa latihan hari ini" — itu tugas utama app-nya.
+        Tapi jadwal salat ada di layar yang sama tanpa harus dicari, karena dia alasan
+        app ini ada, dan pertanyaannya ("masih cukup waktu sebelum Magrib?") muncul justru
+        saat orang memutuskan mau latihan atau tidak. */}
+    <PrayerCard />
 
     <div className="card">
       <div className="row between" style={{ marginBottom: 6 }}>
