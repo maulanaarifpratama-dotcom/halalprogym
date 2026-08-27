@@ -155,7 +155,7 @@ export type DatedSessionRead = SessionRead & { d?: string }
  * which is exactly what the app's old weight hint compared against.
  */
 export function readSession(
-  entry: { id?: string; target?: SetRow; sets?: SetRow[] } | null | undefined,
+  entry: { id?: string; target?: SetRow | null; sets?: SetRow[] } | null | undefined,
   fallback?: ExerciseConfig | SetRow | null
 ): SessionRead {
   const target = ((entry && entry.target) || fallback || {}) as SetRow & ExerciseConfig

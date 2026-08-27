@@ -49,21 +49,67 @@ export interface SetRow {
 export interface WorkoutEntry {
   id?: string
   sets?: SetRow[]
-  target?: SetRow
+  /**
+   * Resep yang berlaku saat sesi ini dijalankan.
+   *
+   * `null` DIIZINKAN dan berbeda dari `undefined`: buildCompletedWorkout menulis `null`
+   * secara eksplisit, jadi rekaman tersimpan benar-benar memuat `"target": null` —
+   * `undefined` akan dibuang JSON.stringify dan mengubah bentuk yang ditulis. Riwayat
+   * sebelum v1.2.2 tidak punya field ini sama sekali; readSession menangani ketiganya.
+   */
+  target?: SetRow | null
   /**
    * Beban kerja yang user konfirmasi setelah latihan, TANPA jumlah repetisi.
    * Karena itu dia tidak bisa menghasilkan estimasi 1RM — lihat bestSetOf di onerm.
+   * `null` diizinkan dengan alasan yang sama seperti `target`.
    */
-  topW?: number
+  topW?: number | null
 }
 
 /** Satu sesi latihan yang sudah dilog. */
 export interface Workout {
+  id?: string
   /** Tanggal lokal `YYYY-MM-DD`. */
   d?: string
   /** Epoch ms saat sesi dimulai. Dipakai sebagai sumbu waktu grafik. */
   start?: number
+  /** Epoch ms saat sesi diselesaikan. */
+  end?: number
+  routineId?: string | null
+  name?: string
+  /** Berat badan yang dicatat sebelum sesi. */
+  bw?: number | null
   entries?: WorkoutEntry[]
+  /** Rekor yang pecah di sesi ini. */
+  prs?: unknown[]
+  /** Catatan sesi — milik satu hari, beda dari catatan per-latihan. */
+  note?: string
+}
+
+/**
+ * Sesi yang sedang berjalan. Bentuknya nyaris sama dengan Workout, bedanya baris-barisnya
+ * masih bisa berubah dan catatan per-latihan belum diringkas ke bentuk tersimpan.
+ *
+ * Ini SATU-SATUNYA bagian state yang sengaja tinggal di klien saja dan tidak disinkron
+ * sampai sesinya selesai — sesi yang menggantung menunggu jaringan di basement gym itu
+ * bug yang bikin orang menghapus app. Lihat CLAUDE.md.
+ */
+export interface ActiveWorkout {
+  id?: string
+  d?: string
+  start?: number
+  routineId?: string | null
+  name?: string
+  bw?: number | null
+  note?: string
+  entries?: ActiveEntry[]
+}
+
+export interface ActiveEntry extends WorkoutEntry {
+  /** Catatan yang diketik hari ini untuk latihan ini. */
+  note?: string
+  /** Minta catatan itu ditampilkan lagi sesi berikutnya. */
+  notePin?: boolean
 }
 
 /**

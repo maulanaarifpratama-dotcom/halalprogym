@@ -1,11 +1,23 @@
 // Pure decisions for the active-workout superset flow. Keeping these independent of React and
 // the stores makes the uneven-round and re-check rules explicit and directly testable.
-const hasWork = (entries, idx) => !!entries[idx]?.sets?.some(set => !set.done)
+import type { SetRow } from './types.js'
+
+/** Cuma `sets` yang dibaca di sini, jadi itu saja yang diminta. */
+interface FlowEntry { sets?: SetRow[] }
+
+const hasWork = (entries: FlowEntry[], idx: number): boolean =>
+  !!entries[idx]?.sets?.some(set => !set.done)
+
+/** Hasil `setProgressHighWater`: apakah ini kemajuan baru, dan garis air yang baru. */
+export interface HighWater {
+  isNew: boolean
+  highWater: number
+}
 
 // A completion is new progress only when it takes this exercise beyond the largest number of
 // simultaneously completed sets seen in this mounted session. Uncheck/re-check therefore does
 // not repeat navigation or rest side effects, while completing an added set still can.
-export function setProgressHighWater(entry, previous = 0) {
+export function setProgressHighWater(entry: FlowEntry | null | undefined, previous = 0): HighWater {
   const done = entry?.sets?.reduce((count, set) => count + (set.done ? 1 : 0), 0) || 0
   return { isNew: done > previous, highWater: Math.max(previous, done) }
 }
@@ -21,7 +33,7 @@ export function setProgressHighWater(entry, previous = 0) {
  * closing set, so a two-set exercise timed one rest instead of two (issue #3) and a rest
  * never carried across the gap into the next exercise. Supersets already did it this way.
  */
-export function restAfterSet({ unitDone, lastUnit }) {
+export function restAfterSet({ unitDone, lastUnit }: { unitDone?: boolean; lastUnit?: boolean }): boolean {
   return !unitDone || !lastUnit
 }
 
@@ -38,14 +50,32 @@ export function restAfterSet({ unitDone, lastUnit }) {
  * So: fill a gap, never disturb a rest that is already counting down. A timer that is running
  * belongs to the set you finished most recently, which is a better answer than restarting it.
  */
-export function restOnRecheck({ timerRunning, unitDone, lastUnit }) {
+export function restOnRecheck(
+  { timerRunning, unitDone, lastUnit }: { timerRunning?: boolean; unitDone?: boolean; lastUnit?: boolean }
+): boolean {
   return !timerRunning && restAfterSet({ unitDone, lastUnit })
+}
+
+/**
+ * Hasil satu langkah alur superset.
+ *
+ * `unitDone` = seluruh grup habis. `roundDone` = putaran ini selesai, tapi grupnya belum.
+ * `nextIdx` = anggota berikutnya yang masih punya kerja, atau null.
+ */
+export interface FlowStep {
+  unitDone: boolean
+  roundDone: boolean
+  nextIdx: number | null
 }
 
 // Decide where a newly completed superset set goes next. Spent members are skipped, including
 // across the wrap. A round ends when no later member in display order has work left; this makes
 // the last *active* member the boundary rather than blindly using the group's last array index.
-export function supersetFlowStep(entries, unit, fromIdx) {
+export function supersetFlowStep(
+  entries: FlowEntry[],
+  unit: number[],
+  fromIdx: number
+): FlowStep | null {
   if (!Array.isArray(entries) || !Array.isArray(unit) || unit.length <= 1) return null
   const pos = unit.indexOf(fromIdx)
   if (pos < 0) return null

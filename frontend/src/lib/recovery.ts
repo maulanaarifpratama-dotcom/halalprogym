@@ -1,6 +1,44 @@
 import { EXIDX } from './exercises.js'
 import { MUSCLES, musclesOf } from './muscles.js'
 import { isWarmupRow, dropsOf } from './workout-model.js'
+import type { Exercise, SetRow, Workout, WorkoutEntry } from './types.js'
+
+// EXIDX diisi dinamis di exercises.js yang masih JS. Dilebarkan sekali di batasnya dengan
+// bentuk sebenarnya, pola yang sama dengan progression.ts.
+const EX_INDEX = EXIDX as Record<string, Exercise | undefined>
+
+/** Nilai per slug otot. Selalu memuat SETIAP otot yang bisa digambar. */
+export type MuscleMap = Record<string, number>
+
+/**
+ * Rekaman tersimpan boleh membawa field warisan yang tidak ada di tipe bersama - cap unit
+ * dari impor CSV (`u`, `weightUnit`, `loadUnit`), berat badan dari versi app lama
+ * (`bodyweight`, `bwUnit`). Index signature-nya BUKAN kemalasan: kode di bawah memang
+ * membaca kunci-kunci itu secara dinamis lewat UNIT_KEYS, karena satu rekaman bisa
+ * mencapnya dengan nama yang mana pun.
+ */
+type Loose<T> = T & { [k: string]: unknown }
+type LooseSet = Loose<SetRow>
+type LooseEntry = Loose<WorkoutEntry>
+type LooseWorkout = Loose<Workout>
+
+/** Opsi tingkat profil; unit disuplai di batas UI. */
+export interface RecoveryOptions {
+  unit?: string
+  profileUnit?: string
+  /** Sudah dalam kg - dipakai apa adanya. */
+  bodyweightKg?: number
+  /** Dalam unit tampilan; dikonversi lewat bodyweightUnit/unit. */
+  bodyweight?: number
+  bodyweightUnit?: string
+  [k: string]: unknown
+}
+
+interface FatigueEvent {
+  slug: string
+  timestamp: number
+  stimulus: number
+}
 
 // A "normal" hard session for one muscle, in primary-set equivalents. The saturation curve
 // 1 - exp(-stimulus / REF) maps any session size onto [0,1) so volume raises the starting
@@ -39,25 +77,19 @@ export const FATIGUE_STATES = Object.freeze({
   FATIGUED: 'fatigued',
 })
 
-/**
- * Return exponential decay expressed as a fraction of one half-life.
- *
- * @param {number} ageMs Elapsed age of the stimulus in milliseconds.
- * @param {number} halfLifeMs Duration of one half-life in milliseconds.
- * @returns {number} Remaining fraction, using the exact `0.5 ** (age / halfLife)` formula.
- */
-export function halfLifeDecay(ageMs, halfLifeMs) {
+/** Peluruhan eksponensial sebagai fraksi satu paruh-waktu - rumus `0.5 ** (age / halfLife)`. */
+export function halfLifeDecay(ageMs: number, halfLifeMs: number): number {
   return 0.5 ** (ageMs / halfLifeMs)
 }
 
 // The v2 data contract has one timestamp per workout, not per set. Keep this fallback in one
 // place so fatigue and strength use exactly the same stimulus time as effort.js.
-function workoutTimestamp(workout) {
-  const timestamp = workout?.start || new Date(workout?.d).getTime()
+function workoutTimestamp(workout: LooseWorkout | null | undefined): number {
+  const timestamp = workout?.start || new Date(workout?.d as string).getTime()
   return Number.isFinite(timestamp) ? timestamp : Number(timestamp)
 }
 
-function emptyMuscleMap(value) {
+function emptyMuscleMap(value: number): MuscleMap {
   return Object.fromEntries(MUSCLES.map(slug => [slug, value]))
 }
 
@@ -65,31 +97,34 @@ function emptyMuscleMap(value) {
 // inflate the estimate). Used only to express a set's intensity relative to the lifter's own
 // capacity - the same formula the app already shows for estimated 1RM.
 const REP_CAP = 12
-const epley1RM = (load, reps) => load * (1 + Math.min(reps || 1, REP_CAP) / 30)
+const epley1RM = (load: number, reps: number): number => load * (1 + Math.min(reps || 1, REP_CAP) / 30)
 
 export const LB_TO_KG = 0.45359237
 
-function numeric(value) {
+function numeric(value: unknown): number | null {
   if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null
   const n = Number(value)
   return Number.isFinite(n) ? n : null
 }
 
-function isPounds(unit) {
+function isPounds(unit: unknown): boolean {
   return /^(?:lb|lbs|pound|pounds)$/i.test(String(unit ?? '').trim())
 }
 
-function unitOf(...records) {
+const UNIT_KEYS = ['unit', 'u', 'weightUnit', 'weight_unit', 'loadUnit'] as const
+
+function unitOf(...records: unknown[]): unknown {
   for (const record of records) {
     if (!record || typeof record !== 'object') continue
-    for (const key of ['unit', 'u', 'weightUnit', 'weight_unit', 'loadUnit']) {
-      if (record[key] !== undefined && record[key] !== null && String(record[key]).trim() !== '') return record[key]
+    const r = record as Record<string, unknown>
+    for (const key of UNIT_KEYS) {
+      if (r[key] !== undefined && r[key] !== null && String(r[key]).trim() !== '') return r[key]
     }
   }
   return 'kg'
 }
 
-function kgOf(value, unit) {
+function kgOf(value: unknown, unit: unknown): number {
   const n = numeric(value)
   if (n === null) return 0
   return Math.max(0, n) * (isPounds(unit) ? LB_TO_KG : 1)
@@ -99,14 +134,18 @@ function kgOf(value, unit) {
 // carry one, use the current profile's canonical bodyweight supplied by Stats, then the stable
 // fallback used by the original fatigue model. `bodyweightKg` is already canonical; `bodyweight`
 // is accepted for callers that provide a display-unit value explicitly.
-function bodyweightKgFor(workout, opts = {}, stampedLoadUnit) {
+function bodyweightKgFor(
+  workout: LooseWorkout | null | undefined,
+  opts: RecoveryOptions = {},
+  stampedLoadUnit?: unknown
+): number {
   const stamped = numeric(workout?.bw) ?? numeric(workout?.bodyweight)
   if (stamped !== null) {
     return kgOf(stamped, unitOf(
       { unit: workout?.bwUnit },
       { unit: workout?.bodyweightUnit },
       workout,
-      stampedLoadUnit && { unit: stampedLoadUnit },
+      stampedLoadUnit ? { unit: stampedLoadUnit } : null,
       opts,
     ))
   }
@@ -117,20 +156,32 @@ function bodyweightKgFor(workout, opts = {}, stampedLoadUnit) {
   return BODYWEIGHT_REF_LOAD
 }
 
-function bodyweightTarget(entry) {
-  const target = entry?.target
-  if (target && Object.prototype.hasOwnProperty.call(target, 'bodyweight')) return !!target.bodyweight
-  if (entry && Object.prototype.hasOwnProperty.call(entry, 'bodyweight')) return !!entry.bodyweight
+function bodyweightTarget(entry: LooseEntry | null | undefined): boolean | null {
+  // `bodyweight` field warisan: dia ada di rekaman lama, bukan di kontrak sekarang.
+  // Karena itu selalu diperiksa hasOwnProperty dulu — pandangan loose di sini cuma
+  // membuat pembacaan yang sudah dijaga itu bisa diketik.
+  const target = entry?.target as Loose<SetRow> | null | undefined
+  if (target && Object.prototype.hasOwnProperty.call(target, 'bodyweight')) return !!target['bodyweight']
+  if (entry && Object.prototype.hasOwnProperty.call(entry, 'bodyweight')) return !!entry['bodyweight']
   return null
 }
 
-function hasUnitStamp(...records) {
-  return records.some(record => record && typeof record === 'object'
-    && ['unit', 'u', 'weightUnit', 'weight_unit', 'loadUnit'].some(key => Object.prototype.hasOwnProperty.call(record, key)
-      && record[key] !== undefined && record[key] !== null && String(record[key]).trim() !== ''))
+function hasUnitStamp(...records: unknown[]): boolean {
+  return records.some(record => {
+    if (!record || typeof record !== 'object') return false
+    const r = record as Record<string, unknown>
+    return UNIT_KEYS.some(key => Object.prototype.hasOwnProperty.call(r, key)
+      && r[key] !== undefined && r[key] !== null && String(r[key]).trim() !== '')
+  })
 }
 
-function bodyweightConfigured(ex, entry, set, workout, opts = {}) {
+function bodyweightConfigured(
+  ex: Exercise | undefined,
+  entry: LooseEntry | null | undefined,
+  set: LooseSet | null | undefined,
+  workout: LooseWorkout | null | undefined,
+  opts: RecoveryOptions = {}
+): boolean {
   const configured = bodyweightTarget(entry)
   if (configured !== null) return configured
   // Before target.bodyweight was persisted, a positive `w` on a catalogue bodyweight exercise
@@ -146,7 +197,13 @@ function bodyweightConfigured(ex, entry, set, workout, opts = {}) {
   return ex?.eq === 'body weight' && (added === 0 || hasBodyweightContext)
 }
 
-function loadKgFor(ex, entry, set, workout, opts = {}) {
+function loadKgFor(
+  ex: Exercise | undefined,
+  entry: LooseEntry | null | undefined,
+  set: LooseSet | null | undefined,
+  workout: LooseWorkout | null | undefined,
+  opts: RecoveryOptions = {}
+): number {
   const setUnit = unitOf(set, entry?.target, entry, workout, opts)
   const addedKg = kgOf(set?.w, setUnit)
   const loadUnit = hasUnitStamp(set, entry?.target, entry) ? setUnit : undefined
@@ -158,15 +215,19 @@ function loadKgFor(ex, entry, set, workout, opts = {}) {
 // Best Epley estimate inside one session. Keeping intensity context on the session makes a
 // scored stimulus independent of later imports/deletes; unlike an all-history maximum, a
 // 90-day-old CSV row cannot retroactively reweight today's sets.
-function session1RMs(workout, opts = {}) {
-  const best = new Map()
-  for (const entry of workout?.entries || []) {
-    const ex = EXIDX[entry.id]
-    for (const set of entry.sets || []) {
+function session1RMs(
+  workout: LooseWorkout | null | undefined,
+  opts: RecoveryOptions = {}
+): Map<string, number> {
+  const best = new Map<string, number>()
+  for (const entry of (workout?.entries || []) as LooseEntry[]) {
+    const ex = EX_INDEX[entry.id as string]
+    for (const set of (entry.sets || []) as LooseSet[]) {
       const load = loadKgFor(ex, entry, set, workout, opts)
-      if (set?.done !== true || !(load > 0) || !(set.r > 0)) continue
-      const est = epley1RM(load, set.r)
-      if (!best.has(entry.id) || est > best.get(entry.id)) best.set(entry.id, est)
+      if (set?.done !== true || !(load > 0) || !((set.r ?? 0) > 0)) continue
+      const est = epley1RM(load, set.r as number)
+      const prev = best.get(entry.id as string)
+      if (prev === undefined || est > prev) best.set(entry.id as string, est)
     }
   }
   return best
@@ -179,23 +240,40 @@ function session1RMs(workout, opts = {}) {
 // A rest-pause row's `clusters` are NOT extra here: the row's own `r` already is the total reps
 // across every burst (see applyIntensifierPlan/history.js), so the main tonnage term below
 // already covers it — adding clusters on top would double-count the same reps.
-function extraTonnage(ex, entry, set, workout, oneRm, opts = {}) {
+function extraTonnage(
+  ex: Exercise | undefined,
+  entry: LooseEntry,
+  set: LooseSet,
+  workout: LooseWorkout | null | undefined,
+  oneRm: number | undefined,
+  opts: RecoveryOptions = {}
+): number {
   const drops = dropsOf(set)
   if (!drops.length) return 0
   const isBwEx = bodyweightConfigured(ex, entry, set, workout, opts)
-  const weigh = (load, reps) => {
+  const weigh = (load: number, reps: number): number => {
     if (!(load > 0) || !(reps > 0)) return 0
     const raw = load * reps
-    return isBwEx || !(oneRm > 0) ? raw : raw * Math.min(1, load / oneRm) ** 1.5
+    return isBwEx || !((oneRm ?? 0) > 0) ? raw : raw * Math.min(1, load / (oneRm as number)) ** 1.5
   }
-  return drops.reduce((sum, d) => sum + weigh(loadKgFor(ex, entry, d, workout, opts), Number(d?.r) || 0), 0)
+  return drops.reduce(
+    (sum, d) => sum + weigh(loadKgFor(ex, entry, d as LooseSet, workout, opts), Number(d?.r) || 0),
+    0
+  )
 }
 
 // Intensity-weighted tonnage for one completed set: load x reps x (load / exercise 1RM)^1.5.
 // The exponent saturates the "hard set" effect - a set at 90% of your 1RM counts ~0.81 of its
 // raw tonnage, one at 50% only ~0.35. Cardio, timed holds, and sets whose exercise has no
 // 1RM history stay unweighted (duration proxies, or intensity 1 for the first sessions).
-function setTonnage(ex, entry, set, workout, oneRm, opts = {}) {
+function setTonnage(
+  ex: Exercise | undefined,
+  entry: LooseEntry,
+  set: LooseSet,
+  workout: LooseWorkout | null | undefined,
+  oneRm: number | undefined,
+  opts: RecoveryOptions = {}
+): number {
   if (ex?.bp === 'cardio') {
     return Math.max(set?.min || 0, (set?.sec || 0) / 60) * CARDIO_TONNAGE_PER_MIN
   }
@@ -211,23 +289,31 @@ function setTonnage(ex, entry, set, workout, oneRm, opts = {}) {
   // retain the monotonic total-load stimulus instead of letting a newly created low 1RM shrink
   // a weighted bodyweight set below the unloaded version.
   if (bodyweightConfigured(ex, entry, set, workout, opts)) return raw + extra
-  if (!(oneRm > 0) || !(load > 0)) return raw + extra
-  return raw * Math.min(1, load / oneRm) ** 1.5 + extra
+  if (!((oneRm ?? 0) > 0) || !(load > 0)) return raw + extra
+  return raw * Math.min(1, load / (oneRm as number)) ** 1.5 + extra
 }
 
 // One session's per-muscle stimulus, calculated only from that session. A completed zero-load
 // set gets the set-equivalent fallback instead of disappearing from fatigue.
-function sessionTonnages(workout, opts = {}) {
+function sessionTonnages(
+  workout: LooseWorkout | null | undefined,
+  opts: RecoveryOptions = {}
+): MuscleMap {
   const sums = emptyMuscleMap(0)
   const oneRms = session1RMs(workout, opts)
-  for (const entry of workout?.entries || []) {
-    const weights = musclesOf(EXIDX[entry.id])
-    for (const set of entry.sets || []) {
+  for (const entry of (workout?.entries || []) as LooseEntry[]) {
+    const weights = musclesOf(EX_INDEX[entry.id as string]) as MuscleMap
+    for (const set of (entry.sets || []) as LooseSet[]) {
       if (set?.done !== true) continue
-      const measured = setTonnage(EXIDX[entry.id], entry, set, workout, oneRms.get(entry.id), opts)
+      const measured = setTonnage(
+        EX_INDEX[entry.id as string], entry, set, workout,
+        oneRms.get(entry.id as string), opts
+      )
       const tonnage = Number.isFinite(measured) && measured > 0 ? measured : ZERO_LOAD_SET_STIMULUS
       for (const [slug, weight] of Object.entries(weights)) {
-        if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug)) sums[slug] += tonnage * weight
+        if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug)) {
+          sums[slug] = (sums[slug] ?? 0) + tonnage * weight
+        }
       }
     }
   }
@@ -239,36 +325,43 @@ function sessionTonnages(workout, opts = {}) {
 // downward-only EWMA is deliberate: removing any earlier workout can only raise a later
 // denominator (and removes its own positive stimulus), so deletion can never increase fatigue.
 // Rebuilding from the bounded scan also makes imports older than the scan exactly irrelevant.
-function fatigueStimuli(workouts, current, opts = {}) {
+function fatigueStimuli(
+  workouts: LooseWorkout[] | null | undefined,
+  current: number,
+  opts: RecoveryOptions = {}
+): Record<string, FatigueEvent[]> {
   const cutoff = current - FATIGUE_SCAN_MS
   const ordered = (workouts || [])
     .map((workout, index) => ({ workout, index, timestamp: workoutTimestamp(workout) }))
     .filter(item => Number.isFinite(item.timestamp) && item.timestamp > cutoff)
     .sort((a, b) => a.timestamp - b.timestamp || a.index - b.index)
   const references = emptyMuscleMap(FATIGUE_REF_VOLUME)
-  const byMuscle = Object.fromEntries(MUSCLES.map(slug => [slug, []]))
+  const byMuscle: Record<string, FatigueEvent[]> = Object.fromEntries(MUSCLES.map(slug => [slug, []]))
 
   for (const { workout, timestamp } of ordered) {
     const sums = sessionTonnages(workout, opts)
     for (const slug of MUSCLES) {
-      const stimulus = sums[slug]
+      const stimulus = sums[slug] ?? 0
       if (!(stimulus > 0)) continue
-      byMuscle[slug].push({ slug, timestamp, stimulus: stimulus / references[slug] })
-      const ewma = references[slug] + (stimulus - references[slug]) / FATIGUE_MIN_SESSIONS
-      references[slug] = Math.min(references[slug], ewma)
+      const ref = references[slug] ?? FATIGUE_REF_VOLUME
+      byMuscle[slug]?.push({ slug, timestamp, stimulus: stimulus / ref })
+      const ewma = ref + (stimulus - ref) / FATIGUE_MIN_SESSIONS
+      references[slug] = Math.min(ref, ewma)
     }
   }
   return byMuscle
 }
 
-const MUSCLES_BY_SLUG = Object.fromEntries(MUSCLES.map(slug => [slug, true]))
+const MUSCLES_BY_SLUG: Record<string, boolean> = Object.fromEntries(MUSCLES.map(slug => [slug, true]))
 
-function fatigueValue(events, now) {
+function fatigueValue(events: FatigueEvent[], now: number): number {
   if (!events.length) return 0
   events.sort((a, b) => a.timestamp - b.timestamp)
 
   let value = 0
-  let lastTimestamp = events[0].timestamp
+  // noUncheckedIndexedAccess: panjangnya sudah dijaga di atas, jadi ini tidak mungkin
+  // undefined - tapi tipenya tidak tahu itu.
+  let lastTimestamp = (events[0] as FatigueEvent).timestamp
   for (const event of events) {
     value *= halfLifeDecay(event.timestamp - lastTimestamp, FATIGUE_HALF_LIFE_MS)
     value += event.stimulus
@@ -297,12 +390,16 @@ function fatigueValue(events, now) {
  * @param {{unit?: string}} options Reserved profile-level options; unit is supplied at the UI boundary.
  * @returns {Record<string, number>} Fatigue values keyed by every drawable muscle slug.
  */
-export function fatigueOf(workouts, now, opts = {}) {
+export function fatigueOf(
+  workouts: LooseWorkout[] | null | undefined,
+  now: number,
+  opts: RecoveryOptions = {}
+): MuscleMap {
   const current = Number(now)
   const result = emptyMuscleMap(0)
   if (!Number.isFinite(current)) return result
   const byMuscle = fatigueStimuli(workouts, current, opts)
-  for (const slug of MUSCLES) result[slug] = fatigueValue(byMuscle[slug], current)
+  for (const slug of MUSCLES) result[slug] = fatigueValue(byMuscle[slug] ?? [], current)
   return result
 }
 
@@ -318,16 +415,27 @@ export function fatigueOf(workouts, now, opts = {}) {
  * @param {number} now Current time in milliseconds; injected to keep this function deterministic.
  * @returns {Record<string, number>} Retained-strength values keyed by every drawable muscle slug.
  */
-export function strengthOf(workouts, now, opts = {}) {
+export function strengthOf(
+  workouts: LooseWorkout[] | null | undefined,
+  now: number,
+  // Diterima dan DIABAIKAN, dengan sengaja. Kekuatan yang tertahan cuma bergantung pada
+  // KAPAN otot itu terakhir dilatih — bukan pada beban, repetisi, atau unitnya — jadi tidak
+  // ada satu pun opsi yang bisa mengubah hasilnya. Parameternya dipertahankan supaya
+  // bentuk pemanggilannya sama dengan fatigueOf di sebelahnya; detrainedMuscles meneruskannya
+  // apa adanya. TS menandai ini lewat noUnusedParameters, dan itu benar — jadi ketidakpakaiannya
+  // ditulis, bukan disembunyikan.
+  _opts: RecoveryOptions = {}
+): MuscleMap {
   const current = Number(now)
-  const latest = Object.fromEntries(MUSCLES.map(slug => [slug, -Infinity]))
+  const latest: Record<string, number> = Object.fromEntries(MUSCLES.map(slug => [slug, -Infinity]))
   for (const workout of workouts || []) {
     const timestamp = workoutTimestamp(workout)
     if (!Number.isFinite(timestamp)) continue
     for (const entry of workout.entries || []) {
       if (!(entry.sets || []).some(set => set?.done === true && !isWarmupRow(set))) continue
-      for (const slug of Object.keys(musclesOf(EXIDX[entry.id]))) {
-        if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug) && timestamp > latest[slug]) {
+      for (const slug of Object.keys(musclesOf(EX_INDEX[entry.id as string]))) {
+        if (Object.prototype.hasOwnProperty.call(MUSCLES_BY_SLUG, slug)
+          && timestamp > (latest[slug] ?? -Infinity)) {
           latest[slug] = timestamp
         }
       }
@@ -337,7 +445,7 @@ export function strengthOf(workouts, now, opts = {}) {
   const result = emptyMuscleMap(STRENGTH_FLOOR)
   if (!Number.isFinite(current)) return result
   for (const slug of MUSCLES) {
-    const lastTimestamp = latest[slug]
+    const lastTimestamp = latest[slug] ?? -Infinity
     if (!Number.isFinite(lastTimestamp)) continue
     const age = current - lastTimestamp
     if (age <= STRENGTH_FULL_MS) {
@@ -362,7 +470,11 @@ export function strengthOf(workouts, now, opts = {}) {
  * @example
  * const avoid = fatiguedMuscles(workouts, now)
  */
-export function fatiguedMuscles(workouts, now, opts = {}) {
+export function fatiguedMuscles(
+  workouts: LooseWorkout[] | null | undefined,
+  now: number,
+  opts: RecoveryOptions = {}
+): string[] {
   return Object.entries(fatigueOf(workouts, now, opts))
     .filter(([, value]) => value > 0.5)
     .map(([slug]) => slug)
@@ -378,7 +490,11 @@ export function fatiguedMuscles(workouts, now, opts = {}) {
  * @example
  * const targets = detrainedMuscles(workouts, now)
  */
-export function detrainedMuscles(workouts, now, opts = {}) {
+export function detrainedMuscles(
+  workouts: LooseWorkout[] | null | undefined,
+  now: number,
+  opts: RecoveryOptions = {}
+): string[] {
   return Object.entries(strengthOf(workouts, now, opts))
     .filter(([, value]) => value < 1)
     .map(([slug]) => slug)
