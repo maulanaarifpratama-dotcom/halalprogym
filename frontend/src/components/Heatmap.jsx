@@ -19,7 +19,9 @@ export default function Heatmap({ S, onDay }) {
   const level = a => !a ? 0 : !a.min ? 1 : a.min >= t3 ? 4 : a.min >= t2 ? 3 : a.min >= t1 ? 2 : 1
 
   const today = new Date(); today.setHours(12, 0, 0, 0)
-  const end = new Date(today); end.setDate(today.getDate() - ((today.getDay() + 6) % 7))
+  // Ahad-nya minggu ini, sejalan dengan startOfWeek di format.ts. Kalau heatmap berbasis
+  // Senin sementara sisa app berbasis Ahad, kolomnya bergeser satu hari dari strip Home.
+  const end = new Date(today); end.setDate(today.getDate() - today.getDay())
   const start = new Date(end); start.setDate(end.getDate() - 52 * 7)
 
   const months = [], cols = []

@@ -7,7 +7,7 @@
 // RIR is the internal unit because it has a real zero — a set taken to failure — where RPE's
 // floor of 6 is only a convention about which sets are worth rating. RPE 8 == RIR 2.
 import { EFFORT, effortOf } from './history.js'
-import { weekKey } from './format.js'
+import { startOfWeek, weekKey } from './format.js'
 import { isWarmupRow } from './workout-model.js'
 import type { AppState, SetRow, Workout, WorkoutEntry } from './types.js'
 
@@ -127,7 +127,7 @@ export function hasEffort(S: AppState): boolean {
 }
 
 export interface EffortWeek {
-  /** Senin minggu itu, dalam ms — posisi x titiknya. */
+  /** Ahad minggu itu, dalam ms — posisi x titiknya. */
   t: number
   rir: number
   /** Berapa set yang DIRATING minggu itu. */
@@ -149,7 +149,7 @@ export function effortWeeks(S: AppState, days?: number): EffortWeek[] {
     if (!inWindow(w, days)) return
     const k = weekKey(w.d as string)
     let e = wk.get(k)
-    if (!e) wk.set(k, e = { k, t: mondayOf(w.d as string), sum: 0, n: 0, sets: 0 })
+    if (!e) wk.set(k, e = { k, t: startOfWeekMs(w.d as string), sum: 0, n: 0, sets: 0 })
     e.sets++
     const r = rirOf(s)
     if (r != null) { e.sum += r; e.n++ }
@@ -158,13 +158,11 @@ export function effortWeeks(S: AppState, days?: number): EffortWeek[] {
     .map(e => ({ t: e.t, rir: e.sum / e.n, n: e.n, sets: e.sets }))
 }
 
-// The Monday of an ISO date, as ms — the x position a week's point sits at.
-function mondayOf(iso: string): number {
-  const d = new Date(iso + 'T12:00:00')
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
-  d.setHours(12, 0, 0, 0)
-  return +d
-}
+// Ahad-nya minggu itu, dalam ms — posisi x titik minggunya. Dulu Senin; sekarang mengikuti
+// startOfWeek supaya sumbu grafik dan pengelompokan weekKey menandai minggu yang SAMA.
+// Kalau keduanya beda basis, satu latihan hari Ahad akan digambar di minggu yang berbeda dari
+// tempat dia dihitung.
+const startOfWeekMs = (iso: string): number => +startOfWeek(new Date(iso + 'T12:00:00'))
 
 export interface HistogramBin {
   rir: number

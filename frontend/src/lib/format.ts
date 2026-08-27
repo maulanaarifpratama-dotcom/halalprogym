@@ -73,15 +73,37 @@ export const fmtVol = (v: number, unit: string): string => fmtNum(v) + ' ' + uni
 // Plural forms are not automatic when the English string is the key.
 export const exCount = (n: number): string => t(n === 1 ? '{0} exercise' : '{0} exercises', n)
 
+/**
+ * Awal minggu: **Ahad**, bukan Senin.
+ *
+ * Ini satu-satunya tempat aturan itu hidup. Sebelumnya lima tempat menghitungnya sendiri
+ * (`weekKey`, `mondayOf` di effort, strip di Home, Heatmap, demoSeed) dan semuanya berbasis
+ * Senin — jadi app-nya memutuskan "Ahad hari pertama" di nama harinya, lalu tetap menggambar
+ * minggunya mulai Senin. Melihat layarnya yang menemukan itu, bukan tesnya.
+ *
+ * `getDay()` mengembalikan 0 untuk Ahad, jadi mundurnya persis sebanyak itu.
+ */
+export function startOfWeek(date: Date): Date {
+  const d = new Date(date)
+  d.setDate(d.getDate() - d.getDay())
+  d.setHours(12, 0, 0, 0)
+  return d
+}
+
+/**
+ * Kunci pengelompokan mingguan: tanggal ISO hari Ahad-nya minggu itu.
+ *
+ * Dulu ini nomor ISO-week (`'2026-35'`), yang berbasis Senin DAN punya aturan Kamis untuk
+ * batas tahun. Tanggal Ahad-nya lebih sederhana, tidak punya kasus tepi tahun, dan langsung
+ * bisa dibaca saat debugging.
+ *
+ * Formatnya bebas diubah karena tidak pernah di-parse: dia cuma dipakai sebagai kunci Set/Map
+ * dan dibandingkan kesamaannya. `streakWeeks` melangkah tujuh hari lalu memanggil fungsi ini
+ * lagi, bukan menghitung dari kuncinya. Dan kunci ini TIDAK PERNAH disimpan — selalu dihitung
+ * dari tanggal, jadi tidak ada data yang perlu dimigrasi.
+ */
 export function weekKey(d: string): string {
-  const dt = new Date(d + 'T12:00:00')
-  const day = (dt.getDay() + 6) % 7
-  dt.setDate(dt.getDate() - day + 3)
-  const jan4 = new Date(dt.getFullYear(), 0, 4)
-  // getTime(), bukan aritmetika langsung atas Date — jalur lama mengandalkan koersi implisit
-  // yang benar saat runtime tapi tidak bisa diketik. Hasilnya identik.
-  const week = 1 + Math.round(((dt.getTime() - jan4.getTime()) / 86400000 - 3 + ((jan4.getDay() + 6) % 7)) / 7)
-  return dt.getFullYear() + '-' + week
+  return isoOf(startOfWeek(new Date(d + 'T12:00:00')))
 }
 
 export const localTZ = (): string => {

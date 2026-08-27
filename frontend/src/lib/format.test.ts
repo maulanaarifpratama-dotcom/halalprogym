@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest'
 import { _setLangState } from './i18n-core.js'
-import { DAYN, DAYS, fmtDate, localeDateString, weekKey, ACCENTS } from './format.js'
+import { DAYN, DAYS, fmtDate, localeDateString, startOfWeek, weekKey, ACCENTS } from './format.js'
 import id from '../locales/id.js'
 
 // 30 Agustus 2026 adalah hari Ahad. Tanggal dipatok, bukan diambil dari jam sistem — tes yang
@@ -59,11 +59,46 @@ describe('localeDateString', () => {
   })
 })
 
-describe('weekKey', () => {
-  it('memberi kunci ISO-week yang sama untuk setiap hari dalam satu minggu', () => {
-    // Ahad 30 Agu 2026 menutup minggu ISO yang dimulai Senin 24 Agu.
-    expect(weekKey('2026-08-24')).toBe(weekKey('2026-08-30'))
-    expect(weekKey('2026-08-31')).not.toBe(weekKey('2026-08-30'))
+describe('weekKey — berbasis AHAD', () => {
+  // Tes ini dulu memaku semantik ISO-week (berbasis Senin):
+  //   weekKey('2026-08-24') === weekKey('2026-08-30')   // Senin 24 .. Ahad 30
+  // Itu sekarang SALAH dengan sengaja. App ini memutuskan Ahad hari pertama, dan minggunya
+  // ikut: Ahad 30 Agu MEMBUKA minggu baru, bukan menutup minggu Senin 24.
+  //
+  // 30 Agustus 2026 adalah hari Ahad; 5 September 2026 hari Sabtu.
+
+  it('mengelompokkan Ahad sampai Sabtu sebagai satu minggu', () => {
+    expect(weekKey('2026-08-30')).toBe(weekKey('2026-09-05'))
+    expect(weekKey('2026-08-31')).toBe(weekKey('2026-08-30'))
+  })
+
+  it('Sabtu MENUTUP minggu, Ahad berikutnya MEMBUKA yang baru', () => {
+    expect(weekKey('2026-08-29')).not.toBe(weekKey('2026-08-30'))
+    expect(weekKey('2026-09-05')).not.toBe(weekKey('2026-09-06'))
+  })
+
+  it('Senin TIDAK lagi membuka minggu — ini yang berubah dari ISO-week', () => {
+    // Senin 31 Agu ada di minggu yang sama dengan Ahad 30, bukan membuka minggu sendiri.
+    expect(weekKey('2026-08-31')).toBe('2026-08-30')
+  })
+
+  it('kuncinya adalah tanggal Ahad-nya, jadi bisa dibaca langsung saat debugging', () => {
+    expect(weekKey('2026-09-02')).toBe('2026-08-30')
+  })
+
+  it('startOfWeek mengembalikan Ahad untuk setiap hari dalam minggu itu', () => {
+    for (const iso of ['2026-08-30', '2026-08-31', '2026-09-01', '2026-09-05']) {
+      const d = startOfWeek(new Date(iso + 'T12:00:00'))
+      expect(d.getDay(), iso).toBe(0)          // 0 = Ahad
+      expect(d.getDate(), iso).toBe(30)
+      expect(d.getMonth(), iso).toBe(7)        // Agustus
+    }
+  })
+
+  it('tidak ada kasus tepi tahun — kunci Ahad tidak butuh aturan Kamis seperti ISO-week', () => {
+    // 3 Januari 2027 adalah hari Ahad, dan minggunya menyeberang tahun.
+    expect(weekKey('2026-12-31')).toBe(weekKey('2027-01-02'))
+    expect(weekKey('2027-01-03')).toBe('2027-01-03')
   })
 })
 

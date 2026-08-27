@@ -54,7 +54,9 @@ const at = (date, h, m) => { const d = new Date(date); d.setHours(h, m, 0, 0); r
 // The Monday of a date. The effort trend is plotted per calendar week, so the training block
 // has to run on calendar weeks too — a deload counted off the first day of the history would
 // straddle two points and average itself away in both.
-const monday = date => { const d = new Date(date); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); d.setHours(12, 0, 0, 0); return +d }
+// Ahad-nya minggu itu, sejalan dengan startOfWeek di format.ts — data demo harus
+// mengelompok di minggu yang sama dengan yang digambar app.
+const weekStartMs = date => { const d = new Date(date); d.setDate(d.getDate() - d.getDay()); d.setHours(12, 0, 0, 0); return +d }
 
 // A full example profile: 12 weeks of Mon/Wed/Fri sessions on the starter plan, with linear
 // progression, the odd missed session, twice-weekly weigh-ins trending toward the goal, and
@@ -91,7 +93,7 @@ export function buildDemoState() {
     if (iso === isoOf(today) && nowH < 18) continue   // leave today's session to try out, unless it's already evening
 
     const prs = []
-    const blockWk = Math.round((monday(day) - monday(start)) / (7 * 86400000))
+    const blockWk = Math.round((weekStartMs(day) - weekStartMs(start)) / (7 * 86400000))
     const rir0 = weekTarget(blockWk)
     const scale = blockWk < RPE_UNTIL ? 'rpe' : 'rir'
     const entries = routine.ex.map((cfg, exIdx) => {
