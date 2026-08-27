@@ -13,46 +13,11 @@
 // Menukar dua makna itu adalah bug persisnya: `r` pernah menyimpan cuma potongan terbesar,
 // jadi yang tampil di layar adalah pecahan acak dari angka yang diketik user.
 
-export type SetPhase = 'work' | 'warmup'
-export type SetType = 'straight' | 'dropset' | 'restpause'
-export type SetMode = 'reps' | 'time' | 'cardio'
+import type { Cluster, Drop, SetMode, SetPhase, SetRow, SetType, WorkoutEntry } from './types.js'
 
-/** Satu penurunan beban di dalam baris drop-set. */
-export interface Drop { w: number; r: number }
-
-/** Satu burst istirahat-pendek di dalam baris rest-pause. */
-export interface Cluster { r: number; restSec: number }
-
-/**
- * Satu baris set. Semua opsional dengan sengaja: rekaman lama benar-benar kekurangan field,
- * dan setiap pembaca di bawah bersikap defensif. `phase` dan `type` dilebarkan ke `string`
- * karena data tersimpan bisa memuat token apa pun — normalisasi yang menyempitkannya.
- */
-export interface SetRow {
-  w?: number
-  r?: number
-  done?: boolean
-  phase?: SetPhase | string
-  /** Boolean warisan, sebelum `phase` ada. Kalah dari `phase` yang eksplisit. */
-  warmup?: boolean
-  type?: SetType | string
-  drops?: Drop[]
-  clusters?: Cluster[]
-  mode?: string
-  unit?: string
-  sec?: number
-  seconds?: number
-  durationSec?: number
-  min?: number
-  speed?: number
-  reps?: number
-  actualReps?: number
-}
-
-export interface WorkoutEntry {
-  sets?: SetRow[]
-  target?: SetRow
-}
+// Tipe datanya tinggal di ./types.js — satu rumah untuk bentuk data tersimpan, dan Fase 2
+// memetakannya ke tabel Supabase dari sana. Berkas ini memegang PERILAKU-nya.
+export type { Cluster, Drop, SetMode, SetPhase, SetRow, SetType, WorkoutEntry }
 
 const MODES: readonly SetMode[] = ['reps', 'time', 'cardio']
 const isMode = (v: unknown): v is SetMode =>
