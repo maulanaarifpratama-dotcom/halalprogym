@@ -17,7 +17,7 @@ const W = 340   // viewBox width; the svg stretches to its container, height com
 //          penurunan sebulan lalu naik lagi terbaca sebagai program yang gagal kalau tidak ada
 //          yang mengatakan itu bulan puasa. Digambar PALING BELAKANG, di bawah gridline dan
 //          kurva — anotasi tidak boleh bersaing dengan datanya.
-export default function LineChart({ points, h = 150, unit = '', color = 'var(--acc)', axes = true, goal = null, invert = false, bands = null }) {
+export default function LineChart({ points, h = 150, unit = '', color = 'var(--acc-ink)', axes = true, goal = null, invert = false, bands = null }) {
   const svgRef = useRef(null)
   const wrapRef = useRef(null)
   const tipRef = useRef(null)

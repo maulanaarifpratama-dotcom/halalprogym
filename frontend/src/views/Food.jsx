@@ -71,7 +71,7 @@ export default function Food() {
         </Button>
       </div>
 
-      <div className="big" style={{ color: kcalP?.over ? 'var(--orange)' : 'var(--acc)' }}>
+      <div className="big" style={{ color: kcalP?.over ? 'var(--orange)' : 'var(--acc-ink)' }}>
         {fmtNum(totals.kcal)} <span className="muted" style={{ fontSize: 15 }}>{t('kcal')}</span>
       </div>
       {kcalP && <>

@@ -80,7 +80,7 @@ export default function PrayerPause() {
       borderColor: 'color-mix(in srgb, var(--acc) 45%, transparent)',
       background: 'color-mix(in srgb, var(--acc) 10%, transparent)',
     }}>
-      <span style={{ color: 'var(--acc)', fontSize: 22, display: 'flex' }}><Icon name="moon" /></span>
+      <span style={{ color: 'var(--acc-ink)', fontSize: 22, display: 'flex' }}><Icon name="moon" /></span>
       <div className="grow" style={{ lineHeight: 1.4 }}>
         <div style={{ fontWeight: 650 }}>{t('{0} — session paused', t(PRAYER_LABEL[win.name]))}</div>
         <div className="small dim">{t('Until {0}. Your sets are saved — pick up where you left off.', fmtPrayer(win.until, city))}</div>

@@ -392,6 +392,41 @@ nanti tanpa mengubah satu pun berkas di `lib/`.
 **Jalur manual tetap tombol utama.** Dia jalan tanpa kunci, tanpa jaringan, dan tanpa kuota
 siapa pun. AI berdiri di sebelahnya, tidak menggantikannya.
 
+## Aksen sebagai TEKS di tema terang — `--acc-ink`, bukan `--acc`
+
+Lime `#94e900` di atas putih memberi **1,5:1**. WCAG AA menuntut 4,5:1 untuk teks biasa. Jadi di
+tema terang, label tombol ("Log", "New"), label tab yang aktif, angka kalori hari ini, dan delta
+berat badan semuanya praktis tidak terbaca sampai 2026-08-28.
+
+Kesadarannya sudah ada di `index.css` — catatan di blok tema terang menulis "di atas paper, lime
+.12 nyaris hilang — garis terang pakai tinta, bukan aksen" — tapi itu cuma diterapkan ke GARIS.
+Teks tidak ikut, dan tidak ada yang mengukurnya. Kelas yang sama dengan `full body` yang tampil
+Inggris di 13 bahasa: cuma terlihat kalau kamu benar-benar memakai mode yang bukan default, dan
+pengembangnya memakai tema gelap (di sana lime di atas `#101c13` sudah 11:1).
+
+**Aturannya sekarang: aksen sebagai LATAR pakai `--acc`, aksen sebagai TEKS pakai `--acc-ink`.**
+Di tema gelap `--acc-ink` = `--acc`, jadi tidak ada yang berubah di sana. Di tema terang dia turun
+ke `--acc-2`, dengan dua penurunan tambahan yang diukur satu-satu: lime ke `--deep` `#008140`
+(karena `--acc-2` `#0a9a00` cuma 3,4:1) dan oranye ke `#a35800` (karena `--acc-2` `#c76b00` cuma
+3,8:1). Terukur setelahnya: **lime 4,98 · sky 5,62 · oranye 5,31 · violet 6,04 · pink 5,33 · merah
+5,38 · teal 5,39** di atas putih. Ketujuhnya lolos AA.
+
+`--yellow-ink` sama ceritanya: `#ffcc00` di atas putih juga 1,5:1.
+
+**`iconTint` TIDAK ikut berubah** — itu LATAR dengan glyph gelap di atasnya, dan penulisnya sudah
+mengukurnya (12,6:1 untuk aksen). Mengubahnya akan merusak yang sudah benar.
+
+Dijaga `contrast.test.ts`, yang menghitung rasionya dari token — bukan dari render. Kontras itu
+aritmetika atas dua warna, dan tes render di lingkungan ini justru tidak bisa dipercaya:
+pengukuran pertama di browser melaporkan 1,26:1 untuk teks yang baik-baik saja, karena transisi
+CSS `background` **MACET di `currentTime` 0** selama pane tidak meng-komposit frame. Kalau nanti
+mengaudit warna lewat browser, matikan transisi dulu (`* { transition: none !important }`) —
+tanpa itu setiap elemen ber-transisi melaporkan warna LAMA-nya.
+
+Satu pemakaian sempat luput dari penukaran mekanis: `bwDeltaColor()` di `sheets.jsx`
+mengembalikan `'var(--acc)'` sebagai string, jadi pencarian teks `color: 'var(--acc)'` tidak
+menemukannya. Yang lewat variabel selalu luput.
+
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
 GitHub melaporkan 11 kerentanan (8 high, 1 critical) di repo ini. Semuanya satu rantai:
@@ -454,7 +489,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 936 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 945 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →

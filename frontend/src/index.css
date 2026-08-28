@@ -64,6 +64,10 @@
   --on-acc:#06140a;   /* --btn-fg brand */
   --acc-soft: color-mix(in srgb, var(--acc) 16%, transparent);
   --acc-line: color-mix(in srgb, var(--acc) 38%, transparent);
+  /* Aksen sebagai TEKS. Di tema gelap sama dengan --acc: lime di atas #101c13 sudah 11:1.
+     Di tema terang dia harus turun, karena lime di atas putih cuma 1.5:1 — lihat blok light. */
+  --acc-ink: var(--acc);
+  --yellow-ink: var(--yellow);
 
   /* geometry */
   /* 10/18/28 adalah radius halalpro.id apa adanya; 14/16 mengisi celah khas app.
@@ -91,7 +95,10 @@
   --surface-3: #dde6d5;
 
   --label:     #0a1109;
-  --label-2:   rgba(10,17,9,.66);
+  /* .66 memberi 4.2:1 di atas --surface-2 — meleset tipis dari 4.5:1 yang dituntut WCAG AA
+     untuk teks biasa, dan teks sekunder di sini dipakai untuk subtitle baris dan label
+     segmented yang benar-benar dibaca, bukan hiasan. .74 terukur di atas 4.5. */
+  --label-2:   rgba(10,17,9,.74);
   --label-3:   rgba(10,17,9,.40);
   --label-4:   rgba(10,17,9,.18);
 
@@ -104,7 +111,29 @@
   --purple:#af52de; --mint:#00c7be; --brown:#a2845e; --grey:#8e8e93;
   --acc-2:var(--green);
   --on-acc:#06140a;   /* lime terlalu terang untuk teks putih di tema mana pun */
+
+  /* AKSEN SEBAGAI TEKS DI ATAS PAPER — bug nyata yang ditemukan dengan MENGUKUR kontrasnya,
+     bukan dengan melihatnya.
+     Lime #94e900 di atas putih = 1.5:1. WCAG AA butuh 4.5:1 untuk teks biasa dan 3:1 untuk
+     teks besar, jadi label tombol "Log", label tab yang aktif, dan angka target praktis tidak
+     terbaca di tema terang. Catatan --sep di atas sudah menyebut "di atas paper, lime .12
+     nyaris hilang" — kesadarannya sudah ada, tapi cuma diterapkan ke GARIS, tidak ke teks.
+     Latar tetap --acc (lime di atas lime-soft memang benar); yang turun cuma tintanya. */
+  --acc-ink: var(--acc-2);
+  /* Kuning #ffcc00 di atas putih 1.5:1 juga. Ini kuning yang cukup gelap untuk teks. */
+  --yellow-ink: #8a6d00;
 }
+
+/* Lime perlu perlakuan sendiri: --acc-2 (--green #0a9a00) cuma 3.4:1 di atas putih — lolos
+   untuk teks besar, gagal untuk teks 13-15px yang justru paling banyak dipakai. --deep #008140
+   dari palet brand memberi 5.0:1, dan dia memang warna brand untuk tinta di atas paper.
+   Aksen lain sudah punya --acc-2 yang cukup gelap dan dipakai apa adanya. */
+:root[data-theme="light"][data-accent="lime"],
+:root[data-theme="light"]:not([data-accent]) { --acc-ink: var(--deep) }
+/* Oranye juga: --acc-2 #c76b00 memberi 3.8:1 — lolos untuk teks besar, gagal untuk teks biasa.
+   Ini satu-satunya aksen lain yang tidak sampai 4.5:1, dan membiarkannya berarti satu aksen
+   yang lebih buruk dari enam lainnya tanpa alasan. Terukur 5.1:1 di atas putih. */
+:root[data-theme="light"][data-accent="orange"] { --acc-ink: #a35800 }
 
 /* accents — Apple's system colours, so a recolour never looks off-system */
 :root[data-accent="lime"]  { --acc:var(--lime);  --acc-2:var(--green); --on-acc:#06140a }
@@ -147,7 +176,7 @@ body{
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;letter-spacing:inherit}
 input,select,textarea{font:inherit;color:var(--label);letter-spacing:inherit}
 img{max-width:100%}
-a{color:var(--acc);text-decoration:none}
+a{color:var(--acc-ink);text-decoration:none}
 :focus{outline:none}
 :focus-visible{outline:2.5px solid var(--acc);outline-offset:2px;border-radius:6px}
 button,.chip,.tile,.item,.wday,.cal-d,.swatch,.hm-c,.lrow,.seg button,.stp button,.sld
@@ -175,7 +204,7 @@ button,.chip,.tile,.item,.wday,.cal-d,.swatch,.hm-c,.lrow,.seg button,.stp butto
 
 .muted{color:var(--label-2)} .dim{color:var(--label-3)}
 .small{font-size:13px;line-height:1.38}
-.accent{color:var(--acc)}
+.accent{color:var(--acc-ink)}
 .capitalize{text-transform:capitalize}
 /* exercise names and body-part/equipment terms arrive lowercase from the dataset,
    so tags and chips capitalise by default. Anything that is a unit or a sentence opts
@@ -207,7 +236,7 @@ body.resting #app{padding-bottom:calc(250px + var(--sab))}
   transition:background var(--fast),transform var(--fast);
 }
 .iconbtn:active{background:var(--surface-2);transform:scale(.92)}
-.iconbtn.on-ss{background:var(--acc-soft);color:var(--acc)}
+.iconbtn.on-ss{background:var(--acc-soft);color:var(--acc-ink)}
 
 h4.sec{
   font-size:13px;font-weight:400;letter-spacing:-.004em;color:var(--label-2);
@@ -268,7 +297,7 @@ h4.sec{
 .lrow-v{color:var(--label-2);font-size:17px;letter-spacing:-.012em;flex:0 1 auto;min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 .lrow-c{color:var(--label);font-size:15px;flex:none;--icon-stroke:2.4}
-.lrow-k{color:var(--acc);font-size:17px;flex:none;--icon-stroke:2.4}
+.lrow-k{color:var(--acc-ink);font-size:17px;flex:none;--icon-stroke:2.4}
 .lrow.danger,.lrow.danger .lrow-t{color:var(--red)}
 /* The Stats exercise name gets its own line so long names cannot run into the title.
    Two columns only — label/value on the left, chevron on the right — so this is for rows
@@ -302,9 +331,9 @@ h4.sec{
 .btn:active{transform:scale(.975)}
 .btn.primary{background:var(--acc);color:var(--on-acc)}
 .btn.primary:active{background:var(--acc-2)}
-.btn.tinted{background:var(--acc-soft);color:var(--acc)}
+.btn.tinted{background:var(--acc-soft);color:var(--acc-ink)}
 .btn.danger{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
-.btn.ghost,.btn.plain{background:none;color:var(--acc);font-weight:400}
+.btn.ghost,.btn.plain{background:none;color:var(--acc-ink);font-weight:400}
 .btn.ghost:active,.btn.plain:active{background:var(--surface-2)}
 .btn.sm{padding:8px 14px;width:auto;font-size:15px;border-radius:var(--r-sm);gap:5px}
 .btn.sm .icn{font-size:16px}
@@ -338,7 +367,7 @@ h4.sec{
    fade on the <svg> instead of in the stroke colour flattens the icon first and
    fades it as one shape — and it does that for every icon, not just this one. */
 #tabbar button .icn{font-size:25px;--icon-stroke:1.65;color:var(--label)}
-#tabbar button.on{color:var(--acc)}
+#tabbar button.on{color:var(--acc-ink)}
 #tabbar button.on .icn{--icon-stroke:2;color:inherit;opacity:1}
 #tabbar button.start{margin-top:-24px}
 #tabbar button.start .cir{
@@ -349,7 +378,7 @@ h4.sec{
 }
 #tabbar button.start:active .cir{transform:scale(.93)}
 #tabbar button.start .cir .icn{font-size:26px;--icon-stroke:2;color:inherit;opacity:1}
-#tabbar button.start span{color:var(--acc);font-weight:600}
+#tabbar button.start span{color:var(--acc-ink);font-weight:600}
 /* `.cir` is itself a <span>, so the label rules above and below reach it too and
    outrank the `.cir` block — which is how the running state ended up painting an
    orange play glyph onto an orange disc. Both states restate their own colour.
@@ -419,7 +448,7 @@ h4.sec{
   color:var(--label-2);border-radius:6px;padding:3px 7px;font-size:12px;
   font-weight:500;text-transform:capitalize;
 }
-.tag.acc{background:var(--acc-soft);color:var(--acc)}
+.tag.acc{background:var(--acc-soft);color:var(--acc-ink)}
 
 /* ---------------------------------------------------------------- chips -- */
 .chips{
@@ -692,22 +721,22 @@ h4.sec{
 .subrow .stp.mini .num{font-size:13px}
 .subrow .iconbtn{width:26px;height:26px;font-size:11px;flex:none}
 .setextra{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px 32px}
-.setextra .chip.add{display:inline-flex;align-items:center;gap:4px;color:var(--acc)}
+.setextra .chip.add{display:inline-flex;align-items:center;gap:4px;color:var(--acc-ink)}
 .setextra .chip.add svg{width:13px;height:13px}
 .setextra .chip.add:disabled{opacity:.35}
 /* why the next target is what it is (issue #17) */
 .progline{
   display:flex;align-items:flex-start;gap:7px;margin:6px 0 2px;
-  font-size:13px;line-height:1.38;color:var(--acc);
+  font-size:13px;line-height:1.38;color:var(--acc-ink);
 }
-.progline.warn{color:var(--yellow)}
+.progline.warn{color:var(--yellow-ink)}
 .progline svg{flex:none;margin-top:2px}
 
 /* start a timed set (issue #16) — sits where you'd otherwise reach for the checkbox */
 .setrow .setgo{
   width:30px;height:30px;border-radius:50%;flex:none;
   display:flex;align-items:center;justify-content:center;
-  background:var(--surface-2);color:var(--acc);font-size:14px;
+  background:var(--surface-2);color:var(--acc-ink);font-size:14px;
   transition:background var(--fast),opacity var(--fast);
 }
 .setrow .setgo:disabled{opacity:.3;cursor:default}
@@ -752,7 +781,7 @@ h4.sec{
 /* work timer (issue #16): the same bar doing the opposite job — outlined and tinted so a
    glance tells "you are holding this" apart from "you are recovering". */
 #timer.working{border:var(--hair) solid var(--acc)}
-#timer.working .t{color:var(--acc)}
+#timer.working .t{color:var(--acc-ink)}
 #timer.working .grow{flex:1;min-width:0}
 #timer.working .lbl{
   font-size:12px;color:var(--label-2);margin-bottom:5px;text-transform:capitalize;
@@ -811,7 +840,7 @@ h4.sec{
 }
 /* the row a working set usually lands on — the anchor the others are read against */
 .efftbl .r.on{background:var(--acc-soft)}
-.efftbl .r.on .n{color:var(--acc)}
+.efftbl .r.on .n{color:var(--acc-ink)}
 .efftbl .r.on .f{color:var(--label)}
 
 /* --- glyph picker (replaces the emoji grid) --- */
@@ -917,7 +946,7 @@ h4.sec{
 /* Berikutnya: aksen tipis. Sedang berlangsung: aksen penuh — itu keadaan yang paling
    perlu terlihat dari jarak lengan, dan satu-satunya yang mengubah apa yang orang lakukan. */
 .prayer-cell.next{background:color-mix(in srgb,var(--acc) 16%,var(--surface-2))}
-.prayer-cell.next .pt{color:var(--acc)}
+.prayer-cell.next .pt{color:var(--acc-ink)}
 .prayer-cell.on{background:var(--acc)}
 .prayer-cell.on .pl,.prayer-cell.on .pt{color:var(--on-acc)}
 
@@ -936,8 +965,8 @@ h4.sec{
   display:flex;gap:7px;align-items:flex-start;margin-top:10px;padding-top:10px;
   border-top:1px solid var(--sep-op);font-size:12.5px;line-height:1.45;color:var(--label-2);
 }
-.prayer-train b{color:var(--acc);font-weight:650}
-.prayer-train svg{flex:none;margin-top:1px;color:var(--acc)}
+.prayer-train b{color:var(--acc-ink);font-weight:650}
+.prayer-train svg{flex:none;margin-top:1px;color:var(--acc-ink)}
 .prayer-note{
   display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding-top:9px;
   border-top:var(--hair) solid var(--sep);font-size:11.5px;line-height:1.45;color:var(--label-3)
@@ -1005,7 +1034,7 @@ h4.sec{
 /* --- PR badge --- */
 .pr{
   display:inline-flex;align-items:center;gap:4px;
-  background:color-mix(in srgb,var(--yellow) 18%,transparent);color:var(--yellow);
+  background:color-mix(in srgb,var(--yellow) 18%,transparent);color:var(--yellow-ink);
   border-radius:6px;padding:3px 8px;font-size:12px;font-weight:500;
 }
 .pr .icn{font-size:13px}
@@ -1041,7 +1070,7 @@ h4.sec{
   font-weight:400;font-size:15px;color:var(--label);transition:background var(--fast);
 }
 .cal-d:active{background:var(--surface-2)}
-.cal-d.has{background:var(--acc-soft);color:var(--acc)}
+.cal-d.has{background:var(--acc-soft);color:var(--acc-ink)}
 .cal-d.today{box-shadow:inset 0 0 0 1.8px var(--acc)}
 .cal-d i{width:5px;height:5px;border-radius:50%;background:transparent}
 .cal-d i.done{background:var(--acc)}
@@ -1059,7 +1088,7 @@ h4.sec{
 /* --- supersets --- */
 .ss-label{
   font-size:12px;font-weight:600;letter-spacing:-.004em;text-transform:none;
-  color:var(--acc);margin:8px 0 5px 4px;display:flex;align-items:center;gap:5px;
+  color:var(--acc-ink);margin:8px 0 5px 4px;display:flex;align-items:center;gap:5px;
 }
 .ss-label .icn{font-size:13px}
 .item.in-ss{box-shadow:inset 3px 0 0 var(--acc)}
@@ -1075,11 +1104,11 @@ h4.sec{
   .ss-card{padding:10px 8px}
 }
 .ss-hd{
-  font-size:12px;font-weight:600;color:var(--acc);margin-bottom:12px;
+  font-size:12px;font-weight:600;color:var(--acc-ink);margin-bottom:12px;
   text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;
 }
 .ss-ex{position:relative}
-.ss-amp{text-align:center;font-size:15px;font-weight:600;color:var(--acc);margin:14px 0 8px}
+.ss-amp{text-align:center;font-size:15px;font-weight:600;color:var(--acc-ink);margin:14px 0 8px}
 
 /* --- home: today's session row --- */
 .today-row{
