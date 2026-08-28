@@ -35,7 +35,7 @@ jsDelivr seperti yang dilakukan upstream. Fig-leaf "diunduh runtime, tidak kami 
 milik upstream **tidak berlaku untuk produk komersial.**
 
 Yang dipakai sekarang: **foto free-exercise-db**, lisensinya Unlicense, diverifikasi lewat API
-GitHub (`spdx_id`) bukan badge README. 329 dari 1.324 latihan terpetakan, dan **24,8% itu angka
+GitHub (`spdx_id`) bukan badge README. 340 dari 1.324 latihan terpetakan, dan **25,7% itu angka
 yang disengaja** — lihat `scripts/build-exercise-media.mjs`. Aturannya konservatif: nama identik,
 atau selisih kata tanpa makna gerakan DAN otot primer setuju.
 
@@ -489,7 +489,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 945 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 959 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -540,6 +540,18 @@ semuanya lahir dari bug yang benar-benar lolos ke layar.
 | `npm run check:names` | Apakah setiap nama yang dipakai benar-benar ada? | **Layar Pengaturan MATI TOTAL** — `CITIES` dipakai tanpa pernah diimpor. Dan `onExercise` di Stats dipanggil tanpa pernah dikirim: ketukan pertama melempar ReferenceError. |
 | `npm run check:locales` | Apakah 13 pack membawa kunci yang sama? | — |
 | `npm run check:locale-keys` | Apakah setiap kunci terjemahan masih menunjuk teks yang ada, dan setiap nilai katalog punya terjemahan? | `full body` tampil Inggris di **13 bahasa** selama berbulan-bulan. |
+
+**Katalog 1.324 latihan dipaku `catalogue-integrity.test.js`.** Katalognya di-generate, dan berkas
+yang di-generate paling mudah rusak diam-diam: satu field yang lupa disalin tidak menggagalkan
+build, typecheck, maupun tes mana pun — yang terjadi `undefined` yang mengalir ke layar. Dipaku:
+1.324 tepat, id unik dan berbentuk empat digit, kelima field yang dibaca UI ada di setiap catatan,
+`sm` selalu array, setiap latihan punya instruksi Inggris, dan himpunan bagian tubuh (10) dan alat
+(28) tetap tertutup — nilai baru yang masuk diam-diam berarti chip filter yang tidak diterjemahkan.
+
+Berkas itu juga **memeriksa angka di dokumentasi ke kenyataan**: komentar `exercise-media.ts`
+sempat menulis "329 dari 1.324 (24,8%)" sementara petanya berisi 340 (25,7%) — basi 11 latihan,
+dan tidak ada yang bisa melihatnya. Repo ini berdiri di atas dokumentasi yang padat, dan itu cuma
+berguna kalau angkanya benar.
 
 **Dan ada lapis kelima yang bukan checker: `views/smoke.test.jsx`.** Dia me-mount SETIAP rute,
 dua kali — keadaan pemasangan baru (`DEF` apa adanya) dan keadaan terisi — dan menuntut nol
