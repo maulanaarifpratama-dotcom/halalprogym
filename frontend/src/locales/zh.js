@@ -323,7 +323,7 @@ export default {
   // --- custom exercises (#11) ---
   'Create your own exercise': '创建自己的动作',
   'Edit custom exercise': '编辑自定义动作',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': '起个名字并选择身体部位——它和其他动作一样使用，只是没有动画。',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': '起个名字并选择身体部位——它和其他动作一样使用，只是没有演示照片。',
   'Exercise': '动作',
   'No exercises yet.': '还没有动作。',
   'Exercise name': '动作名称',

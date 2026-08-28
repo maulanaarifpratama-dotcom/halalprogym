@@ -323,7 +323,7 @@ export default {
   // --- custom exercises (#11) ---
   'Create your own exercise': 'Kendi egzersizini oluştur',
   'Edit custom exercise': 'Özel egzersizi düzenle',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': 'Bir ad ver ve bölge seç — animasyon dışında diğer egzersizler gibi çalışır.',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': 'Bir ad ver ve bölge seç — demo fotoğrafı dışında diğer egzersizler gibi çalışır.',
   'Exercise': 'Egzersiz',
   'No exercises yet.': 'Henüz egzersiz yok.',
   'Exercise name': 'Egzersiz adı',

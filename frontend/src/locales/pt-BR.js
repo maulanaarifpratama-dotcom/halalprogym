@@ -147,7 +147,7 @@ export const PT_BR_OVERRIDES = {
   'Create your own exercise': 'Crie seu próprio exercício',
   'Give it a name': 'Dê um nome',
   'Description (optional) — setup, cues, anything you want to remember': 'Descrição (opcional) — preparação, dicas ou qualquer observação que você queira guardar',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': 'Dê um nome e escolha uma parte do corpo — ele funciona como qualquer outro exercício, mas sem animação.',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': 'Dê um nome e escolha uma parte do corpo — ele funciona como qualquer outro exercício, mas sem foto de demonstração.',
   'Pick a body part': 'Escolha uma parte do corpo',
   'Saved': 'Salvo',
   'Delete “{0}”?': 'Excluir “{0}”?',

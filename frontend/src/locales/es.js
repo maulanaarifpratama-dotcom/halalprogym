@@ -323,7 +323,7 @@ export default {
   // --- custom exercises (#11) ---
   'Create your own exercise': 'Crea tu propio ejercicio',
   'Edit custom exercise': 'Editar ejercicio propio',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': 'Ponle nombre y elige una parte del cuerpo — funciona como cualquier otro ejercicio, solo que sin animación.',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': 'Ponle nombre y elige una parte del cuerpo — funciona como cualquier otro ejercicio, solo que sin foto de demostración.',
   'Exercise': 'Ejercicio',
   'No exercises yet.': 'Aún no hay ejercicios.',
   'Exercise name': 'Nombre del ejercicio',

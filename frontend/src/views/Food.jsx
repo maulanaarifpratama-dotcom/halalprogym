@@ -238,6 +238,15 @@ function PickSheet({ close, onPick }) {
 function FoodSheet({ close, food }) {
   const update = useStore(s => s.update)
   const toast = useUI(s => s.toast)
+  // `?? ''` di setiap kolom opsional di bawah BUKAN kerapian. `clean()` menyimpan `undefined`
+  // untuk field opsional yang kosong — itu keputusan yang benar, supaya makanan cuma membawa apa
+  // yang benar-benar diisi. Tapi merendernya apa adanya membuat React melihat `value={undefined}`
+  // dan memperlakukan input itu sebagai TAK TERKENDALI, lalu berpindah jadi terkendali begitu
+  // orang mengetik. React menulis error ke konsol untuk itu, dan `views/smoke.test.jsx` melarang
+  // console.error justru karena error yang dibiarkan menumpuk sampai tidak ada yang membacanya.
+  //
+  // Terlihat saat MENGEDIT makanan yang sudah tersimpan tanpa protein/karbo/lemak — bukan saat
+  // membuatnya, karena makanan baru dimulai dengan string kosong.
   const [f, setF] = useState(() => food || {
     id: uid(), name: '', basis: 'per100g', kcal: '', protein: '', carb: '', fat: '', serving: '',
   })
@@ -289,7 +298,7 @@ function FoodSheet({ close, food }) {
     {f.basis === 'perServing' && <>
       <div style={{ height: 10 }} />
       <TextField placeholder={t('Serving, e.g. 1 plate')} maxLength={40}
-        value={f.serving} onChange={e => set({ serving: e.target.value })} />
+        value={f.serving ?? ''} onChange={e => set({ serving: e.target.value })} />
     </>}
     <div style={{ height: 10 }} />
     <TextField type="number" inputMode="decimal" placeholder={t('Calories (kcal)')}
@@ -297,11 +306,11 @@ function FoodSheet({ close, food }) {
     <div style={{ height: 10 }} />
     <div className="row" style={{ gap: 8 }}>
       <TextField className="grow" type="number" inputMode="decimal" placeholder={t('Protein (g)')}
-        value={f.protein} onChange={e => set({ protein: e.target.value })} />
+        value={f.protein ?? ''} onChange={e => set({ protein: e.target.value })} />
       <TextField className="grow" type="number" inputMode="decimal" placeholder={t('Carbs (g)')}
-        value={f.carb} onChange={e => set({ carb: e.target.value })} />
+        value={f.carb ?? ''} onChange={e => set({ carb: e.target.value })} />
       <TextField className="grow" type="number" inputMode="decimal" placeholder={t('Fat (g)')}
-        value={f.fat} onChange={e => set({ fat: e.target.value })} />
+        value={f.fat ?? ''} onChange={e => set({ fat: e.target.value })} />
     </div>
     <div style={{ height: 14 }} />
     <Button variant="primary" onClick={save}>{t('Save')}</Button>

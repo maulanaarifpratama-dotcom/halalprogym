@@ -323,7 +323,7 @@ export default {
   // --- custom exercises (#11) ---
   'Create your own exercise': 'अपनी एक्सरसाइज़ बनाएं',
   'Edit custom exercise': 'कस्टम एक्सरसाइज़ संपादित करें',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': 'नाम दें और बॉडी पार्ट चुनें — यह बाकी एक्सरसाइज़ की तरह ही काम करती है, बस एनिमेशन नहीं होता।',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': 'नाम दें और बॉडी पार्ट चुनें — यह बाकी एक्सरसाइज़ की तरह ही काम करती है, बस डेमो फ़ोटो नहीं होती।',
   'Exercise': 'व्यायाम',
   'No exercises yet.': 'अभी कोई व्यायाम नहीं।',
   'Exercise name': 'एक्सरसाइज़ का नाम',

@@ -357,8 +357,7 @@ export default {
   'Muscle balance': 'Keseimbangan otot',
   'Name it after where you train — e.g. "Home" or "Gym" — then check what you have there.':
     'Namai sesuai tempat kamu latihan — misalnya "Rumah" atau "Gym" — lalu centang alat yang ada di sana.',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.':
-    'Beri nama dan pilih bagian tubuhnya — dia berlaku seperti latihan lain, cuma tanpa animasi.',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': 'Beri nama dan pilih bagian tubuhnya — dia berlaku seperti latihan lain, cuma tanpa foto demo.',
   'Needs {0} — not in your active profile': 'Butuh {0} — tidak ada di profil aktifmu',
   'New': 'Baru',
   'New PR:': 'PR baru:',

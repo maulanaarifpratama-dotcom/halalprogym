@@ -489,7 +489,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 959 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 963 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -596,6 +596,16 @@ daftar bahasa yang di-hardcode karena dia **memperbaiki diri sendiri**: kalau IC
 nama Hijriah nanti, app langsung memakainya. Bahasa yang ICU-nya sudah benar (tr "Rebiülevvel",
 ru "раби-уль-авваль", fr, ko, hi) tidak ikut dipaksa ke Latin — dan itu ada tesnya, karena
 pemeriksaannya harus dua arah.
+
+**Smoke test me-mount layar, TIDAK membuka lembar — dan di celah itu ada bug.** Layar makan
+menyimpan `undefined` untuk makro opsional yang kosong (benar: makanan cuma membawa apa yang
+diisi), tapi lembar EDIT-nya merender `value={f.protein}` apa adanya. Untuk makanan tersimpan
+tanpa protein itu `value={undefined}`, jadi React memperlakukan inputnya sebagai tak-terkendali
+lalu menulis error saat orang mengetik. Ditutup `views/Food.edit.test.jsx`, dan dua hal di berkas
+itu layak diingat: dia harus merender `<Modals />` juga (lembar dibuka lewat `useUI.openSheet`,
+dan `Food` bukan yang merendernya — tanpa itu tesnya hijau tanpa memeriksa apa pun), dan dia harus
+benar-benar MENGETIK, karena React memperingatkan saat input BERPINDAH ke terkendali, bukan saat
+dirender dengan `undefined`. Dua-duanya cuma ketemu karena uji-baliknya tidak mau merah.
 
 **Patokan teks pada sumber tidak cukup.** `Stats.test.js` memaku baris `onExercise` lewat
 pencocokan string, dan hijau berbulan-bulan di atas simbol yang tidak ada. Kalau sebuah tes

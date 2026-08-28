@@ -323,7 +323,7 @@ export default {
   // --- custom exercises (#11) ---
   'Create your own exercise': '나만의 운동 만들기',
   'Edit custom exercise': '커스텀 운동 편집',
-  'Name it and pick a body part — it behaves like any other exercise, just without an animation.': '이름을 정하고 부위를 선택하세요 — 애니메이션만 없을 뿐 다른 운동과 똑같이 사용됩니다.',
+  'Name it and pick a body part — it behaves like any other exercise, just without a demo photo.': '이름을 정하고 부위를 선택하세요 — 데모 사진만 없을 뿐 다른 운동과 똑같이 사용됩니다.',
   'Exercise': '운동',
   'No exercises yet.': '아직 운동이 없어요.',
   'Exercise name': '운동 이름',
