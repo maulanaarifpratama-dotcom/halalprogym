@@ -953,4 +953,11 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': 'Ini memakai API key milikmu sendiri, jadi request pergi langsung dari perangkat ini ke provider — tidak lewat kami. Kunci gratis dari Google AI Studio sudah cukup.',
   'What did you eat?': 'Kamu makan apa?',
   'Your provider says you are out of quota for now.': 'Provider bilang kuotamu sedang habis.',
+  // --- jendela latihan di hari puasa ---
+  'Good time to train': 'Waktu bagus untuk latihan',
+  'before iftar': 'sebelum berbuka',
+  'after Tarawih': 'setelah Tarawih',
+  // --- hitungan mundur waktu salat ---
+  '{0} hr {1} min': '{0} jam {1} mnt',
+  '{0} min': '{0} mnt',
 }

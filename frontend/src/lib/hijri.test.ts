@@ -4,6 +4,7 @@ import {
   fmtHijri,
   HIJRI_MONTHS_ID,
   hijriMonthName,
+  HIJRI_MONTHS_LATIN,
   isRamadanByHisab,
   toHijri,
 } from './hijri.js'
@@ -81,11 +82,50 @@ describe('hijriMonthName', () => {
     }
   })
 
-  it('bahasa lain memakai nama dari Intl', () => {
+  it('bahasa lain memakai nama dari Intl selama Intl punya nama Hijriah', () => {
     const en = hijriMonthName(9, 'en')
     expect(en.length).toBeGreaterThan(2)
-    // Yang penting: dia TIDAK jatuh ke tabel Indonesia untuk bahasa lain, kecuali Intl gagal.
+    // Yang penting: dia TIDAK jatuh ke tabel Indonesia untuk bahasa lain. Diperiksa lewat
+    // bulan yang ejaan Indonesianya BERBEDA dari Inggris — 'Ramadan' sama di keduanya, jadi
+    // bulan 3 yang membedakan: 'Rabiulawal' (KBBI) vs apa pun yang ICU berikan.
+    expect(hijriMonthName(3, 'en')).not.toBe('Rabiulawal')
     expect(typeof en).toBe('string')
+  })
+
+  it('bahasa yang ICU-nya memakai ulang nama bulan GREGORIAN tidak dipakai apa adanya', () => {
+    // Bug nyata, ditemukan dengan mengukur bukan menduga: ICU untuk `zh` mengembalikan `三月`
+    // untuk bulan Hijriah ke-3 — dan itu PERSIS nama bulan Maret. Jadi pengguna Mandarin
+    // melihat "15 三月 1448 H", yang terbaca "15 Maret 1448". Salah dengan cara yang cuma
+    // terlihat oleh orang yang membaca bahasanya, sama seperti "full body" yang tampil Inggris
+    // di 13 bahasa selama berbulan-bulan.
+    const gregorianZh = (m: number) => new Intl.DateTimeFormat('zh', { month: 'long', timeZone: 'UTC' })
+      .format(new Date(Date.UTC(2026, m - 1, 15)))
+    for (const m of [1, 3, 9, 12]) {
+      expect(hijriMonthName(m, 'zh'), 'bulan ' + m).not.toBe(gregorianZh(m))
+    }
+  })
+
+  it('cadangannya transliterasi Latin, BUKAN ejaan Indonesia', () => {
+    // Ejaan KBBI adalah keputusan untuk pengguna Indonesia. Menyodorkannya ke bahasa lain
+    // adalah menebak, dan menebak dalam urusan ejaan keislaman bukan pilihan yang netral.
+    expect(hijriMonthName(9, 'zh')).toBe(HIJRI_MONTHS_LATIN[8])
+    expect(hijriMonthName(3, 'zh')).not.toBe('Rabiulawal')
+  })
+
+  it('bahasa yang ICU-nya BENAR tetap memakai ICU, bukan dipaksa ke Latin', () => {
+    // Pemeriksaannya harus dua arah. Kalau tidak, satu perbaikan untuk zh akan menghapus nama
+    // Turki "Rebiülevvel" dan Rusia "раби-уль-авваль" yang justru sudah benar.
+    for (const lang of ['tr', 'ru', 'fr', 'ko', 'hi']) {
+      const out = hijriMonthName(3, lang)
+      expect(out, lang).not.toBe(HIJRI_MONTHS_LATIN[2])
+      expect(out.length, lang).toBeGreaterThan(2)
+    }
+  })
+
+  it('tabel Latin lengkap, tanpa kembar, tanpa yang kosong', () => {
+    expect(HIJRI_MONTHS_LATIN).toHaveLength(12)
+    expect(new Set(HIJRI_MONTHS_LATIN).size).toBe(12)
+    for (const n of HIJRI_MONTHS_LATIN) expect(n.trim().length).toBeGreaterThan(4)
   })
 
   it('bulan di luar 1..12 dijepit, bukan mengembalikan undefined', () => {

@@ -782,4 +782,11 @@ export default {
   'Your provider says you are out of quota for now.': 'Sağlayıcın şimdilik kotanın bittiğini söylüyor.',
   // --- penanda Ramadan di grafik ---
   'Ramadan': 'Ramazan',
+  // --- jendela latihan di hari puasa ---
+  'Good time to train': 'Antrenman için iyi zaman',
+  'before iftar': 'iftardan önce',
+  'after Tarawih': 'teravihten sonra',
+  // --- hitungan mundur waktu salat ---
+  '{0} hr {1} min': '{0} sa {1} dk',
+  '{0} min': '{0} dk',
 }

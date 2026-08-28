@@ -929,6 +929,15 @@ h4.sec{
 }
 /* Catatan bahwa ini perhitungan. Sengaja terbaca tapi tidak menonjol — menyembunyikannya
    supaya app terasa lebih pintar adalah kebohongan kecil yang mahal, terutama di Ramadan. */
+/* Jendela latihan di hari puasa. Bentuknya mengikuti .prayer-note — sama-sama satu baris
+   keterangan di bawah jadwal — tapi warnanya aksen, bukan redup: ini SARAN yang bisa
+   ditindaklanjuti, sementara .prayer-note peringatan. */
+.prayer-train{
+  display:flex;gap:7px;align-items:flex-start;margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--sep-op);font-size:12.5px;line-height:1.45;color:var(--label-2);
+}
+.prayer-train b{color:var(--acc);font-weight:650}
+.prayer-train svg{flex:none;margin-top:1px;color:var(--acc)}
 .prayer-note{
   display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding-top:9px;
   border-top:var(--hair) solid var(--sep);font-size:11.5px;line-height:1.45;color:var(--label-3)

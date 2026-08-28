@@ -5,13 +5,14 @@ import Icon from './Icon.jsx'
 import {
   PRAYER_LABEL, SALAT_TIMES, activePrayerWindow, cityById, fmtPrayer, nextPrayer, scheduleFor
 } from '../lib/prayer.js'
+import { isFastingDay, trainingWindows } from '../lib/ramadan.js'
 
 /**
  * Jadwal salat hari ini, dengan yang berikutnya ditandai.
  *
  * INI ALASAN APP INI ADA, jadi dia ditaruh di Home dan bukan disembunyikan di Settings.
  *
- * Dua keputusan yang membentuk tampilannya:
+ * Tiga keputusan yang membentuk tampilannya:
  *
  * 1. Yang BERIKUTNYA yang ditonjolkan, bukan semuanya sama rata. Pertanyaan yang orang bawa
  *    ke app ini di antara set bukan "kapan Subuh tadi" tapi "berapa lama lagi sampai Magrib" —
@@ -21,17 +22,36 @@ import {
  *    Kemenag dan tidak pernah lebih awal darinya, tapi untuk imsak dan buka puasa di bulan
  *    Ramadan, selisih semenit pun berarti. Menyembunyikan itu supaya app terasa lebih pintar
  *    adalah kebohongan kecil yang mahal.
+ *
+ * 3. Di HARI PUASA, dan hanya di hari puasa, kartu ini juga menjawab pertanyaan berikutnya:
+ *    kapan masuk akal latihan. Dua jendela yang benar-benar dipakai orang — tepat sebelum
+ *    Magrib (selesai lalu langsung berbuka) dan setelah Tarawih. Logikanya sudah ada dan bertes
+ *    di `lib/ramadan.ts` sejak mode Ramadan dipasang, tapi TIDAK PERNAH DIPANGGIL dari mana
+ *    pun; kartu ini yang membuatnya nyata.
+ *
+ *    Di hari biasa barisnya tidak muncul sama sekali. Sama alasannya dengan pengelompokan
+ *    sahur/berbuka di layar makan: kotak yang menjelaskan sesuatu yang tidak sedang terjadi
+ *    cuma menambah hal untuk dibaca dan dilewati.
  */
 
 // Jam ulang tiap 30 detik. Cukup untuk hitungan mundur bermenit, dan tidak membangunkan
 // perangkat lebih sering daripada yang berguna.
 const TICK_MS = 30000
 
+/**
+ * Hitungan mundur ke waktu salat berikutnya.
+ *
+ * Satuannya lewat `t()`, dan itu perbaikan bug: versi sebelumnya menuliskan "jam" dan "mnt"
+ * langsung di template. Akibatnya UI Mandarin menampilkan "Magrib 1 jam 53 mnt", dan begitu juga
+ * kedua belas bahasa lain. `check:locale-keys` tidak bisa melihatnya karena tidak ada satu pun
+ * pemanggilan `t()` untuk dicocokkan — teks Indonesia yang tidak pernah mengaku sebagai teks
+ * yang perlu diterjemahkan adalah titik buta yang tidak ditutup checker mana pun.
+ */
 const countdown = ms => {
   const total = Math.max(0, Math.round(ms / 60000))
   const h = Math.floor(total / 60)
   const m = total % 60
-  return h > 0 ? `${h} jam ${m} mnt` : `${m} mnt`
+  return h > 0 ? t('{0} hr {1} min', h, m) : t('{0} min', m)
 }
 
 export default function PrayerCard() {
@@ -47,6 +67,12 @@ export default function PrayerCard() {
   const sched = scheduleFor(city, now)
   const next = nextPrayer(city, now)
   const active = activePrayerWindow(city, now)
+
+  // Sakelar puasa dibaca dari state, bukan dari kalender: yang menentukan hari ini hari puasa
+  // atau bukan adalah keputusan pengguna, dan itu memang harus manual (lihat lib/ramadan.ts).
+  const ramadan = useStore(s => s.S.ramadan)
+  const puasa = isFastingDay(ramadan, now)
+  const latihan = puasa ? trainingWindows(city, now) : null
 
   return (
     <div className="card prayer">
@@ -79,6 +105,19 @@ export default function PrayerCard() {
         <span>{t('Imsak')} {fmtPrayer(sched.imsak, city)}</span>
         <span>{PRAYER_LABEL.terbit} {fmtPrayer(sched.times.terbit, city)}</span>
       </div>
+
+      {/* Jendela latihan hari puasa. SARAN, bukan paksaan — ini app latihan pribadi, bukan
+          pelatih yang menolak membuka layar di luar jam. */}
+      {latihan && (
+        <div className="prayer-train">
+          <Icon name="dumbbell" />
+          <span>
+            <b>{t('Good time to train')}</b>{' '}
+            {fmtPrayer(latihan.beforeIftar.from, city)}–{fmtPrayer(latihan.beforeIftar.to, city)}{' '}
+            {t('before iftar')} · {t('after Tarawih')} {fmtPrayer(latihan.afterTarawih.from, city)}
+          </span>
+        </div>
+      )}
 
       <div className="prayer-note">
         <Icon name="info" />

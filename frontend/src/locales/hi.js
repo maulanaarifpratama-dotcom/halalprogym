@@ -782,4 +782,11 @@ export default {
   'Your provider says you are out of quota for now.': 'आपका प्रदाता कहता है कि अभी आपका कोटा ख़त्म है।',
   // --- penanda Ramadan di grafik ---
   'Ramadan': 'रमज़ान',
+  // --- jendela latihan di hari puasa ---
+  'Good time to train': 'कसरत का अच्छा समय',
+  'before iftar': 'इफ़्तार से पहले',
+  'after Tarawih': 'तरावीह के बाद',
+  // --- hitungan mundur waktu salat ---
+  '{0} hr {1} min': '{0} घं {1} मि',
+  '{0} min': '{0} मि',
 }

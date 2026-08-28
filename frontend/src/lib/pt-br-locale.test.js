@@ -85,7 +85,13 @@ describe('Brazilian Portuguese locale', () => {
     // 480 -> 489: sembilan kunci perkiraan gizi AI yang kata Brasilnya sama dengan
     // Portugal — istilah teknis dan frasa pendek tanpa sapaan ('IA', 'Chave de API',
     // 'Gramas por porção', 'Não configurado'). 36 sisanya jadi override, lihat di atas.
-    expect(inherited).toHaveLength(489)
+    // 489 -> 492: tiga kunci jendela latihan hari puasa ('Good time to train', 'before
+    // iftar', 'after Tarawih'). Kata Brasilnya sama dengan Portugal — 'iftar' dan
+    // 'Tarawih' istilah pinjaman yang tidak berbeda regional, dan 'Boa hora para treinar'
+    // dipakai di kedua varian. Jadi warisan, bukan override.
+    // 492 -> 494: dua kunci satuan hitungan mundur ('{0} hr {1} min', '{0} min'). Portugal
+    // dan Brasil sama-sama memakai 'h' dan 'min', jadi warisan.
+    expect(inherited).toHaveLength(494)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -100,7 +106,7 @@ describe('Brazilian Portuguese locale', () => {
     // bawaan" sekarang menyebut jalan keluarnya — perkiraan AI dengan kunci sendiri — jadi
     // string sumbernya berubah dan kunci lamanya tidak menunjuk apa pun lagi. Itu ditangkap
     // oleh locale-orphans.test.ts, bukan oleh tes ini, dan itu memang pembagian kerjanya.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('4b809fd61af3905a40be9e248507416b08432cd5a855746a6a87807c8bc726b9')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('b1afcd6d18471471443be38231af45205c9b6ae0fd25dc334010ead9e62c3176')
   })
 
   test('does not leak European Portuguese UI terms', () => {

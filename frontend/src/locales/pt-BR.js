@@ -393,4 +393,11 @@ export default { ...pt, ...PT_BR_OVERRIDES,
   'Nutrition estimates': 'Estimativas nutricionais',
   'Nutrition per serving': 'Nutrição por porção',
   'These numbers are an estimate, not a measurement.': 'Estes números são uma estimativa, não uma medição.',
+  // --- jendela latihan di hari puasa ---
+  'Good time to train': 'Boa hora para treinar',
+  'before iftar': 'antes do iftar',
+  'after Tarawih': 'depois do Tarawih',
+  // --- hitungan mundur waktu salat ---
+  '{0} hr {1} min': '{0} h {1} min',
+  '{0} min': '{0} min',
 }

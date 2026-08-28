@@ -38,6 +38,31 @@ export const HIJRI_MONTHS_ID: readonly string[] = [
   'Rajab', 'Syaban', 'Ramadan', 'Syawal', 'Zulkaidah', 'Zulhijah',
 ]
 
+/**
+ * Transliterasi Latin, dipakai HANYA kalau ICU tidak punya nama bulan Hijriah untuk sebuah
+ * bahasa.
+ *
+ * KENAPA CADANGAN INI ADA, DAN BUKAN TEORETIS
+ *
+ * ICU untuk `zh` mengembalikan `三月` dan `九月` untuk bulan Hijriah ke-3 dan ke-9 — dan itu
+ * PERSIS nama bulan Gregorian Maret dan September. Jadi pengguna Mandarin melihat "15 三月
+ * 1448 H", yang terbaca sebagai "15 Maret 1448". Bukan cuma jelek: salah, dan salah dengan cara
+ * yang cuma terlihat oleh orang yang membaca bahasanya. Kelas yang sama dengan "full body" yang
+ * tampil Inggris di 13 bahasa selama berbulan-bulan.
+ *
+ * Sumber transliterasinya standar dan bukan karangan: bentuk yang dipakai umum di tulisan
+ * berbahasa Inggris tentang kalender Hijriah.
+ *
+ * TERBATAS DENGAN SENGAJA: ini aksara Latin, jadi untuk pembaca Mandarin dia tetap bukan yang
+ * ideal — transliterasi Mandarin yang benar (赖比尔·敖外鲁月 dan seterusnya) akan lebih baik, tapi
+ * ejaannya butuh diverifikasi penutur asli dan mengarangnya lebih buruk daripada Latin yang
+ * jelas asing. Yang penting sudah tercapai: tidak lagi tertukar dengan bulan Gregorian.
+ */
+export const HIJRI_MONTHS_LATIN: readonly string[] = [
+  'Muharram', 'Safar', "Rabi' al-Awwal", "Rabi' al-Thani", 'Jumada al-Awwal', 'Jumada al-Thani',
+  'Rajab', "Sha'ban", 'Ramadan', 'Shawwal', "Dhu al-Qi'dah", 'Dhu al-Hijjah',
+]
+
 /** Batas geseran yang diizinkan. Lebih dari dua hari bukan lagi selisih hisab-rukyat. */
 export const HIJRI_OFFSET_MIN = -2
 export const HIJRI_OFFSET_MAX = 2
@@ -87,6 +112,31 @@ export function toHijri(date: Date, offsetDays = 0): HijriDate | null {
 }
 
 /**
+ * Apakah ICU benar-benar punya nama bulan Hijriah untuk bahasa ini?
+ *
+ * Diperiksa dengan MEMBANDINGKANNYA ke nama bulan Gregorian pada ordinal yang sama. Kalau
+ * keduanya identik, ICU tidak punya data Hijriah untuk bahasa itu dan cuma memakai ulang nama
+ * bulan biasa — itu yang terjadi pada `zh`, di mana bulan Hijriah ke-3 keluar sebagai `三月`,
+ * nama Maret.
+ *
+ * Pemeriksaan ini lebih baik daripada daftar bahasa yang di-hardcode karena dia MEMPERBAIKI
+ * DIRI SENDIRI: kalau versi ICU berikutnya menambahkan nama Hijriah untuk sebuah bahasa,
+ * app langsung memakainya tanpa satu baris pun diubah. Dan kalau ICU MENGHILANGKAN data untuk
+ * bahasa lain, cadangannya langsung berlaku.
+ */
+function icuHasHijriNames(lang: string, month: number, hijriName: string): boolean {
+  try {
+    const gregorian = new Intl.DateTimeFormat(lang, { month: 'long', timeZone: 'UTC' })
+      .format(new Date(Date.UTC(2026, month - 1, 15)))
+    return hijriName !== gregorian
+  } catch {
+    // Tidak bisa memeriksa berarti tidak bisa memastikan. Memakai nama ICU apa adanya di sini
+    // lebih aman daripada memaksa cadangan Latin ke bahasa yang mungkin punya nama yang benar.
+    return true
+  }
+}
+
+/**
  * Nama bulan Hijriah dalam bahasa tertentu.
  *
  * `lang` diterima sebagai argumen, bukan dibaca dari state i18n, supaya fungsinya murni dan bisa
@@ -102,10 +152,16 @@ export function hijriMonthName(month: number, lang: string): string {
     // Tanggal 15 dipilih dengan sengaja: dia selalu di tengah bulan Hijriah mana pun, jadi
     // pembulatan zona waktu tidak bisa menggeser namanya ke bulan sebelah.
     const probe = hijriToApproxGregorian(month)
-    return new Intl.DateTimeFormat(lang + '-u-ca-islamic-umalqura', { month: 'long', timeZone: 'UTC' })
+    const name = new Intl.DateTimeFormat(lang + '-u-ca-islamic-umalqura', { month: 'long', timeZone: 'UTC' })
       .format(probe)
+    if (!name) return HIJRI_MONTHS_LATIN[idx] as string
+    // Nama Gregorian yang dipakai ulang bukan nama Hijriah — lihat icuHasHijriNames.
+    if (!icuHasHijriNames(lang, idx + 1, name)) return HIJRI_MONTHS_LATIN[idx] as string
+    return name
   } catch {
-    return HIJRI_MONTHS_ID[idx] as string
+    // Lingkungan tanpa kalender Islam. Cadangannya Latin, BUKAN Indonesia: ejaan KBBI adalah
+    // keputusan untuk pengguna Indonesia, dan menyodorkannya ke bahasa lain adalah menebak.
+    return HIJRI_MONTHS_LATIN[idx] as string
   }
 }
 

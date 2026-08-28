@@ -144,7 +144,19 @@ apa pun, dan perbedaan kepentingan itulah alasan yang satu boleh otomatis dan ya
 Sakelarnya **manual**, bukan deteksi tanggal Hijriah otomatis: awal Ramadan ditetapkan sidang
 isbat, dan menyala sehari lebih awal berarti menahan progresi di hari orang belum berpuasa.
 Mode **puasa sunah Senin–Kamis** memakai mesin yang sama, dan itu jalur ujinya sebelum Ramadan.
-Notifikasi 'hydration'/'meal' ditahan di jam puasa; 'rest'/'workout' tidak.
+
+**Di hari puasa, kartu salat di Home juga menyebut kapan masuk akal latihan** — sebelum Magrib
+(selesai lalu langsung berbuka) dan setelah Tarawih. Logikanya `trainingWindows` di
+`lib/ramadan.ts`, sudah ada dan bertes sejak mode Ramadan dipasang tapi **tidak pernah dipanggil
+dari mana pun** sampai 2026-08-28. Saran, bukan paksaan. Di hari biasa barisnya tidak muncul, dan
+cabang NEGATIF itu yang paling penting dipaku tesnya: menyarankan "latihan sebelum berbuka" di
+hari orang tidak berpuasa bukan cuma tidak berguna, dia salah.
+
+**`notificationAllowed` masih MENGANGGUR, dan dokumen ini pernah menyatakan sebaliknya.** Dia
+menahan notifikasi 'hydration'/'meal' di jam puasa dan membiarkan 'rest'/'workout' — tapi app ini
+tidak punya notifikasi hydration maupun meal sama sekali, jadi tidak ada yang memanggilnya.
+Fungsinya dibiarkan hidup karena bahayanya nyata: pengingat "minum air" jam 2 siang di bulan
+Ramadan. Siapa pun yang menambahkan notifikasi jenis itu **wajib** melewatinya.
 
 **6. Hari: Ahad, bukan Minggu.** Nama hari Indonesia sudah Arab semua (Itsnain→Senin,
 Tsalatsa→Selasa, Arbi'a→Rabu, Khamis→Kamis, Jumu'ah→Jumat, Sabt→Sabtu) — kecuali "Minggu", dari
@@ -442,7 +454,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 918 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 936 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -488,6 +500,27 @@ pack lawan pack lewat *gabungan* kunci, jadi (1) kunci yang mati di ke-13 pack s
 "sinkron" sambil sama-sama menunjuk teks yang sudah tidak ada — itu yang terjadi saat string
 sumber diedit, misalnya rebrand openGym → Halal Pro Gym; dan (2) kunci yang **hilang di semua
 pack** tidak pernah masuk gabungan itu, jadi tidak pernah dilaporkan.
+
+**Keempat checker itu semuanya bekerja DARI `t()`, dan di situ titik butanya.** Teks yang tidak
+pernah mengaku sebagai teks yang perlu diterjemahkan tidak terlihat oleh satu pun dari mereka.
+`PrayerCard.jsx` menuliskan hitungan mundur sebagai `` `${h} jam ${m} mnt` `` langsung di
+template — jadi UI Mandarin menampilkan **"Magrib 1 jam 53 mnt"**, dan begitu juga kedua belas
+bahasa lain. Ditemukan dengan mengganti bahasa app ke Mandarin dan MEMBACA layarnya. Ditutup
+`no-untranslated-id.test.ts`, dipatok NOL: dia membuang komentar (seluruh dokumentasi di sini
+Indonesia) lalu memindai literal string di `components/`, `views/`, `store/`. `lib/` sengaja di
+luar cakupan — dua isi Indonesia di sana keduanya sah dan bukan UI: prompt LLM di
+`ai-nutrition.ts` (yang memang harus Indonesia) dan string `why` diagnostik di `sync.ts` (yang
+diperiksa ke pemanggilnya: tidak pernah ditampilkan).
+
+**Sekalian ditemukan di layar yang sama: ICU `zh` memakai ulang nama bulan GREGORIAN untuk bulan
+Hijriah.** Bulan ke-3 keluar sebagai `三月` — nama Maret — jadi pengguna Mandarin melihat
+"15 三月 1448 H". `lib/hijri.ts` sekarang membandingkan nama Hijriah dari ICU dengan nama bulan
+Gregorian pada ordinal yang sama; kalau identik, ICU tidak punya data Hijriah untuk bahasa itu
+dan dipakai transliterasi Latin (`HIJRI_MONTHS_LATIN`). Pemeriksaan ini lebih baik daripada
+daftar bahasa yang di-hardcode karena dia **memperbaiki diri sendiri**: kalau ICU menambahkan
+nama Hijriah nanti, app langsung memakainya. Bahasa yang ICU-nya sudah benar (tr "Rebiülevvel",
+ru "раби-уль-авваль", fr, ko, hi) tidak ikut dipaksa ke Latin — dan itu ada tesnya, karena
+pemeriksaannya harus dua arah.
 
 **Patokan teks pada sumber tidak cukup.** `Stats.test.js` memaku baris `onExercise` lewat
 pencocokan string, dan hijau berbulan-bulan di atas simbol yang tidak ada. Kalau sebuah tes

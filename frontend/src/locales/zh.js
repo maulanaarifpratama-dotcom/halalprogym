@@ -775,4 +775,11 @@ export default {
   'Your provider says you are out of quota for now.': '服务商提示你的额度暂时用完了。',
   // --- penanda Ramadan di grafik ---
   'Ramadan': '斋月',
+  // --- jendela latihan di hari puasa ---
+  'Good time to train': '适合训练的时间',
+  'before iftar': '开斋前',
+  'after Tarawih': '塔拉威哈礼拜后',
+  // --- hitungan mundur waktu salat ---
+  '{0} hr {1} min': '{0} 小时 {1} 分',
+  '{0} min': '{0} 分钟',
 }
