@@ -102,3 +102,80 @@ describe('LineChart hover state', () => {
     expect(container.querySelector('.cvl')).toBeTruthy()
   })
 })
+
+describe('bands — pita latar penanda periode', () => {
+  const pts = [
+    { t: new Date(2026, 0, 1, 12).getTime(), y: 80, d: '2026-01-01' },
+    { t: new Date(2026, 5, 1, 12).getTime(), y: 76, d: '2026-06-01' },
+  ]
+  const rects = () => [...container.querySelectorAll('svg rect')]
+  const render = bands => act(() => root.render(<LineChart points={pts} axes={false} bands={bands} />))
+
+  it('tanpa bands tidak ada satu pun rect', () => {
+    // Grafik lain di app ini tidak mengirim `bands`, dan mereka tidak boleh mendapat node
+    // tambahan apa pun. `rect` juga satu-satunya bentuk yang dipakai penanda ini, jadi
+    // jumlahnya bisa dipakai sebagai penghitung langsung.
+    render(null)
+    expect(rects()).toHaveLength(0)
+    render([])
+    expect(rects()).toHaveLength(0)
+  })
+
+  it('satu pita jadi satu rect', () => {
+    render([{ from: pts[0].t, to: pts[1].t }])
+    expect(rects()).toHaveLength(1)
+  })
+
+  it('pita di LUAR rentang data dibuang, bukan digambar di luar area plot', () => {
+    // Pita yang sepenuhnya sebelum titik pertama atau setelah titik terakhir tidak punya tempat
+    // di grafik. Menggambarnya berarti kotak yang menempel di tepi dan terbaca seperti bug.
+    render([{ from: pts[0].t - 60 * 86400000, to: pts[0].t - 30 * 86400000 }])
+    expect(rects()).toHaveLength(0)
+    render([{ from: pts[1].t + 30 * 86400000, to: pts[1].t + 60 * 86400000 }])
+    expect(rects()).toHaveLength(0)
+  })
+
+  it('pita yang menjorok keluar DIJEPIT ke area plot', () => {
+    const el = (() => { render([{ from: pts[0].t - 999 * 86400000, to: pts[1].t + 999 * 86400000 }]); return rects()[0] })()
+    expect(el).toBeTruthy()
+    // Kiri tidak boleh lebih kiri dari padding kiri, kanan tidak melewati lebar viewBox.
+    const x = Number(el.getAttribute('x'))
+    const w = Number(el.getAttribute('width'))
+    expect(x).toBeGreaterThanOrEqual(0)
+    expect(x + w).toBeLessThanOrEqual(340)
+  })
+
+  it('label ditampilkan kalau pitanya lebar', () => {
+    render([{ from: pts[0].t, to: pts[1].t, label: 'Ramadan' }])
+    const teks = [...container.querySelectorAll('svg text')].map(t => t.textContent)
+    expect(teks).toContain('Ramadan')
+  })
+
+  it('label DISEMBUNYIKAN kalau pitanya terlalu sempit', () => {
+    // Teks yang terpotong setengah lebih buruk daripada tidak ada teks: dia terbaca seperti
+    // render yang rusak, bukan seperti anotasi.
+    const span = pts[1].t - pts[0].t
+    render([{ from: pts[0].t, to: pts[0].t + Math.round(span * 0.01), label: 'Ramadan' }])
+    const teks = [...container.querySelectorAll('svg text')].map(t => t.textContent)
+    expect(teks).not.toContain('Ramadan')
+  })
+
+  it('pita digambar SEBELUM kurvanya di urutan DOM', () => {
+    // SVG tidak punya z-index; urutan dokumen yang menentukan. Pita yang digambar setelah
+    // polyline akan menutupi datanya sendiri — anotasi tidak boleh bersaing dengan data.
+    render([{ from: pts[0].t, to: pts[1].t }])
+    const svg = container.querySelector('svg')
+    const anak = [...svg.children]
+    const iPita = anak.findIndex(n => n.tagName === 'g' && n.querySelector('rect'))
+    const iKurva = anak.findIndex(n => n.tagName === 'polyline')
+    expect(iPita).toBeGreaterThanOrEqual(0)
+    expect(iKurva).toBeGreaterThanOrEqual(0)
+    expect(iPita).toBeLessThan(iKurva)
+  })
+
+  it('pita tidak melempar untuk masukan yang tidak berbentuk', () => {
+    for (const bad of [[{ from: NaN, to: NaN }], [{}], [{ from: pts[0].t }]]) {
+      expect(() => render(bad)).not.toThrow()
+    }
+  })
+})

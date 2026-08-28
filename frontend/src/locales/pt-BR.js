@@ -4,6 +4,9 @@
 import pt from './pt.js'
 
 export const PT_BR_OVERRIDES = {
+  // Override regional: Portugal menulis "Ramadao", Brasil "Ramada". Pembeda yang sudah
+  // tercatat di pack ini sejak kunci waktu salat masuk.
+  'Ramadan': 'Ramadã',
   // --- perkiraan gizi AI: kata Brasilnya berbeda dari Portugal ---
   'A free key from Google AI Studio is enough for everyday use.': 'Uma chave gratuita do Google AI Studio já basta para o dia a dia.',
   'Add your own API key in Settings first.': 'Primeiro adicione sua própria chave de API em Ajustes.',

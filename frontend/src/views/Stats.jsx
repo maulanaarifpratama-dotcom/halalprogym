@@ -7,6 +7,7 @@ import { fmtNum, fmtDate, fmtVol, todayISO, weekKey } from '../lib/format.js'
 import { t, exerciseNameFor, getLang } from '../lib/i18n.js'
 import { bwSheet, goalSheet, calendarSheet, workoutDetailSheet, WorkoutRow, bwDeltaColor } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
+import { ramadanBands } from '../lib/ramadan-bands.js'
 import Heatmap from '../components/Heatmap.jsx'
 import Icon from '../components/Icon.jsx'
 import BodyMap, { BodyMapLegend } from '../components/BodyMap.jsx'
@@ -289,9 +290,31 @@ export default function Stats() {
   const now = Date.now()
   const kind = displayScale(S)
   const hd = scaleName(kind)
+  // Label pita Ramadan diterjemahkan, jadi bahasanya ikut jadi dependensi memo di bawah.
+  // Re-render saat bahasa berubah datang dari useLang() di App, sama seperti seluruh t() di sini.
+  const lang = getLang()
 
   const bwPts = S.bodyweight.filter(b => range === 0 || (b.t || new Date(b.d).getTime()) > now - range * 86400000)
     .map(b => ({ t: b.t || new Date(b.d).getTime(), y: b.w, d: b.d }))
+
+  // Penanda Ramadan di grafik berat badan.
+  //
+  // Puasa sebulan menurunkan berat badan, dan itu wajar. Tapi grafiknya tidak tahu apa-apa soal
+  // kalender: yang terlihat adalah penurunan tajam sebulan lalu naik lagi, dan setahun kemudian
+  // tidak ada cara tahu itu Ramadan dan bukan program yang gagal.
+  //
+  // Dihitung dari KALENDER, bukan dari sakelar mode Ramadan di Pengaturan. `S.ramadan` cuma
+  // menyimpan keadaan sekarang — tidak ada riwayat kapan sakelarnya menyala — jadi menandai masa
+  // lalu dari sakelar itu mustahil. Ramadan sendiri fakta kalender, dan sakelar itu menjawab
+  // pertanyaan yang berbeda: apakah mesin progresi ditahan. Lihat lib/ramadan-bands.ts.
+  const bwBands = useMemo(() => {
+    if (bwPts.length < 2) return null
+    const from = bwPts[0].t
+    const to = bwPts[bwPts.length - 1].t
+    return ramadanBands(from, to, S.hijriOffset || 0)
+      .map(b => ({ from: b.from, to: b.to, label: t('Ramadan') }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bwPts.length, bwPts[0]?.t, bwPts[bwPts.length - 1]?.t, S.hijriOffset, lang])
   const bw30 = S.bodyweight.filter(b => (b.t || new Date(b.d).getTime()) > now - 30 * 86400000)
   const bwDelta30 = bw30.length > 1 ? bw30[bw30.length - 1].w - bw30[0].w : null
   const workouts = S.workouts
@@ -439,7 +462,7 @@ export default function Stats() {
         </div>
         <Segmented className="seg-range" value={range} onChange={setRange}
           options={[{ value: 30, label: '1M' }, { value: 90, label: '3M' }, { value: 365, label: '1Y' }, { value: 0, label: t('All') }]} />
-        <div className="chart"><LineChart points={bwPts} h={160} unit={S.unit} goal={S.targetW} /></div>
+        <div className="chart"><LineChart points={bwPts} h={160} unit={S.unit} goal={S.targetW} bands={bwBands} /></div>
       </div>
 
       <div className="card" ref={progressRef}>

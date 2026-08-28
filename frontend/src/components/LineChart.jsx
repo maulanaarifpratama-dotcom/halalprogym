@@ -9,10 +9,15 @@ const W = 340   // viewBox width; the svg stretches to its container, height com
 //        more of it). Used for effort on the weight curve, where the two belong on one line:
 //        the same weight with less left in the tank is not the same session.
 //   note extra text for that point's tooltip.
-// opts: { h, unit, color, axes, goal, invert }
+// opts: { h, unit, color, axes, goal, invert, bands }
 //   invert flips the y axis, for a scale that counts down as it gets harder (RIR). Without it
 //   a curve of reps-in-reserve reads upside down, with the hardest sets at the floor.
-export default function LineChart({ points, h = 150, unit = '', color = 'var(--acc)', axes = true, goal = null, invert = false }) {
+//   bands  [{ from: ms, to: ms, label?: str }] — pita latar vertikal, untuk menandai periode
+//          yang menjelaskan bentuk kurvanya. Dipakai penanda Ramadan di grafik berat badan:
+//          penurunan sebulan lalu naik lagi terbaca sebagai program yang gagal kalau tidak ada
+//          yang mengatakan itu bulan puasa. Digambar PALING BELAKANG, di bawah gridline dan
+//          kurva — anotasi tidak boleh bersaing dengan datanya.
+export default function LineChart({ points, h = 150, unit = '', color = 'var(--acc)', axes = true, goal = null, invert = false, bands = null }) {
   const svgRef = useRef(null)
   const wrapRef = useRef(null)
   const tipRef = useRef(null)
@@ -94,6 +99,29 @@ export default function LineChart({ points, h = 150, unit = '', color = 'var(--a
     })
   }
 
+  // Pita latar. Dijepit ke [t0, t1] supaya sebuah pita yang mulai sebelum titik data pertama
+  // tidak digambar di luar area plot, dan dibuang kalau setelah dijepit lebarnya nol — pita
+  // selebar nol piksel bukan informasi, cuma satu node SVG lagi.
+  const bandRects = (bands || []).map((b, i) => {
+    const a = Math.max(b.from, t0)
+    const z = Math.min(b.to, t1)
+    if (!(z > a)) return null
+    const x = X(a)
+    const w = X(z) - x
+    if (w < 0.5) return null
+    return (
+      <g key={'b' + i}>
+        <rect x={x} y={P.t} width={w} height={H - P.t - P.b} fill="var(--indigo)" opacity=".13" />
+        {/* Label cuma kalau pitanya cukup lebar untuk memuatnya. Teks yang terpotong setengah
+            lebih buruk daripada tidak ada teks: dia terbaca seperti render yang rusak. */}
+        {b.label && w > 30 && (
+          <text x={x + w / 2} y={P.t + 10} textAnchor="middle" fontSize="9"
+            fontWeight="700" fill="var(--indigo)" opacity=".9">{b.label}</text>
+        )}
+      </g>
+    )
+  })
+
   const poly = pts.map(p => X(p.t).toFixed(1) + ',' + Y(p.y).toFixed(1)).join(' ')
   const last = pts[pts.length - 1]
   const gid = 'g' + Math.round(t0 % 1e7) + '_' + H
@@ -124,6 +152,9 @@ export default function LineChart({ points, h = 150, unit = '', color = 'var(--a
           <stop offset="0" stopColor={color} stopOpacity=".28" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </linearGradient></defs>
+        {/* Pita latar. Sebelum gridlines dan kurva, jadi dia benar-benar di belakang. Dijepit ke
+            area plot: pita yang meluber ke label sumbu terlihat seperti bug render. */}
+        {bandRects}
         {gridlines}
         {goal != null && isFinite(goal) && <>
           <line x1={P.l} y1={Y(goal)} x2={W - P.r} y2={Y(goal)} stroke="var(--yellow)" strokeWidth="1.6" strokeDasharray="7 4" />

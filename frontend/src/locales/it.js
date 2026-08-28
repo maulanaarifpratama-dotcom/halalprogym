@@ -782,4 +782,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': 'Usa la tua chiave API, quindi la richiesta va direttamente da questo dispositivo al provider, mai attraverso di noi. Basta una chiave gratuita di Google AI Studio.',
   'What did you eat?': 'Cosa hai mangiato?',
   'Your provider says you are out of quota for now.': 'Il tuo provider dice che per ora la quota è esaurita.',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': 'Ramadan',
 }

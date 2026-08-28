@@ -124,6 +124,15 @@ sebagai **pembungkus di luar badan fungsinya** — badan itu punya sebelas jalan
 cabang yang lupa sudah cukup. Volume dipangkas di `buildWorkSets`, satu tempat yang dilewati
 semua mode logging; set warm-up TIDAK ikut dipangkas.
 
+**Grafik berat badan menandai Ramadan, dan penandanya dihitung dari KALENDER bukan dari sakelar
+itu** (`lib/ramadan-bands.ts`). Puasa sebulan menurunkan berat badan; grafiknya tidak tahu soal
+kalender, jadi yang terlihat adalah penurunan tajam sebulan lalu naik lagi — dan setahun kemudian
+tidak ada cara tahu itu Ramadan dan bukan program yang gagal. `S.ramadan` cuma menyimpan keadaan
+SEKARANG, tidak ada riwayat kapan sakelarnya menyala, jadi menandai masa lalu dari sakelar itu
+mustahil. Ramadan sendiri fakta kalender. Konsekuensinya jujur: pitanya memakai hisab + offset,
+jadi tepinya bisa bergeser sehari dari ketetapan Kemenag — untuk pita latar itu tidak mengubah
+apa pun, dan perbedaan kepentingan itulah alasan yang satu boleh otomatis dan yang lain tidak.
+
 Sakelarnya **manual**, bukan deteksi tanggal Hijriah otomatis: awal Ramadan ditetapkan sidang
 isbat, dan menyala sehari lebih awal berarti menahan progresi di hari orang belum berpuasa.
 Mode **puasa sunah Senin–Kamis** memakai mesin yang sama, dan itu jalur ujinya sebelum Ramadan.
@@ -425,7 +434,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 868 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 891 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →

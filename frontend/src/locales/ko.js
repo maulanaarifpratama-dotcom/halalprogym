@@ -776,4 +776,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': '본인의 API 키를 사용하므로 요청은 이 기기에서 제공업체로 바로 가며, 우리를 거치지 않습니다. Google AI Studio의 무료 키로 충분합니다.',
   'What did you eat?': '무엇을 먹었나요?',
   'Your provider says you are out of quota for now.': '제공업체가 지금은 사용량이 소진되었다고 알려 왔습니다.',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': '라마단',
 }

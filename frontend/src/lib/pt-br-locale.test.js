@@ -57,7 +57,11 @@ describe('Brazilian Portuguese locale', () => {
     // antara kedua varian — Portugal "registar/ligação/predefinicao/dispositivo", Brasil
     // "registrar/conexao/padrao/aparelho", ditambah bentuk sapaan "tu" lawan "voce" yang
     // muncul di hampir setiap kalimat perintah di lembar ini.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(324)
+    // 324 -> 325: 'Ramadan'. Portugal menulis "Ramadao", Brasil "Ramada" — pembeda yang
+    // sudah tercatat di pack ini sejak kunci waktu salat masuk. Dia sempat masuk ke blok
+    // ekor default export, dan tes ini yang menangkapnya: kunci yang TAMPAK diwarisi tapi
+    // sebenarnya di-override adalah tepat drift yang mekanisme ini ada untuk menemukan.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(325)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')

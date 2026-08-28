@@ -780,4 +780,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': 'Bu senin kendi API anahtarını kullanır; istek bu cihazdan doğrudan sağlayıcıya gider, asla bizden geçmez. Google AI Studio’dan ücretsiz bir anahtar yeter.',
   'What did you eat?': 'Ne yedin?',
   'Your provider says you are out of quota for now.': 'Sağlayıcın şimdilik kotanın bittiğini söylüyor.',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': 'Ramazan',
 }

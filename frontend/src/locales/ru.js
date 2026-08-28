@@ -781,4 +781,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': 'Используется ваш собственный ключ API, поэтому запрос идёт напрямую с этого устройства к провайдеру — никогда через нас. Хватит бесплатного ключа Google AI Studio.',
   'What did you eat?': 'Что вы съели?',
   'Your provider says you are out of quota for now.': 'Провайдер сообщает, что квота пока исчерпана.',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': 'Рамадан',
 }

@@ -773,4 +773,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': '这会用你自己的 API 密钥，请求从这台设备直接发往服务商，绝不经过我们。Google AI Studio 的免费密钥就够了。',
   'What did you eat?': '你吃了什么？',
   'Your provider says you are out of quota for now.': '服务商提示你的额度暂时用完了。',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': '斋月',
 }

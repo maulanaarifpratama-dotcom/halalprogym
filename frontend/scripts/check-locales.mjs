@@ -54,6 +54,10 @@ const ID_KEEPS_ENGLISH = new Set([
   // terjemahan mesin.
   'AI',
   'API key',
+  // "Ramadan" memang ejaan Indonesianya (KBBI), jadi nilainya akan identik dengan
+  // kuncinya — dan pemetaan identik dilarang di id.js karena bikin persentase cakupan
+  // bohong. Bahasa lain memang berbeda: Ramadán, Ramadão/Ramadã, Ramazan, 斋月.
+  'Ramadan',
   'Apr',
   'Burst {0}',
   'Data',

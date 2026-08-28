@@ -780,4 +780,6 @@ export default {
   'This uses your own API key, so the request goes straight from this device to the provider — never through us. A free key from Google AI Studio is enough.': 'यह आपकी ही एपीआई कुंजी उपयोग करता है, इसलिए अनुरोध इसी डिवाइस से सीधे प्रदाता को जाता है — हमारे रास्ते कभी नहीं। Google AI Studio की मुफ़्त कुंजी काफ़ी है।',
   'What did you eat?': 'आपने क्या खाया?',
   'Your provider says you are out of quota for now.': 'आपका प्रदाता कहता है कि अभी आपका कोटा ख़त्म है।',
+  // --- penanda Ramadan di grafik ---
+  'Ramadan': 'रमज़ान',
 }
