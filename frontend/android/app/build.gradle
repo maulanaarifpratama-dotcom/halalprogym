@@ -1,14 +1,18 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "ch.duartesantos.opengym"
+    namespace "id.halalpro.gym"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ch.duartesantos.opengym"
+        applicationId "id.halalpro.gym"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "1.2.11"
+        // Versi DIMULAI DARI AWAL, tidak melanjutkan penomoran upstream. applicationId-nya
+        // berbeda, jadi ini app yang berbeda di mata Android — tidak ada pengguna yang bisa
+        // "meng-upgrade" dari 1.2.11 upstream ke sini, dan berpura-pura melanjutkannya cuma
+        // membuat riwayat versinya berbohong.
+        versionCode 1
+        versionName "0.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +20,35 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Penandatanganan rilis dibaca dari ENVIRONMENT, bukan dari berkas di repo.
+    //
+    // Kunci privat Android tidak boleh pernah masuk git: siapa pun yang memilikinya bisa
+    // menerbitkan pembaruan yang dipasang di atas app orang. Nilainya datang dari GitHub
+    // Secrets lewat .github/workflows/android.yml, dan dari environment lokal kalau seseorang
+    // membangun rilis di mesinnya.
+    //
+    // Kalau tidak ada, blok ini TIDAK dibuat sama sekali dan `assembleRelease` menghasilkan APK
+    // tak bertanda tangan. Itu jelas dan berisik saat dipasang, jauh lebih baik daripada
+    // diam-diam memakai kunci debug yang menyamar sebagai rilis.
+    signingConfigs {
+        release {
+            def storePath = System.getenv('KEYSTORE_PATH')
+            if (storePath && file(storePath).exists()) {
+                storeFile file(storePath)
+                storePassword System.getenv('KEYSTORE_PASSWORD')
+                keyAlias System.getenv('KEY_ALIAS')
+                keyPassword System.getenv('KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            def storePath = System.getenv('KEYSTORE_PATH')
+            if (storePath && file(storePath).exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

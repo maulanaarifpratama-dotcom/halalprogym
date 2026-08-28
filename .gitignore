@@ -12,6 +12,26 @@ data/
 .env.*
 !.env.example
 
+# KUNCI PENANDATANGANAN ANDROID — tidak pernah masuk git.
+#
+# Siapa pun yang memiliki berkas ini bisa menerbitkan pembaruan yang dipasang DI ATAS app
+# orang. Dan berbeda dari kredensial lain, dia tidak bisa dirotasi: Android mengikat identitas
+# app ke tanda tangannya, jadi kunci yang bocor tidak bisa diganti tanpa memaksa setiap
+# pengguna uninstall dan kehilangan datanya.
+#
+# Repo ini publik (AGPL), jadi satu commit yang salah langsung mengeksposnya selamanya.
+*.jks
+*.keystore
+keystore.properties
+frontend/android/key.properties
+
+# Keluaran build Android
+frontend/android/app/build/
+frontend/android/build/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/src/main/assets/public/
+
 # Build output / deps
 frontend/dist/
 node_modules/

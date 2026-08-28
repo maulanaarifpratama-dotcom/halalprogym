@@ -1,5 +1,12 @@
 // Cari kunci terjemahan yang mati karena STRING SUMBERNYA DIEDIT.
 //
+// CATATAN JUJUR: separuh berkas ini pernah ada. `scripts/check-source-strings.mjs` sudah
+// mengumpulkan literal `t()` dan melaporkan yang tidak dipunyai pack mana pun, dan saya
+// membangunnya ulang tanpa melihat dulu. Yang ini superset-nya — dia juga menutup template
+// `why:`, nilai katalog, dan drift dari edit string sumber, dan dia MENGGAGALKAN build alih-alih
+// cuma melaporkan — jadi yang lama dicabut. Dua checker dengan tujuan bertindihan selalu
+// berakhir dengan satu yang tidak ada yang menjalankan.
+//
 // Kenapa ini butuh skrip sendiri, padahal sudah ada scripts/check-locales.mjs:
 // checker itu membandingkan pack lawan pack. Kalau sebuah kunci mati di ke-12 pack sekaligus —
 // dan itu yang terjadi saat string sumber diedit — ke-12 pack tetap "sinkron" sambil sama-sama

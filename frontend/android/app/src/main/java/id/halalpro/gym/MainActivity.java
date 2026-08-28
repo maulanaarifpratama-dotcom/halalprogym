@@ -1,4 +1,4 @@
-package ch.duartesantos.opengym;
+package id.halalpro.gym;
 
 import com.getcapacitor.BridgeActivity;
 
