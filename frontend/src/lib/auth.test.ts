@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { displayName, looksLikeEmail, toAppUser } from './auth.js'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { displayName, looksLikeEmail, redirectTo, toAppUser } from './auth.js'
+import { NATIVE_REDIRECT } from './oauth.js'
 
 describe('displayName', () => {
   it('memakai nama dari provider kalau ada', () => {
@@ -53,6 +54,52 @@ describe('toAppUser', () => {
     const u = toAppUser({ id: 'u1' })
     expect(u?.email).toBe(null)
     expect(JSON.parse(JSON.stringify(u))).toHaveProperty('email', null)
+  })
+})
+
+describe('redirectTo — alamat kembali setelah masuk', () => {
+  // `MOBILE` dibaca dari import.meta.env saat modulnya diimpor, jadi cabang native cuma bisa
+  // diuji dengan mengimpor ulang di bawah env yang berbeda. Itu memang cara satu-satunya, dan
+  // cabang ini terlalu penting untuk dibiarkan tak teruji: dia yang menentukan apakah APK punya
+  // jalan masuk sama sekali.
+  afterEach(() => { vi.unstubAllEnvs(); vi.resetModules() })
+
+  it('di web memakai origin apa adanya', () => {
+    // Environment tesnya node, jadi `window` dipalsukan — dan itu justru menegaskan bentuknya:
+    // yang dikirim ke Supabase adalah origin, tanpa path, satu per lingkungan.
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true, value: { location: { origin: 'https://gym.halalpro.id' } },
+    })
+    try {
+      expect(redirectTo()).toBe('https://gym.halalpro.id')
+    } finally {
+      Reflect.deleteProperty(globalThis, 'window')
+    }
+  })
+
+  it('tanpa window sama sekali mengembalikan string kosong, bukan melempar', () => {
+    // Berkas ini diimpor dari tes dan skrip Node. Melempar di sana berarti gate yang merah
+    // karena alasan yang tidak ada hubungannya dengan auth.
+    expect(redirectTo()).toBe('')
+  })
+
+  it('di native memakai DEEP LINK, bukan origin WebView', async () => {
+    // Origin WebView Capacitor adalah https://localhost. Mengirimnya sebagai alamat kembali
+    // berarti tautan magic link dibuka di Chrome, dan Chrome tidak menemukan apa pun — orang
+    // menatap halaman error sementara app-nya tetap tamu.
+    vi.stubEnv('VITE_MOBILE', '1')
+    vi.resetModules()
+    const { redirectTo: nativeRedirect } = await import('./auth.js')
+    expect(nativeRedirect()).toBe(NATIVE_REDIRECT)
+    expect(nativeRedirect()).not.toContain('localhost')
+  })
+
+  it('alamat native TIDAK berskema http/https', async () => {
+    // Kalau dia http(s), dia bukan deep link, dan Android tidak akan pernah mengantarnya ke app.
+    vi.stubEnv('VITE_MOBILE', '1')
+    vi.resetModules()
+    const { redirectTo: nativeRedirect } = await import('./auth.js')
+    expect(nativeRedirect().startsWith('http')).toBe(false)
   })
 })
 

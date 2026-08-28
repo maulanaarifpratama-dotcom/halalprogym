@@ -4,7 +4,8 @@ import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { bindUI } from './components/ui.jsx'
 import { ACCENTS } from './lib/format.js'
-import { setLang, useLang } from './lib/i18n.js'
+import { setLang, t, useLang } from './lib/i18n.js'
+import { listenForOAuthCallback } from './lib/auth.js'
 import { setNav } from './lib/nav.js'
 import { initBackButton } from './lib/back.js'
 import { useWakeLock } from './lib/wakelock.js'
@@ -115,6 +116,16 @@ export default function App() {
   useEffect(() => {
     let stop = null, gone = false
     initBackButton().then(fn => { if (gone) fn(); else stop = fn })
+    return () => { gone = true; stop?.() }
+  }, [])
+  // Deep link masuk — dari Google MAUPUN dari magic link. Dipasang di App, bukan di layar masuk:
+  // deep link-nya tiba setelah orang keluar dari app ke browser sistem, dan Android bisa
+  // membangunkan app di layar mana pun. Pendengar yang cuma hidup di layar masuk akan melewatkan
+  // callback-nya, dan orang kembali ke app yang tetap tamu tanpa pesan apa pun.
+  useEffect(() => {
+    let stop = null, gone = false
+    listenForOAuthCallback(reason => useUI.getState().toast(reason || t('Sign-in failed')))
+      .then(fn => { if (gone) fn(); else stop = fn })
     return () => { gone = true; stop?.() }
   }, [])
   return <HashRouter><Shell /></HashRouter>

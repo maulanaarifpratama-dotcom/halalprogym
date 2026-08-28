@@ -45,7 +45,12 @@ localStorage. Itu jalur yang didukung, bukan mode darurat.
 
 1. **Supabase → Authentication → URL Configuration**: tambahkan domain Vercel ke Redirect URLs.
    Tanpa itu, masuk dengan Google akan mengembalikan orang ke tempat yang salah.
-2. Buka app-nya, matikan jaringan di devtools, muat ulang. Harus tetap terbuka — kalau tidak,
+2. **Di daftar Redirect URLs yang sama, tambahkan juga `id.halalpro.gym://auth-callback`.**
+   Ini alamat kembali untuk APK, dan dia dipakai OLEH KEDUA jalur masuk — Google maupun magic
+   link. Kalau tidak didaftarkan, Supabase menolak redirect-nya dan mengembalikan orang ke Site
+   URL: mereka berakhir masuk di versi WEB, sementara app-nya tetap tamu. Tidak ada pesan error
+   di mana pun, dan itu yang membuatnya mahal untuk didiagnosis nanti.
+3. Buka app-nya, matikan jaringan di devtools, muat ulang. Harus tetap terbuka — kalau tidak,
    service worker-nya tidak terdaftar (dia butuh HTTPS, dan Vercel sudah HTTPS).
 
 ## Preview deployment
@@ -56,6 +61,31 @@ link berbasis redirect, dan URL redirect-nya bisa didaftarkan per lingkungan.
 Ini juga **alasan passkey dicabut**: passkey terikat RP_ID, yaitu domainnya, jadi passkey yang
 dibuat di produksi tidak berlaku di preview — artinya alur masuk tidak bisa diuji di tempat yang
 justru dipakai untuk mengujinya.
+
+## Masuk dari APK — kenapa dia butuh jalurnya sendiri
+
+Dua jalur masuk di APK **sama-sama tidak berfungsi** sampai 2026-08-28, dan sebabnya berbeda:
+
+| Jalur | Kenapa buntu |
+| --- | --- |
+| Google | Google MEMBLOKIR OAuth di WebView tersemat (`disallowed_useragent`). Tombolnya mengantar orang ke halaman penolakan Google. |
+| Magic link | Alamat kembalinya `window.location.origin`, dan di WebView Capacitor itu `https://localhost`. Tautan dari email dibuka di Chrome, Chrome tidak menemukan apa pun. |
+
+Perbaikannya satu: **alamat kembali di build native adalah deep link `id.halalpro.gym://auth-callback`.**
+Persetujuan Google dibuka di browser SISTEM (`@capacitor/browser`) supaya user agent-nya asli,
+dan keduanya kembali lewat deep link yang sama. Logikanya di `frontend/src/lib/oauth.ts` (murni,
+bertes) dan `lib/auth.ts`; intent-filter-nya di `AndroidManifest.xml`, dan dia **tidak ada** di
+manifest sebelumnya — `custom_url_scheme` ada di `strings.xml`, tapi tidak ada yang membacanya.
+
+Yang harus benar di tiga tempat sekaligus, dan dijaga `oauth.test.ts`: `appId` di
+`capacitor.config.json`, `custom_url_scheme` di `strings.xml`, dan `DEEP_LINK_SCHEME` di
+`lib/oauth.ts`. Kalau satu menyimpang, Android mengantar deep link ke skema yang tidak ada
+penerimanya dan alur masuk berhenti tanpa pesan apa pun.
+
+**Belum diuji di perangkat.** Seluruh keputusan dan pembacaan URL-nya bertes, tapi
+browser-sistem-lalu-deep-link hanya bisa dibuktikan dengan APK di HP sungguhan. Yang harus
+dicoba: ketuk Google → Chrome terbuka → setujui → kembali ke app sudah masuk; lalu ulangi untuk
+magic link.
 
 # APK Android
 

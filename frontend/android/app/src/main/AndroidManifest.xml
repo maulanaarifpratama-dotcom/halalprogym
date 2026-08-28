@@ -18,6 +18,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- Deep link masuk-dengan-Google. TANPA blok ini, `custom_url_scheme` di
+                 strings.xml tidak dibaca siapa pun, dan alur masuk berhenti tanpa pesan:
+                 browser sistem menampilkan halaman kosong dan app tidak pernah tahu ada yang
+                 terjadi. Google memblokir OAuth di WebView tersemat, jadi persetujuannya HARUS
+                 dibuka di browser sistem, dan ini satu-satunya jalan kembali.
+                 Lihat frontend/src/lib/oauth.ts; skema dan host dipaku oauth.test.ts. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/custom_url_scheme" />
+            </intent-filter>
         </activity>
 
         <provider

@@ -185,6 +185,7 @@ Dipasang 2026-08-28 setelah user memberi izin eksplisit atas titik berhenti ini.
   sinyal tidak boleh dibuang. Ambang toleransi jam 60 detik.
 - **Auth: Google + magic link.** Passkey dicabut — dia terikat RP_ID, jadi tidak berlaku di
   preview deployment Vercel dan mustahil dari WebView APK.
+- **Di APK, alamat kembali auth adalah DEEP LINK, bukan origin WebView** — lihat bagian di bawah.
 - **`active` tidak pernah disinkronkan.** Dikosongkan di `stateForPush`, bukan di pemanggilnya.
 
 **Migration diterapkan MANUAL.** `supabase link --project-ref ljhawtubkynxwcaaqcpo` lalu
@@ -199,6 +200,57 @@ tertulis di dokumen ini: `useUI.js` memanggil `/api/push/rest-timer` (aturan #2)
 **App jalan penuh TANPA kredensial**, dalam mode tamu. Itu jalur yang didukung, bukan mode
 darurat: `supa()` mengembalikan null, boot masuk sebagai tamu, dan Pengaturan mengatakannya.
 `npm run dev` tanpa `.env.local` memang harus membuka app yang berfungsi.
+
+## Masuk dari APK — dua jalur yang sama-sama buntu, satu perbaikan
+
+Diperbaiki 2026-08-28. Sebelum itu, **APK tidak punya satu pun jalan masuk yang berfungsi** —
+bukan satu, seperti yang dulu tertulis di kepala `lib/auth.ts`.
+
+| Jalur | Kenapa buntu |
+| --- | --- |
+| Google | Google MEMBLOKIR OAuth di WebView tersemat (`disallowed_useragent`, kebijakan sejak 2016). Tombolnya mengantar orang ke halaman penolakan Google. |
+| Magic link | Alamat kembalinya `window.location.origin`, dan di WebView Capacitor itu `https://localhost`. Tautan dari email dibuka di Chrome, dan Chrome tidak menemukan apa pun. |
+
+Yang kedua ketemu justru saat memperbaiki yang pertama, dan itu pelajarannya: dokumen ini
+menyatakan "magic link tetap bekerja di WebView" dengan penuh percaya diri, dan yang benar adalah
+**pengirimannya** bekerja, bukan **kembalinya**. Klaim tentang jalur yang tidak pernah dijalankan
+di perangkat sungguhan harus diperiksa, bukan diwarisi.
+
+**Satu perbaikan menyembuhkan keduanya:** di build native `redirectTo()` mengembalikan deep link
+`id.halalpro.gym://auth-callback`, dan keduanya kembali lewat pintu yang sama. Persetujuan Google
+dibuka di browser SISTEM (`@capacitor/browser`, `skipBrowserRedirect: true`) supaya user agent-nya
+asli — kalau klien Supabase yang meredirect, WebView-nya yang jalan dan kita kembali ke masalah
+semula.
+
+**`AndroidManifest.xml` TIDAK punya intent-filter deep link sama sekali** sampai perbaikan ini.
+`custom_url_scheme` sudah ada di `strings.xml` sejak awal, tapi tidak ada yang membacanya — jadi
+deep link-nya bukan "belum dipakai", dia memang tidak berfungsi. Ini kelas kesalahan yang sama
+dengan `applicationId` upstream yang bertahan berbulan-bulan: berkas di `android/` tidak dibaca
+`npm run build`, tidak ditulis ulang `cap sync`, dan tidak disentuh satu tes pun.
+
+**Tiga tempat, satu nilai**, dipaku `oauth.test.ts`: `appId` di `capacitor.config.json`,
+`custom_url_scheme` di `strings.xml`, `DEEP_LINK_SCHEME` di `lib/oauth.ts`. Kalau satu menyimpang,
+Android mengantar deep link ke skema yang tidak ada penerimanya dan alur masuk berhenti **tanpa
+pesan apa pun**.
+
+**Deep link adalah DATA YANG TIDAK DIPERCAYA.** `parseCallback` menolak skema DAN host yang tidak
+cocok, karena pendengar `appUrlOpen` menerima setiap deep link yang dibuka ke app — dan menukar
+"kode" dari URL sembarang berarti menyerahkan alur masuk ke siapa pun yang bisa membuat tautan.
+`https://auth-callback?code=...` punya host yang sama dan datang dari tautan web mana pun.
+
+**Pendengarnya dipasang di `App.jsx`, bukan di layar masuk.** Deep link tiba setelah orang keluar
+dari app ke browser sistem, dan Android bisa membangunkan app di layar mana pun.
+
+**Tidak ada callback sukses**, dan itu disengaja: pertukaran yang berhasil memicu `SIGNED_IN`, dan
+store sudah mendengarkannya. Melaporkan sukses dari pendengar juga berarti `onSignedIn` jalan dua
+kali — dua `pullState()` yang berlomba atas state yang sama.
+
+**`id.halalpro.gym://auth-callback` WAJIB didaftarkan** di Supabase → Authentication → URL
+Configuration → Redirect URLs. Tanpa itu Supabase mengembalikan orang ke Site URL: mereka masuk di
+versi web sementara app-nya tetap tamu, tanpa pesan error di mana pun. Ada di `docs/DEPLOY.md`.
+
+**BELUM DIUJI DI PERANGKAT.** Keputusan jalur dan pembacaan URL-nya bertes (15 tes), tapi
+browser-sistem-lalu-deep-link cuma bisa dibuktikan dengan APK di HP sungguhan.
 
 ## Catatan makan — dan kenapa TIDAK ADA database makanan bawaan
 
@@ -358,7 +410,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 831 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 850 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
