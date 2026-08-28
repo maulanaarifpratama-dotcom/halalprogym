@@ -62,6 +62,28 @@ Ini juga **alasan passkey dicabut**: passkey terikat RP_ID, yaitu domainnya, jad
 dibuat di produksi tidak berlaku di preview — artinya alur masuk tidak bisa diuji di tempat yang
 justru dipakai untuk mengujinya.
 
+## APK membawa foto gerakannya sendiri
+
+`npm run build:mobile` mengunduh 640 foto demo (**39 MB**) ke `frontend/media-cache/`, lalu
+menyalinnya ke `dist/demo/` setelah build. APK jadi sekitar 39 MB lebih besar, dan yang dibeli
+adalah demo gerakan yang tetap ada di basement gym tanpa sinyal.
+
+Kenapa APK butuh ini sementara web tidak: build native sengaja tidak mendaftarkan service worker,
+jadi tidak ada cache foto yang kita kendalikan dan `prefetchMedia` tidak melakukan apa pun. Tanpa
+bundel, setiap foto butuh jaringan setiap kali.
+
+Unduhannya menambah ~3 menit ke workflow dan **gagal keras** kalau ada bingkai yang tidak
+terambil — bingkai hilang tampil sebagai gambar rusak, bukan sebagai diagram otot, karena
+`hasDemo` sudah mengatakan fotonya ada.
+
+**Kalau APK-nya harus lebih kecil:** bangun tanpa `VITE_DEMO_BASE`. Foto kembali datang dari CDN
+jsDelivr, APK-nya ~11 MB, dan offline untuk foto hilang. Itu pertukaran yang sah, tapi harus
+disengaja.
+
+Cache-nya **di luar `public/`** dengan sengaja: Vite menyalin `public/` ke `dist/` di setiap
+build, jadi di sana build web ikut membawa 39 MB yang tidak dipakai — terukur, `dist` jadi 49 MB
+alih-alih 11 MB.
+
 ## Masuk dari APK — kenapa dia butuh jalurnya sendiri
 
 Dua jalur masuk di APK **sama-sama tidak berfungsi** sampai 2026-08-28, dan sebabnya berbeda:

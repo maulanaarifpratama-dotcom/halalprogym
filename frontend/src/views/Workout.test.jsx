@@ -52,6 +52,16 @@ vi.mock('../sheets.jsx', () => ({
   sessionNoteSheet: vi.fn(),
 }))
 vi.mock('../components/Media.jsx', () => ({ default: () => null }))
+// PrayerPause DIMOCK, dan ini bukan kerapian — tanpa mock ini berkas tes ini bergantung pada JAM
+// DINDING SUNGGUHAN dan merah lima kali sehari.
+//
+// Workout.jsx merender <PrayerPause />, dan komponen itu memanggil stopRest() begitu satu waktu
+// salat masuk. Itu perilaku produksi yang benar (jeda otomatis saat waktu salat di tengah sesi),
+// tapi tes ini tentang logika istirahat setelah set — dan assertion "stopRest tidak dipanggil"
+// jadi salah kapan pun tes dijalankan di sekitar Subuh, Zuhur, Asar, Magrib, atau Isya di
+// Jakarta. Ditemukan dengan cara yang paling tidak menyenangkan: hijau jam 15:11, merah jam
+// 15:17, dan Asar hari itu tepat 15:17.
+vi.mock('../components/PrayerPause.jsx', () => ({ default: () => null }))
 // api.js reads navigator.userAgent at module scope. This file installs its own DOM inside the
 // tests rather than declaring a vitest environment, so it must not depend on an ambient one.
 

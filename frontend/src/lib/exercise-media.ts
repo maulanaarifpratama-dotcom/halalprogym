@@ -44,11 +44,27 @@ export const FEDB_COMMIT = 'b0eed061e1c832b3ed815fbaa4b45b3cdc14df49'
 const CDN = `https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@${FEDB_COMMIT}/exercises/`
 
 /**
- * Basis media bisa di-override saat build. Dua kegunaannya nyata: build mobile yang membundel
- * gambarnya sendiri (jadi APK tidak butuh jaringan), dan yang self-host di belakang jaringan
- * tanpa akses CDN.
+ * Membakukan basis media agar bisa disambung langsung ke jalur bingkai.
+ *
+ * Satu garis miring yang hilang di `VITE_DEMO_BASE` berarti `demoBench_Press/0.jpg` — dan
+ * kegagalannya SUNYI: tidak ada error, tidak ada peringatan build, cuma app yang menampilkan
+ * nol foto gerakan sementara `hasDemo` tetap bilang fotonya ada. Diperbaiki di sini, bukan
+ * diserahkan ke siapa pun yang menyetel variabelnya nanti.
  */
-const BASE = ENV.VITE_DEMO_BASE || CDN
+export const normalizeBase = (base: string): string =>
+  (base && !base.endsWith('/') ? base + '/' : base)
+
+/**
+ * Basis media bisa di-override saat build. Dua kegunaannya nyata, dan keduanya dipakai:
+ *
+ * - **Build mobile membundel fotonya sendiri**, jadi APK tidak butuh jaringan. Ini bukan
+ *   kenyamanan: di build native `main.jsx` sengaja tidak mendaftarkan service worker, jadi tidak
+ *   ada cache foto yang kita kendalikan dan `prefetchMedia` diam-diam tidak melakukan apa pun.
+ *   Tanpa bundel, setiap foto butuh jaringan setiap kali — di kendaraan yang justru jalur utama
+ *   produk ini. Diisi `scripts/fetch-demo-media.mjs`, dipanggil `npm run build:mobile`.
+ * - Yang self-host di belakang jaringan tanpa akses CDN.
+ */
+const BASE = normalizeBase(ENV.VITE_DEMO_BASE || CDN)
 
 const FRAMES = MAP as Record<string, string[] | undefined>
 

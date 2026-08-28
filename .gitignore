@@ -32,6 +32,13 @@ frontend/android/.gradle/
 frontend/android/local.properties
 frontend/android/app/src/main/assets/public/
 
+# Foto demo gerakan yang diunduh untuk APK (scripts/fetch-demo-media.mjs). Lisensinya
+# Unlicense jadi boleh di-commit, tapi 39 MB biner di git berarti setiap clone membayarnya
+# selamanya. Diunduh saat build. SENGAJA di luar public/: Vite menyalin public/ ke dist/ di
+# SETIAP build, jadi di sana build WEB ikut membawa 39 MB yang tidak dipakai sama sekali —
+# terukur, dist jadi 49 MB, dan itu terkirim ke Vercel tiap deploy.
+frontend/media-cache/
+
 # Build output / deps
 frontend/dist/
 node_modules/

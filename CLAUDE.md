@@ -48,9 +48,14 @@ naikkan lewat alias yang diperiksa manusia — jangan lewat skor.
 Latihan tanpa foto mendapat **diagram otot MuscleMap** (`components/ExerciseAnatomy.jsx`), bukan
 kotak kosong. Itu license-clean, dan menjawab pertanyaan yang berbeda: otot mana yang dikerjakan.
 
-Commit free-exercise-db **di-pin** di dua tempat yang harus tetap sama:
-`scripts/build-exercise-media.mjs` dan `lib/exercise-media.ts`. Kalau dinaikkan, jalankan
-`node scripts/build-exercise-media.mjs --report` dan **periksa mata** kecocokan yang tidak identik.
+Commit free-exercise-db **di-pin**, dan harus tetap satu nilai di semua tempat:
+`scripts/build-exercise-media.mjs` (akar repo) dan `lib/exercise-media.ts`. Tempat ketiga,
+`frontend/scripts/fetch-demo-media.mjs`, sengaja **MEMBACANYA** dari `lib/exercise-media.ts`
+alih-alih menyimpan salinannya — cara terbaik menjaga tiga tempat tetap sinkron adalah membuat
+salah satunya bukan tempat penyimpanan. Kalau satu menyimpang, peta menunjuk satu commit dan foto
+datang dari commit lain: yang muncul di layar adalah **gerakan yang salah**, tanpa error. Dijaga
+`exercise-media.test.ts`. Kalau dinaikkan, jalankan `node scripts/build-exercise-media.mjs
+--report` dan **periksa mata** kecocokan yang tidak identik.
 
 ## Stack
 
@@ -88,6 +93,16 @@ Yang membuat aturan ini benar-benar berlaku, bukan cuma tertulis:
   tanpa sinyal app ini menampilkan **nol foto gerakan**.
 - **`lib/prefetch.ts` menyiapkan foto rencana HARI INI** selagi masih di wifi. Cache yang diisi
   saat dibutuhkan selalu terlambat satu langkah. Ditahan di koneksi hemat-data dan 2g.
+- **APK MEMBUNDEL fotonya sendiri** (`scripts/fetch-demo-media.mjs`, dipanggil `build:mobile`).
+  Dua butir di atas cuma berlaku di web: build native sengaja TIDAK mendaftarkan service worker —
+  benar, karena shell-nya sudah dari disk — tapi akibat sampingannya tidak pernah ditutup. Tanpa
+  service worker tidak ada cache foto yang kita kendalikan, dan `prefetchMedia` diam-diam tidak
+  melakukan apa pun karena tidak ada registrasi untuk dikirimi pesan. Jadi di APK setiap foto
+  butuh jaringan setiap kali, di kendaraan yang justru >90% pasar sasaran. Harganya **diukur, 39
+  MB** — bukan 25 MB seperti perkiraan pertama dari 8 sampel. Cache-nya di `media-cache/`, **di
+  luar `public/`**: Vite menyalin `public/` ke `dist/` di SETIAP build, dan di sana build web ikut
+  membawa 39 MB yang tidak dipakai (terukur: 49 MB alih-alih 11 MB, terkirim ke Vercel tiap
+  deploy). Itu sempat terjadi, dan cuma ketangkap karena ukurannya diukur.
 
 **2. Rest timer TIDAK PAKAI server push.** Timer lokal + Capacitor local notification.
 Upstream memakai `setTimeout` di server (`api/server.js:172`) — itu mustahil di Vercel serverless
@@ -410,7 +425,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 850 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 868 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -468,6 +483,15 @@ bohong dan membuat baris itu tampak sudah diputuskan padahal belum. Kalau Inggri
 kuncinya tidak diisi dan daftarkan di `ID_KEEPS_ENGLISH`.
 
 ## Aturan tes yang diwarisi dan tetap berlaku
+
+**Tes TIDAK BOLEH bergantung pada jam dinding.** `Workout.test.jsx` hijau berbulan-bulan lalu
+merah tanpa satu baris kode berubah: hijau 15:11, merah 15:17, dan Asar hari itu tepat 15:17.
+`Workout.jsx` merender `<PrayerPause />`, komponen itu membaca `new Date()` dan memanggil
+`stopRest()` saat waktu salat masuk — perilaku produksi yang BENAR, dan assertion "stopRest tidak
+dipanggil" yang jadi salah lima kali sehari. Ini kelas kegagalan paling mahal di sini karena
+bentuknya CI merah tanpa sebab yang bisa direproduksi: orang menekan re-run, hijau, pelajarannya
+hilang. Dipaku `no-wallclock-tests.test.ts`, yang menuntut setiap tes yang merender `Workout`
+mematikan `PrayerPause` — kelasnya, bukan dua kasusnya.
 
 Apa pun yang **memutuskan beban berikutnya** atau **membaca balik sesi yang sudah dilog** = pure
 helper di `lib/` dengan unit test di sebelahnya. Bukan diverifikasi dengan klik-klik. Mesin

@@ -75,8 +75,20 @@ jobs:
       - run: npm run verify
         working-directory: frontend
 
-      # VITE_MOBILE=1: build native tidak mendaftarkan service worker (shell-nya sudah menyajikan
-      # semuanya dari disk) dan tidak menawarkan "Tambahkan ke layar utama".
+      # `build:mobile` mengurus tiga hal berurutan, dan urutannya bukan selera:
+      #   1. `media:demo` mengunduh 640 foto demo gerakan (39 MB) ke media-cache/
+      #   2. build dengan VITE_MOBILE=1 (tidak mendaftarkan service worker — shell-nya sudah
+      #      disajikan dari disk — dan tidak menawarkan "Tambahkan ke layar utama") dan
+      #      VITE_DEMO_BASE=demo/ supaya foto dibaca dari dalam APK, bukan dari CDN
+      #   3. `media:demo:emit` menyalin cache ke dist/demo/ SETELAH vite build mengosongkan dist
+      #
+      # Tanpa langkah 1 dan 3, setiap foto gerakan butuh jaringan setiap kali: build native
+      # sengaja tidak punya service worker, jadi tidak ada cache foto yang kita kendalikan.
+      # Itu aturan #1 CLAUDE.md yang bolong tepat di kendaraan utama produk ini.
+      #
+      # Unduhannya menambah ~3 menit dan GAGAL KERAS kalau ada bingkai yang tidak terambil:
+      # bingkai hilang tampil sebagai gambar rusak, bukan sebagai diagram otot, karena `hasDemo`
+      # sudah mengatakan fotonya ada.
       - run: npm run build:mobile
         working-directory: frontend
         env:

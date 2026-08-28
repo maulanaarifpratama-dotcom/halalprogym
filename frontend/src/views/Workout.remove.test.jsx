@@ -8,6 +8,11 @@ import { DEF, useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
 
 vi.mock('../lib/sound.js', () => ({ beep: vi.fn(), vibrate: vi.fn() }))
+// Sama alasannya dengan Workout.test.jsx: Workout.jsx merender <PrayerPause />, dan komponen itu
+// membaca jam sungguhan lalu memanggil stopRest() saat waktu salat masuk. Berkas ini tidak
+// memeriksa stopRest, tapi banner-nya ikut menambah tombol ke DOM yang di-query tes ini — jadi
+// kerentanannya sama, cuma belum kebetulan meledak. Ditutup di kelasnya, bukan per kasus.
+vi.mock('../components/PrayerPause.jsx', () => ({ default: () => null }))
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 const clone = value => JSON.parse(JSON.stringify(value))
