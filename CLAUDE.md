@@ -442,7 +442,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 897 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 918 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -465,6 +465,16 @@ semuanya lahir dari bug yang benar-benar lolos ke layar.
 | `npm run check:names` | Apakah setiap nama yang dipakai benar-benar ada? | **Layar Pengaturan MATI TOTAL** — `CITIES` dipakai tanpa pernah diimpor. Dan `onExercise` di Stats dipanggil tanpa pernah dikirim: ketukan pertama melempar ReferenceError. |
 | `npm run check:locales` | Apakah 13 pack membawa kunci yang sama? | — |
 | `npm run check:locale-keys` | Apakah setiap kunci terjemahan masih menunjuk teks yang ada, dan setiap nilai katalog punya terjemahan? | `full body` tampil Inggris di **13 bahasa** selama berbulan-bulan. |
+
+**Dan ada lapis kelima yang bukan checker: `views/smoke.test.jsx`.** Dia me-mount SETIAP rute,
+dua kali — keadaan pemasangan baru (`DEF` apa adanya) dan keadaan terisi — dan menuntut nol
+lemparan, nol `console.error`, dan bukan layar kosong. Alasannya: `check:names` cuma bisa melihat
+NAMA. Dia tidak bisa melihat `S.bodyweight[0].w` atas array kosong, dan itu tetap TypeError di
+layar orang. Dibuktikan: menyisipkan baris itu ke Stats membuat `check:names` DAN `typecheck`
+tetap hijau, sementara smoke test merah. Keadaan pemasangan baru disebut lebih dulu dengan
+sengaja — itu yang dilihat setiap pengguna baru, dan yang paling jarang dijalankan saat
+mengembangkan karena mesin pengembang selalu punya data. Ada juga penjaga yang menuntut setiap
+rute baru di `App.jsx` masuk ke daftarnya, dibaca dari sumber.
 
 **`check:names` ada karena `checkJs: false`.** `allowJs: true` + `checkJs: false` itu keputusan
 yang benar — menyalakan `checkJs` sekarang menghasilkan 2.365 error yang hampir semuanya
