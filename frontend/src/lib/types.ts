@@ -138,10 +138,10 @@ export interface ActiveEntry extends WorkoutEntry {
 /**
  * Satu latihan dari katalog (1.324 bawaan) atau buatan user.
  *
- * `bp` = body part, `tg` = target, `eq` = equipment, `sm` = secondary muscles,
- * `st` = langkah instruksi. Nama sependek itu berasal dari dataset asalnya dan dipertahankan
- * karena dia terulang 1.324 kali di berkas data 888 KB — memanjangkannya menambah ukuran
- * bundle tanpa menambah kejelasan di tempat yang benar-benar dibaca orang.
+ * `bp` = body part, `tg` = target, `eq` = equipment, `sm` = secondary muscles. Nama sependek
+ * itu berasal dari dataset asalnya dan dipertahankan karena dia terulang 1.324 kali di berkas
+ * data — memanjangkannya menambah ukuran bundle tanpa menambah kejelasan di tempat yang
+ * benar-benar dibaca orang.
  */
 export interface Exercise {
   id: string
@@ -150,7 +150,15 @@ export interface Exercise {
   tg: string
   eq: string
   sm: string[]
-  st: string[]
+  /**
+   * Langkah instruksi. **Opsional, dan katalog tidak lagi membawanya.**
+   *
+   * Instruksi 1.324 latihan dipindah ke `lib/exercises-instructions.js` dan dimuat saat sheet
+   * detail dibuka — 626 KB yang cuma dibaca di satu layar tidak boleh ikut di muat pertama.
+   * Yang masih memakai field ini: latihan buatan pengguna, yang memang menyimpan langkahnya di
+   * objeknya sendiri. Lihat `instrFor` di lib/i18n-core.js untuk urutan pencariannya.
+   */
+  st?: string[]
   /** Ditandai true untuk id yang tidak ada di katalog — placeholder, bukan latihan. */
   missing?: boolean
 }

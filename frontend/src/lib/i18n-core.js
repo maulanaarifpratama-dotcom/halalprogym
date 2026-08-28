@@ -35,8 +35,41 @@ export function t(s, ...args) {
   return v
 }
 
-// Instructions for an exercise in the current language (English steps as fallback).
-export const instrFor = ex => (instr && instr[ex.id]) || ex.st || []
+// Langkah instruksi bahasa Inggris, dimuat saat dibutuhkan. Lihat loadBaseInstructions.
+let baseInstr = null
+let baseInstrP = null
+
+/**
+ * Memuat instruksi bahasa Inggris (626 KB) sekali, di luar muat pertama.
+ *
+ * Dulu instruksinya menempel di tiap latihan sebagai field `st`, jadi seluruh app menunggu
+ * 867 KB untuk memakai 180 KB — dan yang 71%-nya cuma dibaca saat seseorang membuka detail
+ * SATU latihan. Sekarang dia berkas sendiri, diminta saat sheet-nya dibuka.
+ *
+ * Kegagalannya diam: instruksi yang tidak termuat berarti daftar kosong, bukan layar yang mati.
+ * Nama, otot, dan alat latihannya tetap tampil, dan itu yang paling sering dicari orang.
+ */
+export function loadBaseInstructions() {
+  if (baseInstr) return Promise.resolve(baseInstr)
+  if (!baseInstrP) {
+    baseInstrP = import('./exercises-instructions.js')
+      .then(m => { baseInstr = m.default || {}; version++; return baseInstr })
+      .catch(() => { baseInstrP = null; return {} })
+  }
+  return baseInstrP
+}
+
+/**
+ * Instruksi untuk satu latihan dalam bahasa yang aktif.
+ *
+ * Urutannya: terjemahan bahasa itu, lalu bahasa Inggris, lalu `ex.st` untuk latihan buatan
+ * pengguna (yang memang menyimpan langkahnya di objeknya sendiri, bukan di katalog).
+ *
+ * Mengembalikan daftar KOSONG kalau berkas Inggrisnya belum termuat. Pemanggil memicu
+ * `loadBaseInstructions()` dan me-render ulang saat selesai.
+ */
+export const instrFor = ex =>
+  (instr && instr[ex.id]) || (baseInstr && baseInstr[ex.id]) || ex.st || []
 
 // Built-in catalogue names are bilingual when a complete translated name pack is active.
 // User-created exercises have no entry in the pack and keep their exact chosen name.

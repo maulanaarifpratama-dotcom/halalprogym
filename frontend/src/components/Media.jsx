@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { imgSrc, gifSrc } from '../lib/exercises.js'
 import { demoFrames } from '../lib/exercise-media.js'
 import { useStore } from '../store/useStore.js'
 import { t, exerciseNameFor } from '../lib/i18n.js'
@@ -11,23 +10,22 @@ import ExerciseAnatomy, { hasAnatomy } from './ExerciseAnatomy.jsx'
 //
 // TIGA TINGKAT, urut dari yang paling spesifik:
 //
-//   1. VITE_DEMO_BASE / media lokal kalau VITE_IMG_BASE disetel eksplisit — jalur untuk yang
-//      self-host dengan lisensi medianya sendiri. Tidak aktif secara default.
-//   2. Foto free-exercise-db (Unlicense, domain publik) — dua bingkai, posisi awal dan akhir.
-//      Tap membolak-balik keduanya. Ini yang dipakai 329 latihan.
-//   3. Diagram otot MuscleMap (MIT) untuk sisanya.
+//   1. Foto free-exercise-db (Unlicense, domain publik) — dua bingkai, posisi awal dan akhir.
+//      Tap membolak-balik keduanya. Ini yang dipakai 340 latihan. Basisnya bisa dialihkan lewat
+//      VITE_DEMO_BASE untuk build yang membundel fotonya sendiri (APK tanpa jaringan).
+//   2. Diagram otot MuscleMap (MIT) untuk sisanya.
+//   3. Ikon bagian tubuh plus satu baris ajakan, untuk latihan buatan pengguna yang belum
+//      punya bagian tubuh.
 //
-// Tingkat 3 bukan keadaan error, dan penting untuk tidak memperlakukannya begitu: dia menjawab
+// Tingkat 2 bukan keadaan error, dan penting untuk tidak memperlakukannya begitu: dia menjawab
 // pertanyaan yang berbeda — otot mana yang dikerjakan — yang justru tidak pernah dijawab foto
 // atau GIF. Lihat ExerciseAnatomy.jsx.
 //
 // Gagal muat di tingkat mana pun jatuh ke tingkat 3. Tidak ada kotak kosong, tidak ada ikon
 // gambar-rusak bawaan browser.
 
-const ENV = (typeof import.meta !== 'undefined' && import.meta.env) || {}
-// Hanya kalau di-set EKSPLISIT saat build. Jalur warisan menunjuk media Gym visual yang tidak
-// kita distribusikan, jadi dia mati kecuali seseorang sengaja menyalakannya.
-const LEGACY_MEDIA = !!ENV.VITE_IMG_BASE
+// Jalur media warisan (© Gym visual, digerbangi VITE_IMG_BASE) sudah dicabut seluruhnya —
+// termasuk nama berkasnya di katalog. Lihat kepala lib/exercises.ts.
 
 /**
  * Ikon cadangan thumbnail, mengikuti BAGIAN TUBUH.
@@ -72,10 +70,9 @@ export default function Media({ ex, id, compact, minimizable }) {
 
   const frames = demoFrames(ex)
   const failed = failedId === ex.id
-  const legacy = LEGACY_MEDIA && ex.gif
 
-  if (!failed && (frames.length > 0 || legacy)) {
-    const srcs = legacy ? [gifSrc(ex), imgSrc(ex)] : frames
+  if (!failed && frames.length > 0) {
+    const srcs = frames
     const shown = srcs[frame % srcs.length]
     const many = srcs.length > 1
     return (
@@ -139,7 +136,7 @@ export function Thumb({ ex }) {
   // bukan cuma saat tidak ada. Tanpa itu setiap baris daftar menampilkan ikon gambar-rusak
   // bawaan browser.
   const frames = demoFrames(ex)
-  const src = frames[0] || (LEGACY_MEDIA && ex.img ? imgSrc(ex) : null)
+  const src = frames[0] || null
   if (!src || failed) {
     return <div className="thumb thumb-x"><Icon name={BP_ICON[ex.bp] || 'dumbbell'} /></div>
   }

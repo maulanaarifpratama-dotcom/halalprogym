@@ -6,12 +6,13 @@
 import { useSyncExternalStore } from 'react'
 import {
   LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES,
-  getLang, dateLocale, t, instrFor, exerciseNameFor, exerciseNameSearchText, getVersion, _setLangState
+  getLang, dateLocale, t, instrFor, loadBaseInstructions, exerciseNameFor, exerciseNameSearchText,
+  getVersion, _setLangState
 } from './i18n-core.js'
 
 export {
   LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES,
-  getLang, dateLocale, t, instrFor, exerciseNameFor, exerciseNameSearchText
+  getLang, dateLocale, t, instrFor, loadBaseInstructions, exerciseNameFor, exerciseNameSearchText
 }
 
 // Vite code-splits locale, instruction and exercise-name packs via import.meta.glob. They are

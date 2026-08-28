@@ -6,7 +6,7 @@ import { activeProfile, exAvailable, ALL_EQUIPMENT, newProfile } from './lib/equ
 import { fmtDate, fmtNum, fmtVol, fmtDur, durPart, todayISO, uid, exCount, DAYN, MONTHS_LONG, ACCENTS } from './lib/format.js'
 import { lastEntryFor, bestWeightFor, buildSets, effectiveRoutineId, workoutVolume, setsDone, setsDoneActive, lastBW, supersetUnits, unitOf, setLabel, defaultConfig, cleanupSg, modeOf, effortOf, isBw, isPerSide, sideReps, workSetsDone, applyIntensifierPlan, MAX_PLANNED_WARMUPS, NOTE_MAX } from './lib/history.js'
 import { beep, vibrate } from './lib/sound.js'
-import { t, instrFor, exerciseNameFor, getLang, INSTR_LANGS } from './lib/i18n.js'
+import { t, instrFor, loadBaseInstructions, exerciseNameFor, getLang, INSTR_LANGS } from './lib/i18n.js'
 import { nav } from './lib/nav.js'
 import { starterRoutines } from './lib/starter.js'
 import Media, { Thumb } from './components/Media.jsx'
@@ -287,6 +287,15 @@ function ExerciseDetail({ ex, close }) {
   const st = useStore(s => s.S)
   const last = lastEntryFor(st, ex.id)
   const best = bestWeightFor(st, ex.id)
+  // Instruksi bahasa Inggris dimuat saat sheet ini dibuka, bukan di muat pertama app: 626 KB
+  // yang cuma dibaca di sini, sementara katalognya dibutuhkan di setiap layar. Sisa sheet-nya
+  // tampil seketika; langkah-langkahnya menyusul beberapa ratus milidetik kemudian.
+  const [steps, setSteps] = useState(() => instrFor(ex))
+  useEffect(() => {
+    let alive = true
+    loadBaseInstructions().then(() => { if (alive) setSteps(instrFor(ex)) })
+    return () => { alive = false }
+  }, [ex])
   return <>
     <h3 className="capitalize">{exerciseNameFor(ex)}</h3>
     <Media ex={ex} />
@@ -304,7 +313,7 @@ function ExerciseDetail({ ex, close }) {
       <Button variant="danger" icon="trash" style={{ flex: 1 }} onClick={() => deleteCustomEx(ex, close)}>{t('Delete')}</Button>
     </div>}
     {!isCardio(ex) && <OneRM ex={ex} />}
-    {instrFor(ex).length > 0 &&<><h4 className="sec">{t('How to')}{!INSTR_LANGS.includes(getLang()) && <span className="dim" style={{ textTransform: 'none', letterSpacing: 0 }}> · {t('instructions in English')}</span>}</h4><ol className="steps-list">{instrFor(ex).map((s, i) => <li key={i}>{s}</li>)}</ol></>}
+    {steps.length > 0 &&<><h4 className="sec">{t('How to')}{!INSTR_LANGS.includes(getLang()) && <span className="dim" style={{ textTransform: 'none', letterSpacing: 0 }}> · {t('instructions in English')}</span>}</h4><ol className="steps-list">{steps.map((s, i) => <li key={i}>{s}</li>)}</ol></>}
   </>
 }
 export const exerciseDetailSheet = ex => ui().openSheet(close => <ExerciseDetail ex={ex} close={close} />)

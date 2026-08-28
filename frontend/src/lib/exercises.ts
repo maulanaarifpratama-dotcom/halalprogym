@@ -145,15 +145,19 @@ export function matchesExerciseSearch(exercise: unknown, query: unknown): boolea
   return searchScore(exercise, query) > 0
 }
 
-// Media normally sits next to the app (img/ and gif/, mounted into the web container).
-// A build can point them somewhere else — the demo build pulls them off a CDN instead of
-// shipping ~140 MB of images into the deployment. `import.meta.env` is undefined in plain
-// Node; the guard keeps this module loadable without Vite.
-const ENV: Record<string, string | undefined> = import.meta.env || {}
-const IMG_BASE = ENV.VITE_IMG_BASE || 'img/'
-const GIF_BASE = ENV.VITE_GIF_BASE || 'gif/'
-export const imgSrc = (ex: MuscleSource): string => IMG_BASE + String(ex.img ?? '')
-export const gifSrc = (ex: MuscleSource): string => GIF_BASE + String(ex.gif ?? '')
+// MEDIA WARISAN SUDAH DICABUT SEPENUHNYA.
+//
+// Dulu di sini ada `imgSrc`/`gifSrc` yang menyusun URL ke gambar dan GIF asal openGym. Media itu
+// **© Gym visual**, dan memakainya untuk produk komersial dilarang (CLAUDE.md). Satu-satunya
+// yang menyalakannya adalah env `VITE_IMG_BASE` — sebuah jalur yang tidak boleh dinyalakan
+// siapa pun.
+//
+// Nama berkasnya (`img`/`gif`, 46 KB di katalog) ikut dibuang. Menyimpan penunjuk ke media
+// terlarang bukan cuma boros; dia ranjau yang menunggu seseorang menyalakannya.
+//
+// Yang dipakai sekarang: foto free-exercise-db berlisensi Unlicense lewat lib/exercise-media.ts,
+// dan diagram otot MuscleMap untuk yang tidak punya foto.
+
 
 // Cardio exercises log time + speed instead of weight × reps.
 export const isCardio = (idOrEx: string | Pick<Exercise, 'bp'> | null | undefined): boolean =>
