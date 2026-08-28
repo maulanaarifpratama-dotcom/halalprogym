@@ -1,0 +1,8 @@
+{
+  "name": "halalprogym-repo",
+  "private": true,
+  "//": "Berkas ini TIDAK punya dependensi dan TIDAK dipakai membangun apa pun. Dia ada untuk satu alasan: Vercel membaca engines.node dari package.json di Root Directory project, dan app-nya hidup di frontend/. Tanpa berkas ini Vercel memakai versi Node default-nya, dan Vite 8 gagal keras di Node 18. Versi Node adalah properti repo ini, bukan setelan dasbor yang tidak terlihat siapa pun. Perintah build sesungguhnya ada di vercel.json.",
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

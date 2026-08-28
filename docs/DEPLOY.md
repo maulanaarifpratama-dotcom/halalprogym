@@ -41,6 +41,40 @@ Keduanya memang terkirim ke browser, jadi bukan rahasia. Yang rahasia (`service_
 App tetap ter-build dan jalan penuh tanpa kedua variabel itu — dalam mode tamu, semuanya di
 localStorage. Itu jalur yang didukung, bukan mode darurat.
 
+## Versi Node dan `sharp` — dua hal yang membuat Vercel gagal sementara CI hijau
+
+Ada dua perbedaan antara GitHub Actions dan build Vercel, dan keduanya bisa menjatuhkan Vercel
+tanpa menyentuh CI sama sekali.
+
+**1. Versi Node.** Vite 8 menuntut `^20.19.0 || >=22.12.0`. CI memakai Node 22 secara eksplisit
+(`node-version: 22`), tapi Vercel memilih versi default-nya sendiri — dan di Node 18 build gagal.
+Repo ini tidak punya `engines` sama sekali sampai 2026-08-28.
+
+Sekarang dipin di **dua tempat**, dan keduanya perlu:
+- `frontend/package.json` — dokumentasi niat, dan yang dibaca kalau Root Directory Vercel disetel
+  ke `frontend`.
+- `package.json` di **akar repo** — Vercel membaca `engines.node` dari package.json di Root
+  Directory, dan `vercel.json` memakai `cd frontend`, jadi Root Directory-nya akar. Berkas itu
+  tidak punya dependensi dan tidak membangun apa pun; dia ada hanya untuk baris `engines`.
+
+`frontend/.npmrc` menyalakan `engine-strict=true`. Tanpa itu npm cuma memberi peringatan yang
+tenggelam di ratusan baris log, lalu build gagal jauh di dalam Vite dengan sebab yang tidak jelas.
+Dengan itu, gagalnya berbunyi `EBADENGINE ... Required: {"node":">=22.12.0"} Actual: v18.x` —
+satu baris yang langsung menjawab pertanyaannya.
+
+**2. `sharp` dan install script.** `@capacitor/assets` (devDependency, dipakai hanya untuk
+men-generate ikon Android) menarik `sharp@0.32.6`, yang punya install script native. GitHub
+Actions punya toolchain untuk itu; image build Vercel belum tentu, dan `npm ci` yang gagal di
+install berarti build yang gagal sebelum satu baris kode dibaca.
+
+`vercel.json` sekarang memakai **`npm ci --ignore-scripts`**. Build web tidak butuh satu pun
+install script — diverifikasi dengan menjalankan perintah `buildCommand` apa adanya di clone
+bersih: `dist` 11 MB, nol error. Workflow Android tetap memakai `npm ci` biasa, jadi
+`@capacitor/assets` masih berfungsi di tempat yang memang memakainya.
+
+Kalau Vercel masih gagal setelah ini, **baca lognya** dan cocokkan: `EBADENGINE` berarti setel
+Node.js Version di Project Settings ke 22.x; error lain berarti sebabnya bukan dua ini.
+
 ## Setelah deploy pertama
 
 1. **Supabase → Authentication → URL Configuration**: tambahkan domain Vercel ke Redirect URLs.

@@ -501,6 +501,27 @@ yang memberi tahu — CI masih menjalankan job `mcp/` untuk direktori yang dihap
 **gagal di setiap push**, sementara `check:names` dan `check:locale-keys` tidak pernah jalan di
 sana sama sekali. Kalau gate-nya berubah, dia berubah di satu tempat.
 
+## Versi Node dipin di DUA package.json, dan itu bukan duplikasi
+
+Vite 8 menuntut Node `^20.19.0 || >=22.12.0`. Repo ini tidak punya `engines` sama sekali sampai
+2026-08-28, jadi Vercel memakai versi default-nya sendiri — dan di Node 18 build gagal, sementara
+CI tetap hijau karena CI menyebut `node-version: 22` secara eksplisit. Asimetri "CI hijau, Vercel
+merah" itu yang bikin kelas bug ini mahal.
+
+`package.json` di **akar repo** ada HANYA untuk baris `engines`: Vercel membacanya dari Root
+Directory, dan `vercel.json` memakai `cd frontend`, jadi Root Directory-nya akar. Berkas itu tidak
+punya dependensi, tidak dipakai membangun apa pun, dan tidak boleh diberi dependensi.
+`frontend/package.json` juga menyebutnya, untuk kasus Root Directory disetel ke `frontend`.
+
+`frontend/.npmrc` menyalakan `engine-strict=true`, supaya Node yang salah gagal dengan
+`EBADENGINE` yang menyebut versi yang dibutuhkan dan yang terpasang — bukan gagal jauh di dalam
+Vite. Sudah dibuktikan menyala dengan memalsukan `engines` ke `>=99`.
+
+**`vercel.json` memakai `npm ci --ignore-scripts`.** `@capacitor/assets` menarik `sharp@0.32.6`
+yang punya install script native; GitHub Actions punya toolchain untuk itu, image build Vercel
+belum tentu. Build web tidak butuh satu pun install script — diverifikasi dengan menjalankan
+`buildCommand` apa adanya di clone bersih. Workflow Android tetap `npm ci` biasa.
+
 ## Empat checker, dan pertanyaan berbeda yang dijawab masing-masing
 
 Ini bukan redundansi. Masing-masing menutup celah yang tidak terlihat oleh yang lain, dan
