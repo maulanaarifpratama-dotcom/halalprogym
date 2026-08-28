@@ -224,6 +224,13 @@ Dipasang 2026-08-28 setelah user memberi izin eksplisit atas titik berhenti ini.
   server — seluruh statistik dihitung lokal — jadi normalisasi cuma menambah mapper dua arah dan
   12 kesempatan untuk sinkron separuh jalan. RLS `user_id = auth.uid()`, keempat operasi ditulis
   eksplisit.
+- **`fetchRemoteState` membedakan "TIDAK TAHU" dari "server kosong", dan itu bukan kehalusan.**
+  Kalau error dibaca sebagai kosong, `decideSync` mendorong lokal ke atas server yang lebih baru
+  dan membersihkan penanda kotor — kehilangan data yang sunyi. Skenario pertama yang pasti terjadi:
+  **masuk akun sebelum `supabase db push` dijalankan.** Tabelnya belum ada, Postgres membalas
+  42P01, dan data lokal harus utuh sepenuhnya. Dipaku `remote-state.test.ts` (13 tes; berkas itu
+  tadinya nol tes), termasuk RLS yang menolak, `_ts` hilang yang tidak boleh jadi NaN, dan `active`
+  yang tidak pernah ikut terkirim.
 - **Keputusan sinkronisasi ada di `lib/sync.ts`**, murni dan bertes. Cabang terpentingnya:
   penanda kotor MENGALAHKAN jam server yang lebih baru — sesi yang dicatat di basement tanpa
   sinyal tidak boleh dibuang. Ambang toleransi jam 60 detik.
@@ -489,7 +496,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 963 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 976 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
