@@ -495,7 +495,14 @@ cd frontend && npm test          # vitest — 945 test case, JANGAN dibiarkan me
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
 `check:locale-keys` → `test` → `build`. Pakai ini, jangan mengingat urutannya sendiri.
 
-**CI menjalankan `npm run verify`, satu langkah, bukan daftar step.** Itu disengaja: versi lama
+**CI punya DUA job, dan keduanya menjawab pertanyaan yang berbeda.** `verify` menjawab "apakah
+kodenya benar". `deploy-build` menjawab "apakah perintah yang dipakai PRODUKSI masih jalan" — dan
+itu tidak pernah dijawab siapa pun sampai Vercel gagal sementara CI hijau. Dia membaca
+`buildCommand` **dari `vercel.json`**, bukan menyalinnya, lalu memeriksa `index.html` dan `sw.js`
+benar-benar ada di keluarannya. `paths` workflow juga sekarang memuat `vercel.json` dan
+`package.json` akar; sebelumnya perubahan di sana tidak memicu CI sama sekali.
+
+**Job `verify` menjalankan `npm run verify`, satu langkah, bukan daftar step.** Itu disengaja: versi lama
 menuliskan setiap checker terpisah, dan itulah yang membuat CI dan gate lokal melenceng tanpa ada
 yang memberi tahu — CI masih menjalankan job `mcp/` untuk direktori yang dihapus di Fase 0, jadi
 **gagal di setiap push**, sementara `check:names` dan `check:locale-keys` tidak pernah jalan di

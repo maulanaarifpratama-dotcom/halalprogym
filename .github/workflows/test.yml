@@ -15,12 +15,15 @@
 # lewat. Sama persis dengan alasan checker locale diajari membedakan bocor dan bertahap.
 name: Verify
 
+# `vercel.json` dan `package.json` akar ikut di paths, dan itu bukan kelengkapan kosmetik:
+# keduanya menentukan bagaimana produksi dibangun, dan sebelum ini perubahan di sana tidak
+# memicu CI sama sekali. Persis lubang yang membuat Vercel bisa merah sementara CI hijau.
 on:
   pull_request:
-    paths: ['frontend/**', '.github/workflows/test.yml']
+    paths: ['frontend/**', 'vercel.json', 'package.json', '.github/workflows/test.yml']
   push:
     branches: [main]
-    paths: ['frontend/**', '.github/workflows/test.yml']
+    paths: ['frontend/**', 'vercel.json', 'package.json', '.github/workflows/test.yml']
   workflow_dispatch:
 
 permissions:
@@ -46,3 +49,39 @@ jobs:
       # Kalau gate-nya berubah, dia berubah di satu tempat dan CI ikut sendiri.
       - run: npm run verify
         working-directory: frontend
+
+  # Job KEDUA, dan sengaja terpisah dari gate.
+  #
+  # `verify` menjawab "apakah kodenya benar". Job ini menjawab pertanyaan yang berbeda dan
+  # sebelumnya tidak dijawab siapa pun: "apakah perintah yang dipakai PRODUKSI masih jalan".
+  #
+  # Itu bukan pertanyaan teoretis. Vercel bisa gagal sementara CI hijau, dan sudah terjadi —
+  # dua sebabnya versi Node yang tidak dipin (Vite 8 menuntut >=22.12) dan install script native
+  # milik `sharp` yang ada di GitHub Actions tapi belum tentu ada di image build Vercel. Gate
+  # tidak bisa melihat keduanya, karena gate memakai `npm ci` biasa dan Node yang disebut di sini.
+  #
+  # Perintahnya DIBACA DARI vercel.json, bukan disalin. Menyalinnya berarti dua tempat yang bisa
+  # menyimpang, dan yang menyimpang di sini berarti CI membuktikan perintah yang bukan perintah
+  # produksi — kelas kesalahan yang sama dengan checker yang hijau di atas simbol yang tidak ada.
+  deploy-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # TIDAK ada `npm ci` di sini: perintah dari vercel.json yang mengurus install-nya sendiri,
+      # dan itu memang yang harus diuji. Menjalankan npm ci lebih dulu akan menyembunyikan
+      # kegagalan install yang justru dicari.
+      - name: Jalankan buildCommand dari vercel.json
+        run: |
+          CMD=$(node -e "console.log(JSON.parse(require('fs').readFileSync('vercel.json','utf8')).buildCommand)")
+          echo "buildCommand: $CMD"
+          eval "$CMD"
+      - name: Keluarannya harus ada dan tidak kosong
+        run: |
+          OUT=$(node -e "console.log(JSON.parse(require('fs').readFileSync('vercel.json','utf8')).outputDirectory)")
+          test -f "$OUT/index.html" || { echo "::error::$OUT/index.html tidak ada"; exit 1; }
+          test -f "$OUT/sw.js"     || { echo "::error::$OUT/sw.js tidak ada — offline rusak"; exit 1; }
+          echo "isi $OUT:"; ls -la "$OUT"
+          du -sh "$OUT"
