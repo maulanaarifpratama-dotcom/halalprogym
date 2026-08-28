@@ -40,3 +40,6 @@ node_modules/
 node_modules
 .claude/
 .agents/
+
+# Scratch Supabase CLI (cli-latest, dsb). Bukan konfigurasi, bukan migration.
+supabase/.temp/

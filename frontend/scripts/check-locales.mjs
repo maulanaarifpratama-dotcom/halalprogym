@@ -48,6 +48,12 @@ const IN_PROGRESS = new Set([])
 const ID_KEEPS_ENGLISH = new Set([
   '+ Burst',
   '+ Drop',
+  // Orang Indonesia mengatakan "AI", bukan "KA" atau "kecerdasan artifisial" — yang
+  // kedua bahasa buku, dan yang pertama tidak dikenali siapa pun. Sama untuk "API key":
+  // itu istilah yang dipakai apa adanya, dan "kunci API" justru terbaca seperti
+  // terjemahan mesin.
+  'AI',
+  'API key',
   'Apr',
   'Burst {0}',
   'Data',

@@ -220,8 +220,81 @@ USDA. Jadi database bawaan bukan cuma soal lisensi, dia juga harus **Indonesia**
 Menambahkan database nanti **tidak mengubah satu pun fungsi** di `lib/nutrition.ts` — dia cuma
 mengisi `foods` dari sumber lain. Itu memang cara memisahkannya.
 
-**Keputusan yang menunggu user:** pastikan lisensi TKPI, atau terima kewajiban ODbL Open Food
-Facts. Sebelum salah satunya dijawab, jangan commit satu baris pun data makanan.
+**Keputusan itu sekarang punya jawaban yang tidak menunggu siapa pun** — lihat bagian di bawah.
+Kalau nanti ada yang mau menambah database bawaan juga, pertanyaan lisensinya tetap berlaku:
+pastikan TKPI, atau terima kewajiban ODbL Open Food Facts. Sebelum salah satunya dijawab, jangan
+commit satu baris pun data makanan.
+
+## Perkiraan gizi AI — kunci milik pengguna, dan kenapa itu MENJAWAB jalan buntu lisensi
+
+Terpasang 2026-08-28. Idenya dari [fud-ai](https://github.com/apoorvdarshan/fud-ai) (MIT).
+
+Jalan buntunya di atas: ketiga sumber database makanan punya masalah, dan yang paling menentukan
+bukan lisensi — pengguna app ini mencari "nasi uduk", dan itu tidak ada di USDA. Pendekatan ini
+**menghindari pertanyaannya sepenuhnya: kita tidak mendistribusikan data makanan sama sekali.**
+Pengguna membawa API key sendiri, request pergi langsung dari perangkatnya ke provider
+pilihannya, dan tidak ada yang lewat server kita — kita memang tidak punya server. **Nol data
+yang dikirim berarti nol paparan lisensi.** Dan LLM tahu nasi uduk.
+
+Empat berkas, dan pembagiannya bukan kosmetik:
+
+| Berkas | Isinya | Kenapa dipisah |
+| --- | --- | --- |
+| `lib/ai-nutrition.ts` | prompt, parsing, validasi | MURNI, nol jaringan — di sinilah kesalahan sebenarnya bersembunyi, dan semuanya bisa dites tanpa satu request pun |
+| `lib/ai-key.ts` | penyimpanan kunci | kuncinya **tidak pernah masuk `S`** |
+| `lib/ai-client.ts` | dua bentuk API + timeout | satu-satunya yang menyentuh jaringan |
+| `components/AiFoodSheet.jsx` | alur lima langkah | teks UI hidup di sini, bukan di `lib/` |
+
+**Keluaran model adalah DATA, bukan perintah, dan tidak boleh dipercaya.** Divalidasi ke batas
+fisik yang diperiksa **per 100 gram** — batas absolut tidak bermakna tanpa beratnya — lalu
+diperiksa konsistensinya dengan faktor Atwater (4/4/9). Atwater dipakai untuk **menandai**, bukan
+menghitung ulang: kalau makro dan kalori bertentangan jauh, salah satunya salah, dan pengguna
+berhak tahu sebelum menyimpannya. Makanan yang cuma melaporkan kalori TIDAK ditandai — itu sah,
+dan peringatan yang bising akan diabaikan.
+
+**Peringatan `macros-mismatch` DIHITUNG ULANG saat pengguna mengedit**, lewat `macrosDisagree`
+yang diekspor. Ini bukan kerapian: versi pertama membekukannya dari jawaban model, dan bug itu
+terlihat langsung di layar — orang membetulkan kalorinya sampai cocok dengan makronya, dan app
+tetap bilang keduanya tidak cocok. `clamped` dan `no-grams` tetap beku, karena keduanya
+pernyataan tentang jawaban model dan tetap benar apa pun yang diedit.
+
+**Angka gizi TERKUNCI di layar tinjau, dan harus dibuka sengaja.** Kunci itu yang mengatakan
+"ini estimasi" tanpa satu paragraf peringatan. Kolom yang langsung bisa diedit berkata
+sebaliknya — dia terasa seperti formulir yang sudah benar dan cuma perlu dikonfirmasi. Karena itu
+`.field:disabled` punya gaya sendiri di `index.css`: default browser terlalu halus untuk memikul
+beban itu, dan kunci yang tidak terlihat tidak mengatakan apa-apa.
+
+**Kunci hidup di entri localStorage-nya SENDIRI (`gym_ai_key_v1`), di luar `S`.** Itu membuat
+kebocoran ke Supabase mustahil secara struktur, bukan bergantung pada seseorang mengingat
+saringan di `stateForPush` setiap kali jalur push berubah. Dijaga `ai-key.test.ts`, yang membaca
+sumber `useStore.js` dan menuntut kata "apiKey" tidak muncul di sana sama sekali.
+
+**localStorage tidak terenkripsi, dan itu DIKATAKAN di UI.** fud-ai menyimpan kuncinya di
+Keychain/EncryptedSharedPreferences; di web tidak ada padanannya — tidak ada penyimpanan yang
+bisa dibaca halaman tapi tidak bisa dibaca skrip yang jalan di halaman itu. Mengenkripsinya
+dengan kunci yang juga ada di halaman cuma teater.
+
+**Timeout 20 detik, dan itu bukan detail.** `fetch()` tidak punya timeout bawaan, dan aturan #1
+sudah pernah dilanggar tepat oleh sifat itu (service worker network-first). Di sini bentuknya
+lebih buruk: tombol yang berputar selamanya sementara orang menunggu untuk mencatat sarapan.
+Kegagalan punya **sebab** (`auth`/`quota`/`timeout`/`offline`/`unreadable`), karena "gagal" tanpa
+sebab membuat orang mencoba ulang sepuluh kali padahal yang salah kuncinya.
+
+**Kunci Gemini di header `x-goog-api-key`, BUKAN di query string** seperti yang disarankan
+dokumentasi Google. Query string berakhir di log server, di riwayat browser, dan di header
+Referer. Ada tesnya, dan tesnya sudah dibuktikan bisa merah.
+
+**Dua BENTUK API, bukan daftar merek.** fud-ai mendukung 13 provider; `openai` di sini menutup
+OpenRouter, Groq, Together, Mistral, dan Ollama lokal tanpa satu baris kode tambahan, lewat
+`baseUrl`. Menambah merek berarti menambah permukaan yang harus dijaga.
+
+**Teks, bukan foto.** fud-ai memulai dari kamera. Model penglihatan jauh lebih mahal per request
+— dan ini kuota milik pengguna, bukan kami — sementara mengetik "nasi uduk satu porsi" lebih
+cepat daripada memfoto lalu menunggu. Foto label kemasan kasus yang sah, dan bisa ditambahkan
+nanti tanpa mengubah satu pun berkas di `lib/`.
+
+**Jalur manual tetap tombol utama.** Dia jalan tanpa kunci, tanpa jaringan, dan tanpa kuota
+siapa pun. AI berdiri di sebelahnya, tidak menggantikannya.
 
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
@@ -285,7 +358,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 761 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 831 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →

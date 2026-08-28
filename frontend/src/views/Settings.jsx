@@ -10,6 +10,9 @@ import { getLang } from '../lib/i18n-core.js'
 import { effortOf } from '../lib/history.js'
 import { IS_ANDROID } from '../lib/platform.js'
 import { authAvailable, looksLikeEmail, signInWithEmail, signInWithGoogle } from '../lib/auth.js'
+import {
+  clearAiConfig, DEFAULT_MODEL, FREE_KEY_URL, loadAiConfig, maskKey, PROVIDER_LABEL, saveAiConfig,
+} from '../lib/ai-key.js'
 import { wakeLockSupported } from '../lib/wakelock.js'
 import { t, LANGS, INSTR_LANGS } from '../lib/i18n.js'
 import { DEMO, REPO } from '../lib/demo.js'
@@ -177,6 +180,9 @@ export default function Settings() {
 
     {/* ---------- puasa ---------- */}
     <RamadanCard S={S} update={update} />
+
+    {/* ---------- perkiraan gizi AI, kunci milik pengguna sendiri ---------- */}
+    <AiCard toast={toast} />
 
     {/* ---------- appearance ---------- */}
     {/* Catatan kaki "tersinkron dengan profilmu" dulu digerbangi `DEMO || MOBILE`, dan itu
@@ -462,6 +468,109 @@ function RamadanCard({ S, update }) {
       )}
     </Section>
   )
+}
+
+/**
+ * Kunci API pengguna untuk perkiraan gizi.
+ *
+ * KENAPA PENGGUNA MEMBAWA KUNCINYA SENDIRI, dan kenapa itu bukan cara mudah keluar dari
+ * pekerjaan: repo ini TIDAK MENDISTRIBUSIKAN DATA MAKANAN SAMA SEKALI, dan itu satu-satunya
+ * jawaban yang bersih atas jalan buntu lisensi yang tercatat di kepala lib/nutrition.ts. Nol
+ * data yang dikirim berarti nol paparan lisensi.
+ *
+ * Konsekuensinya jujur dan harus dikatakan di layar ini, bukan disembunyikan di dokumentasi:
+ * kuotanya milik pengguna, dan localStorage tidak terenkripsi.
+ */
+function AiCard({ toast }) {
+  // Kunci hidup di luar `S` — dia TIDAK PERNAH masuk state yang disinkronkan, jadi dia tidak
+  // bisa ikut terkirim ke Supabase. Karena itu dia juga butuh state React sendiri di sini:
+  // useStore tidak akan pernah memberitahu kalau dia berubah.
+  const [cfg, setCfg] = useState(() => loadAiConfig())
+
+  const open = () => useUI.getState().openSheet(close => (
+    <AiKeySheet close={close} toast={toast} onSaved={setCfg} />
+  ))
+
+  return (
+    <Section title={t('AI estimates')}
+      footer={cfg
+        ? t('Requests go straight from this device to {0} with your key. Your quota, your bill — and we never see either.', PROVIDER_LABEL[cfg.provider])
+        : t('Optional. With your own API key, the app can estimate calories and macros from a description like "nasi uduk satu porsi" — which is exactly what no free, commercially usable Indonesian food database gives us.')}>
+      <Row icon="sparkles" iconTint="var(--acc)" title={t('Nutrition estimates')}
+        subtitle={cfg ? PROVIDER_LABEL[cfg.provider] + ' · ' + maskKey(cfg.apiKey) : t('Not set up')}
+        accessory="chevron" onClick={open} />
+    </Section>
+  )
+}
+
+function AiKeySheet({ close, toast, onSaved }) {
+  const cur = loadAiConfig()
+  const [provider, setProvider] = useState(cur?.provider || 'gemini')
+  const [apiKey, setApiKey] = useState(cur?.apiKey || '')
+  const [model, setModel] = useState(cur?.model || '')
+  const [baseUrl, setBaseUrl] = useState(cur?.baseUrl || '')
+
+  const save = () => {
+    if (!apiKey.trim()) { toast(t('Paste your API key first.')); return }
+    const ok = saveAiConfig({ provider, apiKey, model, baseUrl: provider === 'openai' ? baseUrl : '' })
+    if (!ok) { toast(t('This browser will not let the app store anything.')); return }
+    onSaved(loadAiConfig())
+    toast(t('Saved'))
+    close()
+  }
+
+  // Tanpa toast: barisnya langsung berubah jadi "Belum disiapkan", dan itu umpan balik yang
+  // lebih jelas daripada pesan yang muncul lalu hilang.
+  const remove = () => { clearAiConfig(); onSaved(null); close() }
+
+  return <>
+    <h3>{t('AI estimates')}</h3>
+    <p className="muted small" style={{ marginBottom: 12 }}>
+      {t('A free key from Google AI Studio is enough for everyday use.')}{' '}
+      <a href={FREE_KEY_URL} target="_blank" rel="noopener">{t('Get a free key')}</a>
+    </p>
+
+    {/* Dua BENTUK API, bukan daftar merek — "OpenAI-compatible" menutup OpenRouter, Groq,
+        Together, Mistral, dan Ollama lokal tanpa satu baris kode tambahan. */}
+    <Segmented
+      options={[
+        { value: 'gemini', label: PROVIDER_LABEL.gemini },
+        { value: 'openai', label: PROVIDER_LABEL.openai },
+      ]}
+      value={provider} onChange={setProvider} />
+
+    <div style={{ height: 10 }} />
+    {/* type="password" supaya kunci tidak terbaca dari balik punggung atau di screen sharing.
+        autoComplete off: pengelola sandi tidak punya urusan di sini, dan tawaran "simpan
+        sandi" atas kunci API cuma membingungkan. */}
+    <TextField type="password" autoComplete="off" spellCheck={false}
+      placeholder={t('API key')} value={apiKey} onChange={e => setApiKey(e.target.value)} />
+
+    <div style={{ height: 10 }} />
+    <TextField placeholder={t('Model (optional) — default {0}', DEFAULT_MODEL[provider])}
+      autoComplete="off" spellCheck={false}
+      value={model} onChange={e => setModel(e.target.value)} />
+
+    {provider === 'openai' && <>
+      <div style={{ height: 10 }} />
+      <TextField placeholder={t('Endpoint (optional) — default api.openai.com')}
+        autoComplete="off" spellCheck={false} inputMode="url"
+        value={baseUrl} onChange={e => setBaseUrl(e.target.value)} />
+    </>}
+
+    <div style={{ height: 14 }} />
+    <Button variant="primary" onClick={save}>{t('Save')}</Button>
+    {cur && <>
+      <div style={{ height: 8 }} />
+      <Button variant="ghost" className="dim" onClick={remove}>{t('Remove')}</Button>
+    </>}
+
+    {/* Dikatakan, bukan didiamkan. Di web tidak ada padanan Keychain — tidak ada penyimpanan
+        yang bisa dibaca halaman tapi tidak bisa dibaca skrip yang jalan di halaman itu. */}
+    <p className="sect-f" style={{ marginTop: 14 }}>
+      {t('The key is stored on this device only, unencrypted, and is never synced or sent to us. Anyone with access to this browser profile can read it.')}
+    </p>
+  </>
 }
 
 // Equipment profiles ("Home", "Gym", ...) — each an id/name/eq-list; the active one filters

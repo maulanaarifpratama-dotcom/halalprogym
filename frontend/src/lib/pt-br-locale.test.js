@@ -52,7 +52,12 @@ describe('Brazilian Portuguese locale', () => {
     // 268 -> 289: catatan makan. 21 kunci berbeda regional, sebagian besar karena Portugal
     // menulis "hidratos"/"registar"/"porção ... parou" di mana Brasil menulis
     // "carboidratos"/"registrar"/"digite".
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(289)
+    // 289 -> 324: perkiraan gizi AI. 36 dari 45 kunci baru berbeda regional, dan
+    // proporsi itu masuk akal: teksnya panjang dan penuh kata yang justru paling berbeda
+    // antara kedua varian — Portugal "registar/ligação/predefinicao/dispositivo", Brasil
+    // "registrar/conexao/padrao/aparelho", ditambah bentuk sapaan "tu" lawan "voce" yang
+    // muncul di hampir setiap kalimat perintah di lembar ini.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(324)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -73,7 +78,10 @@ describe('Brazilian Portuguese locale', () => {
     // 450 -> 453: tiga kunci jeda salat yang kata Brasilnya sama dengan Portugal.
     // 453 -> 456: tiga kunci tanggal Hijriah, kata Brasilnya sama dengan Portugal.
     // 456 -> 480: 24 kunci catatan makan yang kata Brasilnya sama dengan Portugal.
-    expect(inherited).toHaveLength(480)
+    // 480 -> 489: sembilan kunci perkiraan gizi AI yang kata Brasilnya sama dengan
+    // Portugal — istilah teknis dan frasa pendek tanpa sapaan ('IA', 'Chave de API',
+    // 'Gramas por porção', 'Não configurado'). 36 sisanya jadi override, lihat di atas.
+    expect(inherited).toHaveLength(489)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -82,7 +90,13 @@ describe('Brazilian Portuguese locale', () => {
     // photo', dan '{0} exercises with animations' jadi '{0} exercises · {1} with demo photos' —
     // karena app ini tidak punya animasi sama sekali. Jumlahnya tidak bergerak untuk itu; cuma
     // hash-nya. Tanpa hash, perubahan kata pada terjemahan warisan lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('13177efba652425d29c0a3bfde06840e2251c624f2be2ba1882d2fc2e5547353')
+    //
+    // Kali ini hash bergerak karena dua hal sekaligus: sembilan kunci warisan baru di atas,
+    // DAN satu kunci warisan lama yang dihapus. Catatan kaki "tidak ada database makanan
+    // bawaan" sekarang menyebut jalan keluarnya — perkiraan AI dengan kunci sendiri — jadi
+    // string sumbernya berubah dan kunci lamanya tidak menunjuk apa pun lagi. Itu ditangkap
+    // oleh locale-orphans.test.ts, bukan oleh tes ini, dan itu memang pembagian kerjanya.
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('4b809fd61af3905a40be9e248507416b08432cd5a855746a6a87807c8bc726b9')
   })
 
   test('does not leak European Portuguese UI terms', () => {

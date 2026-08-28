@@ -21,6 +21,7 @@ import {
 import { t } from '../lib/i18n.js'
 import Icon from '../components/Icon.jsx'
 import { Button, Row, Section, TextField } from '../components/ui.jsx'
+import AiFoodSheet from '../components/AiFoodSheet.jsx'
 import { confirmSheet } from '../sheets.jsx'
 
 export default function Food() {
@@ -107,6 +108,13 @@ export default function Food() {
         onClick={() => useUI.getState().openSheet(close => <PickSheet close={close} onPick={addEntry} />)}>
         {t('Log food')}
       </Button>
+      {/* Perkiraan AI berdiri di SEBELAH pencatatan manual, tidak menggantikannya. Jalur manual
+          jalan tanpa kunci, tanpa jaringan, dan tanpa kuota siapa pun — jadi dia yang tetap
+          jadi tombol utama. */}
+      <Button icon="sparkles"
+        onClick={() => useUI.getState().openSheet(close => <AiFoodSheet close={close} />)}>
+        {t('AI')}
+      </Button>
     </div>
 
     <h4 className="sec">{t('Logged today')}</h4>
@@ -161,7 +169,7 @@ export default function Food() {
       {t('Add a food')}
     </Button>
     <p className="sect-f" style={{ marginTop: 14 }}>
-      {t('No built-in food database — the numbers are yours, from the label or the recipe.')}
+      {t('No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.')}
     </p>
   </div>
 }
