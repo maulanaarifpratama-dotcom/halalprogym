@@ -77,6 +77,18 @@ klien Supabase ke dalamnya. Itu sebabnya dia bisa diwarisi dan ditesnya jalan.
 Orang latihan di basement gym dengan sinyal jelek. Jangan pernah bikin layar menunggu network.
 Sesi yang sedang berjalan (`active`) **cuma di klien**, sync waktu selesai.
 
+Yang membuat aturan ini benar-benar berlaku, bukan cuma tertulis:
+
+- **`public/sw.js` cache-first, bukan network-first.** Masalahnya BUKAN offline — offline sudah
+  tertangani, karena fetch yang gagal jatuh ke cache. Yang salah adalah kasus yang jauh lebih
+  sering: sinyal ADA tapi buruk. `fetch()` tidak punya timeout, jadi satu request yang
+  menggantung berarti layar yang menggantung. Ada 18 tesnya, dijalankan atas berkas aslinya.
+- **Foto gerakan dari CDN ikut di-cache**, dengan mode `cors` bukan opaque (opaque menghabiskan
+  kuota dengan padding besar). SW lama menolak semua request lintas-origin, jadi di basement
+  tanpa sinyal app ini menampilkan **nol foto gerakan**.
+- **`lib/prefetch.ts` menyiapkan foto rencana HARI INI** selagi masih di wifi. Cache yang diisi
+  saat dibutuhkan selalu terlambat satu langkah. Ditahan di koneksi hemat-data dan 2g.
+
 **2. Rest timer TIDAK PAKAI server push.** Timer lokal + Capacitor local notification.
 Upstream memakai `setTimeout` di server (`api/server.js:172`) — itu mustahil di Vercel serverless
 *dan* menambah titik gagal jaringan tepat saat timer habis. Jangan dihidupkan ulang dalam bentuk
@@ -233,6 +245,27 @@ Kalau nanti ada rilis `@capacitor/assets` yang membawa `sharp` baru, naikkan. Sa
 peringatan itu **bukan pekerjaan** — dan sesi berikutnya tidak perlu menemukan ulang kesimpulan
 ini dari nol.
 
+## Identitas paket Android — SATU-SATUNYA yang tidak bisa diperbaiki belakangan
+
+`applicationId` = **`id.halalpro.gym`**. Jangan pernah diubah setelah APK pertama dibagikan.
+
+Begitu satu APK terpasang, applicationId-nya **adalah** identitas app itu di perangkat.
+Menggantinya kemudian berarti Android melihatnya sebagai app yang berbeda: pengguna harus
+meng-uninstall yang lama, dan seluruh datanya ikut terhapus. Tidak ada jalan migrasi.
+
+Folder `android/` sempat masih memakai `ch.duartesantos.opengym` milik upstream sampai
+2026-08-28, padahal `capacitor.config.json` sudah di-rebrand sejak Fase 0. Tidak ada yang
+menangkapnya: `cap sync` tidak menulis ulang identitas paket yang sudah ada, `npm run build`
+tidak membacanya, dan tidak ada satu tes pun menyentuh folder itu.
+
+Sekarang dijaga `src/lib/android-identity.test.js` — namespace, applicationId, nama paket Java
+(termasuk direktorinya, karena Java mewajibkannya cocok), nama app, dan `custom_url_scheme`
+semuanya dipaku ke `capacitor.config.json`.
+
+**Keystore Android juga tidak bisa dirotasi.** Berbeda dari kredensial lain: kunci yang bocor
+tidak bisa diganti tanpa memaksa setiap pengguna uninstall. `.gitignore` menutup `*.jks`,
+`*.keystore`, `key.properties`. Cara menyiapkannya di `docs/DEPLOY.md`.
+
 ## Git
 
 ```
@@ -252,11 +285,17 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 717 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 761 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
 `check:locale-keys` → `test` → `build`. Pakai ini, jangan mengingat urutannya sendiri.
+
+**CI menjalankan `npm run verify`, satu langkah, bukan daftar step.** Itu disengaja: versi lama
+menuliskan setiap checker terpisah, dan itulah yang membuat CI dan gate lokal melenceng tanpa ada
+yang memberi tahu — CI masih menjalankan job `mcp/` untuk direktori yang dihapus di Fase 0, jadi
+**gagal di setiap push**, sementara `check:names` dan `check:locale-keys` tidak pernah jalan di
+sana sama sekali. Kalau gate-nya berubah, dia berubah di satu tempat.
 
 ## Empat checker, dan pertanyaan berbeda yang dijawab masing-masing
 

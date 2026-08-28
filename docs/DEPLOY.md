@@ -72,7 +72,7 @@ workflow yang diabaikan orang.
 ## Menyiapkan penandatanganan (sekali saja)
 
 ```bash
-keytool -genkey -v -keystore halalprogym.jks -keyalg RSA -keysize 2048         -validity 10000 -alias halalprogym
+keytool -genkey -v -keystore halalprogym.jks -keyalg RSA -keysize 2048 -validity 10000 -alias halalprogym
 base64 -w0 halalprogym.jks
 ```
 
