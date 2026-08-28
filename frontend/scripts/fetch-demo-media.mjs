@@ -114,14 +114,22 @@ async function unduh(force) {
   console.log(`${sudah} sudah ada, ${baru} terunduh (${(bytes / 1024 / 1024).toFixed(1)} MB)`)
 
   if (gagal.length) {
-    // GAGAL KERAS. Bingkai yang hilang berarti peta mengklaim foto yang tidak ada, dan di app itu
-    // muncul sebagai gambar rusak — BUKAN sebagai diagram otot, karena `hasDemo` sudah bilang
-    // fotonya ada. Membiarkannya lolos berarti APK yang dibagikan dengan lubang di dalamnya.
+    // GAGAL KERAS, dan alasannya bukan yang paling jelas.
+    //
+    // Bingkai yang hilang TIDAK meninggalkan kotak rusak permanen: `components/Media.jsx`
+    // menangkap `onError` pada <img> dan jatuh ke diagram otot. (Klaim pertama di berkas ini
+    // mengatakan sebaliknya, dan itu salah — diperiksa ke sumbernya, bukan diasumsikan.)
+    //
+    // Yang sebenarnya hilang lebih halus dan lebih mahal: orang kehilangan foto demo yang
+    // seharusnya dia punya, DAN tidak punya cara membedakannya dari latihan yang memang belum
+    // terpetakan — keduanya terlihat persis sama. Jadi lubangnya tidak pernah dilaporkan siapa
+    // pun, dan APK yang dibagikan membawanya selamanya. Itu alasan yang cukup untuk berhenti.
     console.error(`\n${gagal.length} bingkai GAGAL:`)
     for (const g of gagal.slice(0, 20)) console.error('  ' + g)
     if (gagal.length > 20) console.error(`  … dan ${gagal.length - 20} lagi`)
-    console.error('\nBingkai yang hilang tampil sebagai gambar rusak, bukan diagram otot —')
-    console.error('hasDemo sudah mengatakan fotonya ada. Jangan bangun APK ini.')
+    console.error('\nBingkai yang hilang jatuh ke diagram otot, jadi tidak terlihat sebagai')
+    console.error('kerusakan — dan itu justru masalahnya: lubangnya tidak akan dilaporkan siapa')
+    console.error('pun. Jangan bangun APK ini.')
     process.exit(1)
   }
 }

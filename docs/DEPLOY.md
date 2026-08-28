@@ -73,8 +73,10 @@ jadi tidak ada cache foto yang kita kendalikan dan `prefetchMedia` tidak melakuk
 bundel, setiap foto butuh jaringan setiap kali.
 
 Unduhannya menambah ~3 menit ke workflow dan **gagal keras** kalau ada bingkai yang tidak
-terambil — bingkai hilang tampil sebagai gambar rusak, bukan sebagai diagram otot, karena
-`hasDemo` sudah mengatakan fotonya ada.
+terambil. Alasannya bukan yang paling jelas: `Media.jsx` menangkap `onError` dan jatuh ke diagram
+otot, jadi bingkai hilang tidak meninggalkan kotak rusak. Yang hilang lebih halus — orang
+kehilangan foto demo yang seharusnya dia punya, dan tidak punya cara membedakannya dari latihan
+yang memang belum terpetakan. Lubang seperti itu tidak akan pernah dilaporkan siapa pun.
 
 **Kalau APK-nya harus lebih kecil:** bangun tanpa `VITE_DEMO_BASE`. Foto kembali datang dari CDN
 jsDelivr, APK-nya ~11 MB, dan offline untuk foto hilang. Itu pertukaran yang sah, tapi harus

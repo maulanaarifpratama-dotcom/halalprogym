@@ -86,9 +86,10 @@ jobs:
       # sengaja tidak punya service worker, jadi tidak ada cache foto yang kita kendalikan.
       # Itu aturan #1 CLAUDE.md yang bolong tepat di kendaraan utama produk ini.
       #
-      # Unduhannya menambah ~3 menit dan GAGAL KERAS kalau ada bingkai yang tidak terambil:
-      # bingkai hilang tampil sebagai gambar rusak, bukan sebagai diagram otot, karena `hasDemo`
-      # sudah mengatakan fotonya ada.
+      # Unduhannya menambah ~3 menit dan GAGAL KERAS kalau ada bingkai yang tidak terambil.
+      # Bukan karena bingkai hilang terlihat rusak — Media.jsx jatuh ke diagram otot — tapi
+      # karena justru TIDAK terlihat: orang kehilangan foto yang seharusnya ada dan tidak bisa
+      # membedakannya dari latihan yang belum terpetakan, jadi lubangnya tidak pernah dilaporkan.
       - run: npm run build:mobile
         working-directory: frontend
         env:

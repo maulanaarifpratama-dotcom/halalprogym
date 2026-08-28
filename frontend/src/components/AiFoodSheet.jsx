@@ -26,6 +26,7 @@ import { loadAiConfig, FREE_KEY_URL } from '../lib/ai-key.js'
 import { estimateNutrition } from '../lib/ai-client.js'
 import { draftToFood, macrosDisagree } from '../lib/ai-nutrition.js'
 import { progressTo, totalsOn } from '../lib/nutrition.js'
+import { nav } from '../lib/nav.js'
 import { t } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 import { Button, Switch, TextField } from './ui.jsx'
@@ -145,7 +146,13 @@ export default function AiFoodSheet({ close, onLogged }) {
     </p>
     <a className="small" href={FREE_KEY_URL} target="_blank" rel="noopener">{t('Get a free key')}</a>
     <div style={{ height: 14 }} />
-    <Button variant="primary" onClick={close}>{t('Set it up in Settings')}</Button>
+    {/* Benar-benar PERGI ke Pengaturan. Versi pertama tombol ini cuma menutup lembarnya,
+        dan labelnya menjanjikan navigasi yang tidak terjadi — orang mengetuknya lalu
+        kembali ke layar makan tanpa apa pun berubah. Itu kelas kesalahan yang sama dengan
+        UI yang menawarkan jalan mustahil, cuma bentuknya lebih halus. */}
+    <Button variant="primary" onClick={() => { close(); nav('/settings') }}>
+      {t('Set it up in Settings')}
+    </Button>
   </>
 
   // ---------- langkah 2: menunggu, dan itu boleh dibatalkan ----------

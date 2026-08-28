@@ -48,6 +48,14 @@ naikkan lewat alias yang diperiksa manusia — jangan lewat skor.
 Latihan tanpa foto mendapat **diagram otot MuscleMap** (`components/ExerciseAnatomy.jsx`), bukan
 kotak kosong. Itu license-clean, dan menjawab pertanyaan yang berbeda: otot mana yang dikerjakan.
 
+Penurunannya berlapis dan **gagal muat ikut turun**: foto → diagram otot → ikon bagian tubuh
+dengan ajakan mengisi bagian tubuhnya. Slot demo tidak pernah kosong, dan tidak pernah menampilkan
+ikon gambar-rusak bawaan browser. Dipaku `Media.test.jsx`, yang ada karena satu komentar di repo
+ini sempat mengklaim sebaliknya — bingkai hilang disebut "tampil sebagai gambar rusak", padahal
+`onError` menangkapnya. Konsekuensinya justru lebih halus dan itu yang benar: bingkai hilang tidak
+bisa dibedakan dari latihan yang belum terpetakan, jadi lubangnya tidak akan pernah dilaporkan
+siapa pun. Itu alasan `scripts/fetch-demo-media.mjs` gagal keras.
+
 Commit free-exercise-db **di-pin**, dan harus tetap satu nilai di semua tempat:
 `scripts/build-exercise-media.mjs` (akar repo) dan `lib/exercise-media.ts`. Tempat ketiga,
 `frontend/scripts/fetch-demo-media.mjs`, sengaja **MEMBACANYA** dari `lib/exercise-media.ts`
@@ -434,7 +442,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 891 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 897 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
