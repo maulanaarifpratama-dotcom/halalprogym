@@ -68,3 +68,39 @@ describe('dua vercel.json harus membawa headers yang sama', () => {
     expect(AKAR.outputDirectory).toBe('frontend/dist')
   })
 })
+
+describe('vercel.json harus SAH menurut skema Vercel', () => {
+  /**
+   * Skema `vercel.json` punya `additionalProperties: false` — satu kunci asing membuat Vercel
+   * MENOLAK KONFIGURASINYA sebelum build dijalankan sama sekali. Gejalanya "Deployment failed"
+   * tanpa log build, dan itu sangat mudah disalahartikan sebagai build yang gagal.
+   *
+   * Ini bukan hipotesis: `frontend/vercel.json` sempat dikirim dengan kunci `"//"` sebagai
+   * komentar, dan JSON memang tidak punya komentar. Diverifikasi ke skema resmi Vercel
+   * (openapi.vercel.sh/vercel.json) bahwa kunci itu di luar skema.
+   *
+   * Yang dilarang di sini kunci gaya-komentar, bukan daftar-putih kunci yang sah: daftar-putih
+   * akan basi setiap kali Vercel menambah fitur, dan penjaga yang basi akan dimatikan orang.
+   */
+  const GAYA_KOMENTAR = /^(\/\/|#|_comment|comment)$/i
+
+  for (const [nama, cfg] of [['vercel.json', AKAR], ['frontend/vercel.json', FRONTEND]] as const) {
+    it(nama + ' tidak punya kunci gaya-komentar', () => {
+      const salah = Object.keys(cfg).filter(k => GAYA_KOMENTAR.test(k))
+      expect(
+        salah,
+        'JSON tidak punya komentar, dan skema Vercel additionalProperties:false menolak kunci '
+        + 'asing — konfigurasinya ditolak sebelum build jalan. Taruh penjelasannya di tes ini.'
+      ).toEqual([])
+    })
+  }
+
+  it('keduanya cuma memakai kunci yang memang dipakai repo ini', () => {
+    // Daftar sempit dan sengaja: kalau ada yang menambah kunci Vercel baru, dia harus lewat
+    // sini dan memastikan kunci itu benar-benar ada di skema.
+    const DIPAKAI = ['$schema', 'buildCommand', 'outputDirectory', 'installCommand', 'framework', 'headers']
+    for (const cfg of [AKAR, FRONTEND]) {
+      for (const k of Object.keys(cfg)) expect(DIPAKAI, 'kunci tak dikenal: ' + k).toContain(k)
+    }
+  })
+})

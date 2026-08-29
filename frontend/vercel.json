@@ -1,6 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "//": "HANYA headers, dan hanya dipakai kalau Root Directory project disetel ke `frontend`. Kalau Root Directory-nya akar repo, berkas ini tidak pernah dibaca dan `vercel.json` di akar yang berlaku. Headers-nya WAJIB identik dengan yang di akar \u2014 dipaku src/lib/vercel-headers.test.ts.",
   "headers": [
     {
       "source": "/sw.js",
