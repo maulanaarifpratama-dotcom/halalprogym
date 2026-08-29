@@ -41,7 +41,38 @@ Keduanya memang terkirim ke browser, jadi bukan rahasia. Yang rahasia (`service_
 App tetap ter-build dan jalan penuh tanpa kedua variabel itu — dalam mode tamu, semuanya di
 localStorage. Itu jalur yang didukung, bukan mode darurat.
 
-## Kalau Vercel masih gagal — baca lognya, cocokkan di sini
+## Kalau Vercel masih gagal — cari dulu tanda tangannya, baru lognya
+
+**Ada DUA bentuk kegagalan yang sama sekali berbeda, dan membedakannya lebih dulu menghemat
+berjam-jam.** Keduanya tampil sebagai satu titik merah yang sama di GitHub, tapi yang satu
+berarti build-mu gagal dan yang satu lagi berarti build-mu **tidak pernah dijalankan**.
+
+Status commit Vercel bisa dibaca tanpa token untuk repo publik:
+
+```bash
+curl -s https://api.github.com/repos/maulanaarifpratama-dotcom/halalprogym/commits/main/status
+```
+
+| `description` | `target_url` menunjuk | Artinya |
+| --- | --- | --- |
+| "Deployment has failed — run..." | halaman deployment | Build dijalankan dan **gagal**. Lognya ada isinya. |
+| "Deployment failed." | docs *project-configuration* | Konfigurasi **DITOLAK sebelum build jalan**. Lognya kosong, dan memperbaiki build tidak akan mengubah apa pun. |
+
+Yang kedua sudah pernah terjadi di sini, dan menghabiskan tiga percobaan perbaikan build yang
+semuanya sia-sia: `frontend/vercel.json` dikirim dengan kunci `"//"` sebagai komentar. JSON tidak
+punya komentar, dan skema Vercel `additionalProperties: false`. Sekarang dipaku
+`src/lib/vercel-headers.test.ts`. Untuk memeriksa berkas konfigurasi apa pun ke skema resminya:
+
+```bash
+node -e "fetch('https://openapi.vercel.sh/vercel.json').then(r=>r.json()).then(s=>console.log(Object.keys(JSON.parse(require('fs').readFileSync('vercel.json','utf8'))).filter(k=>!(k in s.properties))))"
+```
+
+Kalau tanda tangannya bentuk PERTAMA, lanjut ke tabel di bawah.
+
+**Catatan yang menghemat waktu: Deployment Protection.** Kalau menyala, URL deployment
+mengarahkan ke `vercel.com/sso-api` dan lognya tidak bisa dibaca dari luar dasbor sama sekali —
+termasuk oleh sesi agent. Bukan berarti deploy-nya gagal; berarti kamu yang harus membaca
+lognya, lewat dasbor → deployment → **Building**, atau `npx vercel inspect <deployment> --logs`.
 
 Tiga hal sudah ditutup dari repo, dan ketiganya diverifikasi dengan menjalankan perintahnya di
 clone git yang segar. Kalau masih merah, sebabnya ada di **setelan project**, dan lognya yang
@@ -111,8 +142,13 @@ npx @capacitor/assets generate ...
 Diverifikasi di clone git yang segar untuk kedua skenario Root Directory: `dist` 11 MB, nol
 error, `sw.js` ada di keduanya.
 
-Kalau Vercel masih gagal setelah ini, **baca lognya** dan cocokkan: `EBADENGINE` berarti setel
-Node.js Version di Project Settings ke 22.x; error lain berarti sebabnya bukan dua ini.
+Kalau Vercel masih gagal setelah ini, **cari tanda tangannya lebih dulu** (bagian di atas), baru
+baca lognya. `EBADENGINE` berarti Node yang dipilih Vercel lebih tua dari `engines.node`.
+
+Catatan soal versi yang dipilih: Vercel memetakan range terbuka ke versi **tertinggi** yang cocok,
+bukan terendah — jadi `>=22.12.0` berarti build berjalan di **Node 24**, bukan 22. Karena itu job
+`deploy-build` di CI menjalankan matriks [22, 24]; menguji 22 saja berarti menguji versi yang
+bukan versi produksi. Dipaku `src/lib/node-engines.test.ts`.
 
 ## Setelah deploy pertama
 
