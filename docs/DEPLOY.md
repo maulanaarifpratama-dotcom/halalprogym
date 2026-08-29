@@ -41,6 +41,33 @@ Keduanya memang terkirim ke browser, jadi bukan rahasia. Yang rahasia (`service_
 App tetap ter-build dan jalan penuh tanpa kedua variabel itu — dalam mode tamu, semuanya di
 localStorage. Itu jalur yang didukung, bukan mode darurat.
 
+## Kalau Vercel masih gagal — baca lognya, cocokkan di sini
+
+Tiga hal sudah ditutup dari repo, dan ketiganya diverifikasi dengan menjalankan perintahnya di
+clone git yang segar. Kalau masih merah, sebabnya ada di **setelan project**, dan lognya yang
+menjawab.
+
+| Yang tertulis di log | Artinya | Perbaikannya |
+| --- | --- | --- |
+| `EBADENGINE ... Required: {"node":">=22.12.0"}` | Node Vercel terlalu tua | Project Settings → **Node.js Version** → 22.x |
+| `cd: frontend: No such file or directory` | **Root Directory** disetel ke `frontend`, tapi `vercel.json` di akar tetap dibaca | Setel Root Directory ke **akar repo** (kosongkan field-nya) |
+| `No Output Directory named "frontend/dist"` | Sama seperti di atas | Sama |
+| `sharp` / `node-gyp` / `libvips` | Install script native gagal | Seharusnya mustahil sekarang — `frontend/.npmrc` mematikannya. Pastikan berkas itu ikut ter-commit. |
+| Tidak sampai ke tahap build sama sekali | Bukan soal kode | Cek repo yang ter-link, Deployment Protection, dan kuota build |
+
+**Root Directory harus AKAR REPO.** Kalau dia disetel ke `frontend`, `vercel.json` di akar tidak
+pernah dibaca: Vercel mendeteksi Vite sendiri dan build-nya tetap jalan — tapi seluruh `headers`
+hilang tanpa satu pun pesan. Yang paling mahal di antaranya `sw.js`: tanpa
+`Cache-Control: max-age=0`, service worker-nya di-cache CDN dan orang terjebak di versi lama app
+selamanya, karena SW lama yang menyajikan shell lama.
+
+Untuk berjaga, `frontend/vercel.json` ada dan membawa **hanya headers** — jadi konfigurasi itu pun
+tetap benar. Headers-nya wajib identik dengan yang di akar, dan itu dipaku
+`src/lib/vercel-headers.test.ts`. Perintah build sengaja TIDAK diduplikasi di sana.
+
+Kedua skenario dibangun di CI (`deploy-build`), jadi yang mana pun Root Directory-nya, jalurnya
+sudah terbukti.
+
 ## Versi Node dan `sharp` — dua hal yang membuat Vercel gagal sementara CI hijau
 
 Ada dua perbedaan antara GitHub Actions dan build Vercel, dan keduanya bisa menjatuhkan Vercel
@@ -67,10 +94,22 @@ men-generate ikon Android) menarik `sharp@0.32.6`, yang punya install script nat
 Actions punya toolchain untuk itu; image build Vercel belum tentu, dan `npm ci` yang gagal di
 install berarti build yang gagal sebelum satu baris kode dibaca.
 
-`vercel.json` sekarang memakai **`npm ci --ignore-scripts`**. Build web tidak butuh satu pun
-install script — diverifikasi dengan menjalankan perintah `buildCommand` apa adanya di clone
-bersih: `dist` 11 MB, nol error. Workflow Android tetap memakai `npm ci` biasa, jadi
-`@capacitor/assets` masih berfungsi di tempat yang memang memakainya.
+Perbaikannya ada di **`frontend/.npmrc`** (`ignore-scripts=true`), bukan cuma di `buildCommand`.
+Alasannya penting: `npm ci --ignore-scripts` di `vercel.json` hanya berlaku kalau Vercel membaca
+`vercel.json` — dan dia tidak membacanya kalau Root Directory disetel ke `frontend`. Berkas
+`.npmrc` berlaku di **kedua** konfigurasi, dan juga untuk siapa pun yang menjalankan
+`npm install` di mesinnya.
+
+Aman karena tidak ada satu pun skrip atau workflow yang menjalankan `@capacitor/assets` — dia
+dipanggil manual, sekali, saat men-generate ikon Android. Kalau butuh:
+
+```sh
+npm rebuild sharp --ignore-scripts=false
+npx @capacitor/assets generate ...
+```
+
+Diverifikasi di clone git yang segar untuk kedua skenario Root Directory: `dist` 11 MB, nol
+error, `sw.js` ada di keduanya.
 
 Kalau Vercel masih gagal setelah ini, **baca lognya** dan cocokkan: `EBADENGINE` berarti setel
 Node.js Version di Project Settings ke 22.x; error lain berarti sebabnya bukan dua ini.

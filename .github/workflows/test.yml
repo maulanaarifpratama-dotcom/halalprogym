@@ -85,3 +85,24 @@ jobs:
           test -f "$OUT/sw.js"     || { echo "::error::$OUT/sw.js tidak ada — offline rusak"; exit 1; }
           echo "isi $OUT:"; ls -la "$OUT"
           du -sh "$OUT"
+
+      # SKENARIO KEDUA, dan dia bukan hipotetis.
+      #
+      # Vercel membaca `vercel.json` dari Root Directory project — setelan dasbor yang tidak
+      # terlihat sama sekali dari repo. Kalau Root Directory disetel ke `frontend`, `vercel.json`
+      # di akar TIDAK PERNAH DIBACA: Vercel mendeteksi Vite sendiri dan menjalankan
+      # `npm install && npm run build` dengan output `dist`.
+      #
+      # Jadi jalur itu harus ikut dibuktikan. Kalau dia rusak, gejalanya identik dengan yang
+      # pertama — "deploy gagal" — sementara job di atas tetap hijau.
+      - name: Bersihkan hasil build pertama
+        run: rm -rf frontend/node_modules frontend/dist
+
+      - name: Zero-config Vite dari frontend/ (Root Directory = frontend)
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build
+          test -f dist/index.html || { echo "::error::dist/index.html tidak ada"; exit 1; }
+          test -f dist/sw.js      || { echo "::error::dist/sw.js tidak ada"; exit 1; }
+          du -sh dist

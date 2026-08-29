@@ -496,7 +496,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 976 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 981 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
@@ -531,10 +531,18 @@ punya dependensi, tidak dipakai membangun apa pun, dan tidak boleh diberi depend
 `EBADENGINE` yang menyebut versi yang dibutuhkan dan yang terpasang — bukan gagal jauh di dalam
 Vite. Sudah dibuktikan menyala dengan memalsukan `engines` ke `>=99`.
 
-**`vercel.json` memakai `npm ci --ignore-scripts`.** `@capacitor/assets` menarik `sharp@0.32.6`
-yang punya install script native; GitHub Actions punya toolchain untuk itu, image build Vercel
-belum tentu. Build web tidak butuh satu pun install script — diverifikasi dengan menjalankan
-`buildCommand` apa adanya di clone bersih. Workflow Android tetap `npm ci` biasa.
+**`frontend/.npmrc` menyalakan `ignore-scripts=true`, dan tempatnya yang menentukan.**
+`@capacitor/assets` menarik `sharp@0.32.6` yang punya install script native; GitHub Actions punya
+toolchain untuk itu, image build Vercel belum tentu. Perbaikan lewat `npm ci --ignore-scripts` di
+`vercel.json` HANYA berlaku kalau Vercel membaca `vercel.json` — dan dia tidak membacanya kalau
+**Root Directory** project disetel ke `frontend`. `.npmrc` berlaku di kedua konfigurasi.
+
+**Root Directory Vercel harus AKAR REPO.** Kalau disetel `frontend`, `vercel.json` di akar tidak
+pernah dibaca: build tetap jalan (Vercel mendeteksi Vite) tapi seluruh `headers` HILANG tanpa
+suara — termasuk `Cache-Control: max-age=0` untuk `sw.js`, dan service worker yang di-cache
+berarti orang terjebak di versi lama app selamanya. Untuk berjaga, `frontend/vercel.json` ada dan
+membawa **hanya headers**; keduanya dipaku identik oleh `vercel-headers.test.ts`. Perintah build
+sengaja tidak diduplikasi. Kedua skenario dibangun di job CI `deploy-build`.
 
 ## Empat checker, dan pertanyaan berbeda yang dijawab masing-masing
 
