@@ -65,11 +65,27 @@ jobs:
   # produksi — kelas kesalahan yang sama dengan checker yang hijau di atas simbol yang tidak ada.
   deploy-build:
     runs-on: ubuntu-latest
+    # DUA VERSI NODE, dan yang kedua justru yang dipakai produksi.
+    #
+    # Vercel memilih Node dari `engines.node`, dan dokumentasinya menyatakan range terbuka
+    # dipetakan ke versi TERTINGGI yang cocok — `>=22.12.0` berarti **24.x**, bukan 22. Jadi job
+    # ini, yang seluruh alasan keberadaannya adalah "buktikan perintah produksi masih jalan",
+    # sebelumnya membuktikan versi yang bukan versi produksi. Persis kelas asimetri yang
+    # melahirkan job ini.
+    #
+    # 22 tetap diuji karena itu yang dipakai gate lokal dan job `verify`; kalau keduanya
+    # menyimpang, yang menyimpang harus terlihat di sini, bukan di dasbor Vercel.
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: ${{ matrix.node }}
+      - name: Versi Node yang benar-benar dipakai
+        run: node -v && npm -v
       # TIDAK ada `npm ci` di sini: perintah dari vercel.json yang mengurus install-nya sendiri,
       # dan itu memang yang harus diuji. Menjalankan npm ci lebih dulu akan menyembunyikan
       # kegagalan install yang justru dicari.

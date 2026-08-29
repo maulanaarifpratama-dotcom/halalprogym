@@ -110,18 +110,18 @@ function tanpaKomentarDanString(src: string): string {
 
 const namaBerkas = (p: string): string => p.split(/[\\/]/).pop() as string
 
-describe('path di tes harus lintas-platform', () => {
-  const SEMUA_TES = new URL('../../src/', import.meta.url)
+const SEMUA_TES = new URL('../../src/', import.meta.url)
 
-  const kumpulkan = (dir: URL): string[] => {
-    const out: string[] = []
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      if (e.isDirectory()) out.push(...kumpulkan(new URL(e.name + '/', dir)))
-      else if (/\.test\.(jsx?|tsx?)$/.test(e.name)) out.push(fileURLToPath(new URL(e.name, dir)))
-    }
-    return out
+const kumpulkan = (dir: URL): string[] => {
+  const out: string[] = []
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) out.push(...kumpulkan(new URL(e.name + '/', dir)))
+    else if (/\.test\.(jsx?|tsx?)$/.test(e.name)) out.push(fileURLToPath(new URL(e.name, dir)))
   }
+  return out
+}
 
+describe('path di tes harus lintas-platform', () => {
   it('ada berkas tes yang dipindai', () => {
     expect(kumpulkan(SEMUA_TES).length).toBeGreaterThan(30)
   })
@@ -142,6 +142,47 @@ describe('path di tes harus lintas-platform', () => {
     expect(
       salah,
       'pakai fileURLToPath(url) untuk path berkas — pathname.slice(1) relatif di Linux'
+    ).toEqual([])
+  })
+})
+
+/**
+ * KELAS KETIGA: ANGGARAN JAM DINDING DI DALAM ASSERTION.
+ *
+ * `expect(Date.now() - mulai).toBeLessThan(3000)` terlihat seperti tes performa, tapi yang dia
+ * ukur adalah BEBAN MESIN, bukan kode. Satu tes di `ramadan-bands.test.ts` berbentuk begitu:
+ * hijau 816 ms saat berkasnya sendirian, merah 10.893 ms di suite penuh dengan worker paralel.
+ * Tidak ada satu baris kode yang berubah di antaranya.
+ *
+ * Akibatnya identik dengan flake waktu salat yang melahirkan berkas ini: CI merah tanpa sebab
+ * yang bisa direproduksi, orang menekan re-run, hijau, pelajarannya hilang. Dan lebih buruk,
+ * karena "tes performa" terdengar seperti tes yang berharga, jadi tidak ada yang mencurigainya.
+ *
+ * Yang benar adalah menghitung KERJA, bukan waktu: `ramadan-bands.linear.test.ts` menghitung
+ * panggilan `toHijri` per hari lewat `vi.mock`. Hitungan itu milik kode, dan mesin yang sibuk
+ * tidak mengubahnya.
+ */
+describe('tes tidak boleh memakai anggaran jam dinding', () => {
+  // Bentuk yang dilarang: hasil pengurangan dua pembacaan jam dibandingkan dengan ambang.
+  const ANGGARAN = /expect\s*\(\s*(?:Date|performance)\s*\.\s*now\s*\(\s*\)\s*-[^)]*\)\s*\.\s*toBe(?:Less|Greater)Than/
+
+  it('ada berkas tes yang dipindai', () => {
+    expect(kumpulkan(SEMUA_TES).length).toBeGreaterThan(30)
+  })
+
+  it('tidak ada assertion yang membandingkan durasi jam dinding dengan ambang', () => {
+    // Komentar dan literal string dibuang lebih dulu — penjelasan di atas menyebut bentuknya,
+    // dan penjaga yang menandai dokumentasinya sendiri akan dimatikan orang.
+    const salah: string[] = []
+    for (const f of kumpulkan(SEMUA_TES)) {
+      const kode = tanpaKomentarDanString(readFileSync(f, 'utf8'))
+      if (ANGGARAN.test(kode)) salah.push(namaBerkas(f))
+    }
+    expect(
+      salah,
+      'Hitung KERJA, bukan waktu. Bungkus fungsi mahalnya dengan vi.mock dan hitung panggilannya '
+      + '— lihat ramadan-bands.linear.test.ts. Ambang milidetik mengukur beban mesin, dan akan '
+      + 'merah di CI tanpa satu baris kode berubah.'
     ).toEqual([])
   })
 })

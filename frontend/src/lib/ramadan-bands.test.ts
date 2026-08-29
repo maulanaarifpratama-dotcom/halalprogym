@@ -150,17 +150,19 @@ describe('ramadanBands — masukan yang tidak berbentuk', () => {
     // Rentang datang dari data pengguna, dan satu entri berat badan dengan timestamp tahun 9999
     // akan membuat pemindaian hari-demi-hari menggantung layar Statistik. Itu tepat kelas
     // kegagalan yang aturan #1 larang: layar yang menunggu.
-    const mulai = Date.now()
+    //
+    // TIDAK diukur dengan `Date.now()`. Versi pertama menuntut di bawah 100 ms, dan anggaran jam
+    // dinding di dalam tes adalah kelas yang dilarang `no-wallclock-tests`: dia merah karena
+    // beban mesin, bukan karena kode. Yang membuktikan "tidak dipindai" adalah penghitung
+    // panggilan di `ramadan-bands.linear.test.ts`, dan itu tidak bergantung pada mesin.
     expect(ramadanBands(0, ms(9999, 1, 1))).toEqual([])
-    expect(Date.now() - mulai).toBeLessThan(100)
   })
 
-  it('rentang 20 tahun masih dilayani dan tetap cepat', () => {
+  it('rentang sebelas tahun masih dilayani', () => {
     // Batasnya harus cukup longgar untuk riwayat latihan siapa pun. Kalau dia menolak 5 tahun,
     // penandanya hilang untuk pengguna lama tanpa alasan.
-    const mulai = Date.now()
     const bands = ramadanBands(ms(2015, 1, 1), ms(2026, 1, 1))
     expect(bands.length).toBeGreaterThanOrEqual(10)
-    expect(Date.now() - mulai).toBeLessThan(3000)
   })
+
 })
