@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 /**
  * Tes yang bergantung pada JAM DINDING SUNGGUHAN, dan kenapa itu punya penjaganya sendiri.
@@ -36,7 +37,12 @@ const VIEWS = new URL('../views/', import.meta.url)
 const berkasTes = (): string[] =>
   readdirSync(VIEWS).filter(f => /\.test\.(jsx?|tsx?)$/.test(f))
 
-const baca = (f: string): string => readFileSync(join(VIEWS.pathname.slice(1), f), 'utf8')
+// `fileURLToPath`, BUKAN `.pathname.slice(1)`. Versi pertama memakai yang kedua dan itu cuma
+// benar di Windows: di sana pathname `/C:/…` jadi `C:/…` yang absolut. Di Linux pathname
+// `/home/…` jadi `home/…` — RELATIF, dan berkasnya tidak pernah ketemu. CI merah, mesin
+// pengembang hijau. `fileURLToPath` menangani keduanya, dan itu memang gunanya.
+const DIR = fileURLToPath(VIEWS)
+const baca = (f: string): string => readFileSync(join(DIR, f), 'utf8')
 
 describe('tes tidak boleh bergantung pada jam dinding', () => {
   it('ada berkas tes view yang dipindai — penjaga yang tidak memindai apa pun bukan penjaga', () => {
@@ -62,4 +68,80 @@ describe('tes tidak boleh bergantung pada jam dinding', () => {
       ).toEqual([])
     })
   }
+})
+
+/**
+ * Kelas kedua yang berkas ini jaga: PATH YANG CUMA BENAR DI SATU SISTEM OPERASI.
+ *
+ * `new URL(...).pathname` mengembalikan `/C:/Users/…` di Windows dan `/home/runner/…` di Linux.
+ * Trik `.slice(1)` membuat yang pertama absolut dan yang kedua RELATIF — jadi berkasnya ketemu di
+ * mesin pengembang dan hilang di CI. Itu persis bentuk kegagalan yang paling mahal di repo ini:
+ * gate lokal hijau, CI merah, dan tidak ada yang membaca lognya.
+ *
+ * `fileURLToPath` menangani keduanya, dan itu memang gunanya.
+ */
+/**
+ * Membuang komentar dan literal string, supaya penjaga di bawah tidak menandai penjelasannya
+ * sendiri maupun pesan assertion-nya sendiri. Penjaga yang selalu merah karena dirinya sendiri
+ * akan dimatikan orang, bukan diperbaiki.
+ */
+function tanpaKomentarDanString(src: string): string {
+  let out = ''
+  let i = 0
+  let mode: 'kode' | 'baris' | 'blok' | 'str' = 'kode'
+  let kutip = ''
+  while (i < src.length) {
+    const c = src[i] as string
+    const n = src[i + 1]
+    if (mode === 'kode') {
+      if (c === '/' && n === '/') { mode = 'baris'; i += 2; continue }
+      if (c === '/' && n === '*') { mode = 'blok'; i += 2; continue }
+      if (c === '"' || c === "'" || c === '`') { mode = 'str'; kutip = c; i++; continue }
+      out += c; i++; continue
+    }
+    if (mode === 'baris') { if (c === '\n') { mode = 'kode'; out += c } i++; continue }
+    if (mode === 'blok') { if (c === '*' && n === '/') { mode = 'kode'; i += 2 } else i++; continue }
+    if (c === '\\') { i += 2; continue }
+    if (c === kutip) mode = 'kode'
+    i++
+  }
+  return out
+}
+
+const namaBerkas = (p: string): string => p.split(/[\\/]/).pop() as string
+
+describe('path di tes harus lintas-platform', () => {
+  const SEMUA_TES = new URL('../../src/', import.meta.url)
+
+  const kumpulkan = (dir: URL): string[] => {
+    const out: string[] = []
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) out.push(...kumpulkan(new URL(e.name + '/', dir)))
+      else if (/\.test\.(jsx?|tsx?)$/.test(e.name)) out.push(fileURLToPath(new URL(e.name, dir)))
+    }
+    return out
+  }
+
+  it('ada berkas tes yang dipindai', () => {
+    expect(kumpulkan(SEMUA_TES).length).toBeGreaterThan(30)
+  })
+
+  it('tidak ada `.pathname` yang dipakai sebagai path berkas', () => {
+    // Komentar DAN string literal dibuang lebih dulu. Tanpa itu penjaga ini menandai
+    // penjelasannya sendiri dan pesan assertion-nya sendiri — dan penjaga yang selalu merah
+    // karena dirinya sendiri akan dimatikan orang, bukan diperbaiki.
+    //
+    // Dikecualikan secara alami: `locale-orphans.test.ts` memakai `.pathname` DENGAN normalisasi
+    // drive letter yang eksplisit, dan itu benar di kedua sistem. Yang dilarang bentuk
+    // `.slice(` setelahnya.
+    const salah: string[] = []
+    for (const f of kumpulkan(SEMUA_TES)) {
+      const kode = tanpaKomentarDanString(readFileSync(f, 'utf8'))
+      if (/\.pathname\s*\.\s*slice\s*\(/.test(kode)) salah.push(namaBerkas(f))
+    }
+    expect(
+      salah,
+      'pakai fileURLToPath(url) untuk path berkas — pathname.slice(1) relatif di Linux'
+    ).toEqual([])
+  })
 })

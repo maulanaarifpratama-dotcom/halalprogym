@@ -167,12 +167,54 @@ export interface PrayerSchedule {
   imsak: Date
 }
 
+/**
+ * Bagian tanggal SEBUAH INSTAN DI ZONA KOTANYA, bukan di zona mesin yang menjalankan kode.
+ *
+ * KENAPA INI ADA, DAN KENAPA DIA BUKAN KERAPIAN
+ *
+ * `adhan.PrayerTimes(coords, date, params)` membaca Y/M/D dari `date` memakai zona waktu
+ * RUNTIME. Jadi kalau perangkatnya UTC sementara kotanya Jakarta, satu instan jam 05:50 WIB
+ * (= 22:50 UTC hari sebelumnya) dibaca sebagai hari KEMARIN — dan seluruh jadwalnya bergeser
+ * satu hari.
+ *
+ * Ditemukan dari CI, bukan dari mesin pengembang: gate lokal hijau di Asia/Jakarta dan merah di
+ * runner UTC, dengan `nextPrayer` mengembalikan Subuh padahal seharusnya Zuhur. Itu bukan tes
+ * yang cerewet — itu bug produksi yang cuma tidak terlihat karena perangkat pengembang kebetulan
+ * sezona dengan kotanya. Orang Indonesia yang perangkatnya disetel UTC, atau yang bepergian
+ * sambil tetap memilih kota asalnya, mendapat jadwal hari yang salah di sekitar tengah malam.
+ *
+ * `city.tz` sudah ada di setiap kota sejak awal dan cuma dipakai untuk MEMFORMAT. Sekarang dia
+ * juga yang menentukan harinya.
+ */
+function cityDay(city: City, at: Date): { y: number; m: number; d: number } {
+  // 'en-CA' memberi YYYY-MM-DD, bentuk yang paling tidak ambigu untuk dipecah.
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: city.tz, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(at).split('-').map(Number)
+  return { y: parts[0] as number, m: parts[1] as number, d: parts[2] as number }
+}
+
+/**
+ * `Date` yang Y/M/D LOKAL-RUNTIME-nya sama dengan hari kalender di kota itu.
+ *
+ * Ini yang diserahkan ke adhan. Tengah hari dipilih supaya tidak ada pergeseran DST yang bisa
+ * menggesernya ke hari sebelah — menambah atau mengurangi satu jam dari tengah hari selalu
+ * mendarat di hari yang sama.
+ */
+function asCityLocalNoon(city: City, at: Date): Date {
+  const { y, m, d } = cityDay(city, at)
+  return new Date(y, m - 1, d, 12, 0, 0, 0)
+}
+
 const isoOf = (d: Date): string =>
   d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 
 /** Jadwal satu hari untuk satu kota. `date` diterima supaya fungsinya deterministik dan bisa ditesnya. */
 export function scheduleFor(city: City, date: Date = new Date()): PrayerSchedule {
-  const pt = new adhan.PrayerTimes(new adhan.Coordinates(city.lat, city.lng), date, paramsFor(city))
+  // Harinya diambil dari zona KOTA — lihat cityDay. Waktu yang dikembalikan adhan tetap instan
+  // absolut, jadi perbandingan dengan `now` benar di zona mana pun.
+  const day = asCityLocalNoon(city, date)
+  const pt = new adhan.PrayerTimes(new adhan.Coordinates(city.lat, city.lng), day, paramsFor(city))
   const times: Record<PrayerName, Date> = {
     subuh: pt.fajr,
     terbit: pt.sunrise,
@@ -183,7 +225,8 @@ export function scheduleFor(city: City, date: Date = new Date()): PrayerSchedule
   }
   return {
     city,
-    d: isoOf(date),
+    // Tanggal KOTA, bukan tanggal mesin — lihat cityDay.
+    d: isoOf(day),
     times,
     imsak: new Date(pt.fajr.getTime() - IMSAK_BEFORE_FAJR_MIN * 60000)
   }
@@ -230,9 +273,13 @@ export const PRAYER_WINDOW_MIN: Record<PrayerName, number> = {
 /** Jendela Jumu'ah, dipakai menggantikan Zuhur pada hari Jumat. */
 export const JUMUAH_WINDOW_MIN = 75
 
-const windowFor = (name: PrayerName, date: Date): number =>
+const windowFor = (name: PrayerName, date: Date, city: City): number =>
   // getDay() 5 = Jumat. Zuhur di hari Jumat itu salat Jumat: khutbah plus salat plus keluar.
-  (name === 'zuhur' && date.getDay() === 5 ? JUMUAH_WINDOW_MIN : PRAYER_WINDOW_MIN[name])
+  // Harinya ditentukan di zona KOTA: di perangkat UTC, Zuhur Jakarta hari Jumat jatuh pada
+  // instan yang masih Kamis menurut mesin, dan jendelanya akan menyusut dari 75 ke 25 menit.
+  (name === 'zuhur' && asCityLocalNoon(city, date).getDay() === 5
+    ? JUMUAH_WINDOW_MIN
+    : PRAYER_WINDOW_MIN[name])
 
 export interface ActiveWindow {
   name: PrayerName
@@ -252,7 +299,7 @@ export function activePrayerWindow(city: City, now: Date = new Date()): ActiveWi
   const sched = scheduleFor(city, now)
   for (const name of SALAT_TIMES) {
     const at = sched.times[name]
-    const until = new Date(at.getTime() + windowFor(name, now) * 60000)
+    const until = new Date(at.getTime() + windowFor(name, now, city) * 60000)
     if (now >= at && now < until) return { name, at, until }
   }
   return null
@@ -272,7 +319,7 @@ export function prayerClash(
   const sched = scheduleFor(city, start)
   for (const name of SALAT_TIMES) {
     const at = sched.times[name]
-    const until = new Date(at.getTime() + windowFor(name, start) * 60000)
+    const until = new Date(at.getTime() + windowFor(name, start, city) * 60000)
     if (at < end && until > start) return { name, at, until }
   }
   return null

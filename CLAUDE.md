@@ -496,11 +496,20 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 981 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — 983 test case, JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →
-`check:locale-keys` → `test` → `build`. Pakai ini, jangan mengingat urutannya sendiri.
+`check:locale-keys` → `test` → **`test:utc`** → `build`. Pakai ini, jangan mengingat urutannya
+sendiri.
+
+**`test:utc` menjalankan suite KEDUA KALINYA di zona waktu UTC**, dan itu ada karena gate
+lokal hijau berhari-hari sementara CI merah di SETIAP commit tanpa ada yang tahu. Mesin
+pengembang di Asia/Jakarta, runner GitHub di UTC. Yang ketahuan bukan tes cerewet: `adhan`
+membaca hari kalender dari zona RUNTIME, jadi perangkat yang tidak sezona dengan kota
+terpilih mendapat jadwal hari yang salah. Dijalankan lewat `scripts/test-utc.mjs` dan bukan
+`TZ=UTC vitest run`, karena bentuk POSIX itu gagal di cmd.exe — dan `verify` justru perintah
+yang paling sering dijalankan di mesin Windows.
 
 **CI punya DUA job, dan keduanya menjawab pertanyaan yang berbeda.** `verify` menjawab "apakah
 kodenya benar". `deploy-build` menjawab "apakah perintah yang dipakai PRODUKSI masih jalan" — dan
@@ -643,6 +652,13 @@ bohong dan membuat baris itu tampak sudah diputuskan padahal belum. Kalau Inggri
 kuncinya tidak diisi dan daftarkan di `ID_KEEPS_ENGLISH`.
 
 ## Aturan tes yang diwarisi dan tetap berlaku
+
+**Waktu salat dihitung untuk hari kalender KOTA, bukan hari kalender perangkat.**
+`scheduleFor` menurunkan Y/M/D lewat `city.tz` sebelum menyerahkannya ke `adhan`, karena
+`adhan` membaca tanggal dari zona runtime. Tanpa itu, perangkat UTC dengan kota Jakarta
+membaca instan 05:50 WIB sebagai hari KEMARIN dan seluruh jadwalnya bergeser sehari.
+Jendela Jumat juga ditentukan di zona kota. `city.tz` sudah ada sejak awal dan dulu cuma
+dipakai memformat.
 
 **Tes TIDAK BOLEH bergantung pada jam dinding.** `Workout.test.jsx` hijau berbulan-bulan lalu
 merah tanpa satu baris kode berubah: hijau 15:11, merah 15:17, dan Asar hari itu tepat 15:17.

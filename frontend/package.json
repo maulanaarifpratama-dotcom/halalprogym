@@ -18,8 +18,9 @@
     "build:mobile": "npm run media:demo && VITE_MOBILE=1 VITE_DEMO_BASE=demo/ vite build && npm run media:demo:emit && cap sync",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:utc": "node scripts/test-utc.mjs",
     "test:watch": "vitest",
-    "verify": "npm run typecheck && npm run check:names && npm run check:locales && npm run check:locale-keys && npm test && npm run build"
+    "verify": "npm run typecheck && npm run check:names && npm run check:locales && npm run check:locale-keys && npm test && npm run test:utc && npm run build"
   },
   "license": "AGPL-3.0-or-later",
   "dependencies": {
