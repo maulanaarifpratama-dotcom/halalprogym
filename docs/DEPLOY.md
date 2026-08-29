@@ -1,14 +1,27 @@
 # Deploy — Vercel
 
-## Kenapa `vercel.json` ada di root, bukan di `frontend/`
+## Kenapa `vercel.json` ada DI DUA TEMPAT
 
-Repo ini punya `frontend/` sebagai subfolder, dan Vercel membaca `vercel.json` dari root
-repository. `buildCommand` yang masuk ke `frontend/` lebih eksplisit daripada menyetel Root
-Directory di dashboard: yang di berkas ikut ter-review dan ikut ter-versi, yang di dashboard
-tidak.
+Kalimat yang dulu ada di sini salah, dan kesalahannya memakan waktu berjam-jam: dokumen ini
+menulis "Vercel membaca `vercel.json` dari root repository". **Vercel membacanya dari Root
+Directory**, dan Root Directory itu setelan dasbor yang tidak terlihat sama sekali dari dalam
+repo. Untuk project ini nilainya `frontend` — jadi berkas yang dibaca justru
+`frontend/vercel.json`, bukan yang di akar.
 
-`installCommand: "echo skip"` karena `npm ci` sudah dijalankan di dalam `buildCommand` — Vercel
-akan menjalankan install di root, tempat tidak ada `package.json`.
+| Berkas | Isinya | Dipakai kalau Root Directory… |
+| --- | --- | --- |
+| `vercel.json` (akar) | build + headers | akar repo |
+| `frontend/vercel.json` | **hanya** headers | `frontend` ← **yang berlaku sekarang** |
+
+Keduanya sengaja ada supaya konfigurasi mana pun menghasilkan deploy yang benar. Headers-nya
+wajib identik, dipaku `src/lib/vercel-headers.test.ts`; build sengaja tidak diduplikasi.
+
+Di berkas akar, `installCommand: "echo skip"` karena `npm ci` sudah dijalankan di dalam
+`buildCommand` — tanpa itu Vercel menjalankan install di akar, tempat tidak ada dependensi untuk
+dipasang.
+
+Cara memastikan mana yang sedang dipakai ada di bagian **Root Directory** di bawah — satu perintah
+`curl`, tanpa membuka dasbor.
 
 ## Header, dan kenapa masing-masing ada
 
@@ -86,15 +99,33 @@ menjawab.
 | `sharp` / `node-gyp` / `libvips` | Install script native gagal | Seharusnya mustahil sekarang — `frontend/.npmrc` mematikannya. Pastikan berkas itu ikut ter-commit. |
 | Tidak sampai ke tahap build sama sekali | Bukan soal kode | Cek repo yang ter-link, Deployment Protection, dan kuota build |
 
-**Root Directory harus AKAR REPO.** Kalau dia disetel ke `frontend`, `vercel.json` di akar tidak
-pernah dibaca: Vercel mendeteksi Vite sendiri dan build-nya tetap jalan — tapi seluruh `headers`
-hilang tanpa satu pun pesan. Yang paling mahal di antaranya `sw.js`: tanpa
-`Cache-Control: max-age=0`, service worker-nya di-cache CDN dan orang terjebak di versi lama app
-selamanya, karena SW lama yang menyajikan shell lama.
+**Root Directory project ini `frontend`, dan itu TERBUKTI — bukan diduga.** Dokumen ini sempat
+menulis "harus akar repo"; itu salah, dan diperbaiki setelah deploy pertama yang berhasil.
 
-Untuk berjaga, `frontend/vercel.json` ada dan membawa **hanya headers** — jadi konfigurasi itu pun
-tetap benar. Headers-nya wajib identik dengan yang di akar, dan itu dipaku
-`src/lib/vercel-headers.test.ts`. Perintah build sengaja TIDAK diduplikasi di sana.
+Cara membuktikannya tanpa membuka dasbor: **periksa header `sw.js` di produksi.** Kalau
+`Cache-Control: max-age=0, must-revalidate` dan `Service-Worker-Allowed` muncul, berkas yang
+dibaca adalah yang berada di Root Directory.
+
+```bash
+curl -sI https://halalprogym.vercel.app/sw.js | grep -i "cache-control\|service-worker-allowed"
+```
+
+Keduanya sah dan keduanya menghasilkan deploy yang benar, tapi **berkas yang dibaca berbeda**:
+
+| Root Directory | Berkas yang dibaca | Yang mengurus build |
+| --- | --- | --- |
+| akar repo | `vercel.json` | `buildCommand` (`cd frontend && …`) |
+| `frontend` ← **yang dipakai sekarang** | `frontend/vercel.json` | deteksi Vite bawaan Vercel |
+
+Itu sebabnya `frontend/vercel.json` ada dan membawa **hanya headers**. Dia ditambahkan sebagai
+jaga-jaga terhadap kemungkinan yang tidak bisa dilihat dari dalam repo — dan ternyata dia yang
+benar-benar dipakai. Tanpa dia, seluruh `headers` hilang **tanpa satu pun pesan**, dan yang paling
+mahal di antaranya `sw.js`: tanpa `Cache-Control: max-age=0`, service worker-nya di-cache CDN dan
+orang terjebak di versi lama app selamanya, karena SW lama yang menyajikan shell lama.
+
+Headers-nya wajib identik dengan yang di akar, dan itu dipaku `src/lib/vercel-headers.test.ts`.
+Perintah build sengaja TIDAK diduplikasi di sana: di konfigurasi ini Vercel sudah mendeteksi Vite
+dengan benar, dan menuliskan perintah build kedua kalinya berarti dua tempat yang bisa menyimpang.
 
 Kedua skenario dibangun di CI (`deploy-build`), jadi yang mana pun Root Directory-nya, jalurnya
 sudah terbukti.
