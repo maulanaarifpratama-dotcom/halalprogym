@@ -793,11 +793,8 @@ export default {
   'Food database': 'Besin veritabanı',
   'Database': 'Veritabanı',
   'Search a product or ingredient': 'Ürün veya malzeme ara',
-  'Loading the database…': 'Veritabanı yükleniyor…',
-  'Type at least two letters': 'En az iki harf yaz',
   'Nothing matches that': 'Eşleşen bir şey yok',
   'Ingredient': 'Malzeme',
-  'Product': 'Ürün',
   'Already in your foods': 'Zaten besinlerinde var',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Veri: Open Food Facts (ODbL 1.0) ve USDA FoodData Central (kamu malı).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Paketli ürünleri ve temel besinleri yerleşik veritabanında ara, pişmiş bir yemeği yapay zekâya tahmin ettir ya da değerleri etiketten kendin gir.',
@@ -806,4 +803,6 @@ export default {
   'per 100 {0}': '100 {0} başına',
   'How many ml?': 'Kaç ml?',
   'Pack': 'Ambalaj',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    '{0} paketli ürün ve {1} Endonezya temel besini arasında ara.',
 }

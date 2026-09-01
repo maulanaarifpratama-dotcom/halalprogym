@@ -794,11 +794,8 @@ export default {
   'Food database': 'База продуктов',
   'Database': 'База',
   'Search a product or ingredient': 'Найти продукт или ингредиент',
-  'Loading the database…': 'Загрузка базы…',
-  'Type at least two letters': 'Введите хотя бы две буквы',
   'Nothing matches that': 'Ничего не найдено',
   'Ingredient': 'Ингредиент',
-  'Product': 'Продукт',
   'Already in your foods': 'Уже в ваших продуктах',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Данные: Open Food Facts (ODbL 1.0) и USDA FoodData Central (общественное достояние).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Ищите упакованные продукты и базовые ингредиенты во встроенной базе, попросите ИИ оценить готовое блюдо или введите значения с этикетки сами.',
@@ -807,4 +804,6 @@ export default {
   'per 100 {0}': 'на 100 {0}',
   'How many ml?': 'Сколько мл?',
   'Pack': 'Упаковка',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    'Поиск среди {0} упакованных продуктов и {1} базовых индонезийских ингредиентов.',
 }

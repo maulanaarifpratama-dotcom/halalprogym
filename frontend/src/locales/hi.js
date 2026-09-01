@@ -793,11 +793,8 @@ export default {
   'Food database': 'खाद्य डेटाबेस',
   'Database': 'डेटाबेस',
   'Search a product or ingredient': 'उत्पाद या सामग्री खोजें',
-  'Loading the database…': 'डेटाबेस लोड हो रहा है…',
-  'Type at least two letters': 'कम से कम दो अक्षर लिखें',
   'Nothing matches that': 'कुछ भी मेल नहीं खाता',
   'Ingredient': 'सामग्री',
-  'Product': 'उत्पाद',
   'Already in your foods': 'आपके खाद्य पदार्थों में पहले से है',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'डेटा: Open Food Facts (ODbL 1.0) और USDA FoodData Central (सार्वजनिक डोमेन)।',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'पैकेज्ड उत्पाद और मुख्य सामग्री अंतर्निर्मित डेटाबेस में खोजें, पकाए हुए व्यंजन का अनुमान AI से लगवाएँ, या लेबल से संख्याएँ स्वयं भरें।',
@@ -806,4 +803,6 @@ export default {
   'per 100 {0}': 'प्रति 100 {0}',
   'How many ml?': 'कितने ml?',
   'Pack': 'पैक',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    '{0} पैकेज्ड उत्पाद और {1} इंडोनेशियाई मुख्य सामग्री खोजें।',
 }

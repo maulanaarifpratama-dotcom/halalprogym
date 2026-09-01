@@ -130,3 +130,77 @@ describe('token --acc-ink terpasang di kedua tema', () => {
     expect([...CSS.matchAll(/color:\s*var\(--yellow\)/g)].length).toBe(0)
   })
 })
+
+
+/**
+ * TANGGA LABEL, dan kenapa dia butuh penjaganya sendiri.
+ *
+ * Berkas ini lahir untuk menjaga AKSEN sebagai teks (`--acc-ink`), dan itu menutup satu kelas
+ * dengan rapi. Tapi kelasnya lebih luas dari aksen: `--label-3` gagal AA di KEDUA tema tanpa ada
+ * yang pernah mengukurnya — **3,49:1** di tema gelap dan **2,65:1** di tema terang, hampir separuh
+ * dari yang dituntut.
+ *
+ * Dia dipakai 24 kali di `index.css`, dan hampir semuanya teks: label kolom, kapsi, dan yang
+ * paling sering ditatap orang, **`.field::placeholder`**. Jadi setiap kolom pencarian di app ini
+ * punya placeholder yang tidak lolos, di tema yang paling terang.
+ *
+ * Bentuknya identik dengan cerita `--acc-ink` yang sudah tercatat: kesadaran ada di komentar,
+ * pengukurannya tidak, dan yang menanggungnya orang yang memakai tema bukan-default.
+ *
+ * Dihitung dari token, bukan dari render — kontras itu aritmetika atas dua warna, dan pengukuran
+ * lewat browser di lingkungan ini sudah terbukti tidak bisa dipercaya (transisi CSS macet di
+ * `currentTime` 0 dan `getComputedStyle` mengembalikan warna LAMA).
+ */
+describe('tangga label lolos WCAG AA di kedua tema', () => {
+  /** `rgba(r,g,b,a)` dikomposit di atas latar opak, lalu dikembalikan sebagai #rrggbb. */
+  function flatten(rgba: string, bg: string): string {
+    const m = rgba.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+))?\s*\)/)
+    expect(m, 'nilai token harus rgba(): ' + rgba).toBeTruthy()
+    const g = m as RegExpMatchArray
+    const rgb: number[] = [1, 2, 3].map(i => Number(g[i]))
+    const a = g[4] === undefined ? 1 : Number(g[4])
+    const h = bg.replace('#', '')
+    const bgv: number[] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16))
+    const out: number[] = rgb.map((c, i) => Math.round(c * a + (bgv[i] as number) * (1 - a)))
+    return '#' + out.map(c => c.toString(16).padStart(2, '0')).join('')
+  }
+
+  const TEMA = [
+    { nama: 'gelap', sel: ':root', permukaan: ['bg', 'surface', 'surface-2'] },
+    { nama: 'terang', sel: ':root[data-theme="light"]', permukaan: ['bg', 'surface', 'surface-2'] },
+  ] as const
+
+  // `--label-3` adalah tingkat paling redup yang masih TEKS. Kalau nanti ada tingkat yang lebih
+  // redup lagi, dia masuk daftar ini — atau dia bukan untuk teks, dan itu harus ditulis.
+  const LABEL = ['label', 'label-2', 'label-3'] as const
+
+  for (const tema of TEMA) {
+    for (const nama of LABEL) {
+      for (const permukaan of tema.permukaan) {
+        it(`${tema.nama}: --${nama} di atas --${permukaan}`, () => {
+          const fg = token(tema.sel, nama)
+          const bg = token(tema.sel, permukaan)
+          // Token label boleh berupa hex opak (--label) atau rgba (--label-2/-3).
+          const datar = fg.startsWith('#') ? fg : flatten(fg, bg)
+          const r = contrast(datar, bg)
+          expect(
+            r,
+            `--${nama} di atas --${permukaan} (${tema.nama}) cuma ${r.toFixed(2)}:1. `
+            + 'WCAG AA menuntut 4,5:1 untuk teks biasa, dan token ini dipakai untuk teks — '
+            + 'termasuk .field::placeholder.'
+          ).toBeGreaterThanOrEqual(4.5)
+        })
+      }
+    }
+  }
+
+  it('`.dim` memang memakai --label-3, jadi penjaga di atas menjaga sesuatu', () => {
+    // Tanpa ini, seseorang bisa mengganti .dim ke token lain dan penjaga di atas jadi hijau
+    // sambil tidak lagi menjaga teks yang sebenarnya tampil.
+    expect(CSS).toMatch(/\.dim\s*\{\s*color:var\(--label-3\)\s*\}/)
+  })
+
+  it('placeholder kolom teks memakai token yang dijaga', () => {
+    expect(CSS).toMatch(/::placeholder[^{]*\{[^}]*var\(--label-3\)/)
+  })
+})

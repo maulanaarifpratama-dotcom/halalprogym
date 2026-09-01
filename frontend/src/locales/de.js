@@ -811,11 +811,8 @@ export default {
   'Food database': 'Lebensmittel-Datenbank',
   'Database': 'Datenbank',
   'Search a product or ingredient': 'Produkt oder Zutat suchen',
-  'Loading the database…': 'Datenbank wird geladen…',
-  'Type at least two letters': 'Mindestens zwei Buchstaben eingeben',
   'Nothing matches that': 'Keine Treffer',
   'Ingredient': 'Zutat',
-  'Product': 'Produkt',
   'Already in your foods': 'Schon in deinen Lebensmitteln',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Daten: Open Food Facts (ODbL 1.0) und USDA FoodData Central (gemeinfrei).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Suche in der integrierten Datenbank nach Fertigprodukten und Grundnahrungsmitteln, lass die KI ein gekochtes Gericht schätzen, oder gib die Werte selbst vom Etikett ein.',
@@ -824,4 +821,6 @@ export default {
   'per 100 {0}': 'pro 100 {0}',
   'How many ml?': 'Wie viele ml?',
   'Pack': 'Packung',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    'Durchsuche {0} Fertigprodukte und {1} indonesische Grundnahrungsmittel.',
 }

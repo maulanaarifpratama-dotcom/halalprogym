@@ -374,15 +374,14 @@ export const PT_BR_OVERRIDES = {
   'Food database': 'Banco de alimentos',
   'Database': 'Banco de dados',
   'Search a product or ingredient': 'Buscar um produto ou ingrediente',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    'Busque em {0} produtos embalados e {1} alimentos básicos indonésios.',
   'per 100 {0}': 'por 100 {0}',
   'How many ml?': 'Quantos ml?',
   'Pack': 'Embalagem',
   'Ingredient': 'Ingrediente',
-  'Product': 'Produto',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).':
     'Dados: Open Food Facts (ODbL 1.0) e USDA FoodData Central (domínio público).',
-  'Loading the database…': 'Carregando o banco de dados…',
-  'Type at least two letters': 'Digite pelo menos duas letras',
   'Nothing matches that': 'Nada corresponde',
   'Already in your foods': 'Já está nos seus alimentos',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Busque produtos embalados e alimentos básicos no banco embutido, deixe a IA estimar um prato pronto, ou digite você mesmo os números do rótulo.',

@@ -39,7 +39,12 @@
   /* text — putih pecah bernada hijau, dari --fg brand */
   --label:     #eaf3e6;
   --label-2:   rgba(234,243,230,.66);
-  --label-3:   rgba(234,243,230,.40);
+  /* .40 -> .52, dan angkanya DIUKUR bukan dipilih.
+     Pada .40 token ini memberi 3,49:1 di atas --surface dan 3,42:1 di atas --bg — di bawah 4,5:1
+     yang WCAG AA tuntut untuk teks biasa. Dia dipakai 24 kali, dan hampir semuanya TEKS: label
+     kolom, kapsi, dan yang paling sering ditatap orang, `.field::placeholder`.
+     Pada .52 terukur: bg 5,12 · surface 5,01 · surface-2 4,67. Ketiganya lolos. */
+  --label-3:   rgba(234,243,230,.52);
   --label-4:   rgba(234,243,230,.20);
 
   /* lines — hairline bernada lime, detail paling khas brand-nya.
@@ -99,7 +104,12 @@
      untuk teks biasa, dan teks sekunder di sini dipakai untuk subtitle baris dan label
      segmented yang benar-benar dibaca, bukan hiasan. .74 terukur di atas 4.5. */
   --label-2:   rgba(10,17,9,.74);
-  --label-3:   rgba(10,17,9,.40);
+  /* .40 -> .60. Di tema terang pelanggarannya JAUH lebih buruk: 2,65:1 di atas putih, hampir
+     separuh dari yang dituntut. Bentuknya persis cerita --acc-ink yang sudah tercatat di
+     CLAUDE.md — kesadaran ada, tapi tidak ada yang mengukurnya, dan yang mengukur adalah orang
+     yang memakai tema bukan-default.
+     Pada .60 terukur: bg 4,90 · surface 5,03 · surface-2 4,77. */
+  --label-3:   rgba(10,17,9,.60);
   --label-4:   rgba(10,17,9,.18);
 
   /* di atas paper, lime .12 nyaris hilang — garis terang pakai tinta, bukan aksen */
@@ -443,6 +453,26 @@ h4.sec{
 .item .ss{color:var(--label-2);font-size:13px;margin-top:2px}
 .item .grow{flex:1;min-width:0}
 .chev{color:var(--label);flex:none;font-size:15px;--icon-stroke:2.4}
+
+/* --- kolom kalori di baris daftar makanan ---
+   Angkanya yang dipindai, bukan namanya. Daftar makanan dibaca dengan pertanyaan "yang mana yang
+   lebih ringan", dan itu pertanyaan yang dijawab dengan membaca satu kolom lurus ke bawah — bukan
+   dengan mencari angka di tengah kalimat subjudul.
+
+   `tabular-nums` bukan hiasan di sini: tanpa itu lebar digit berubah antar baris dan kolomnya
+   berhenti lurus, yang menghapus satu-satunya alasan kolom ini ada. Alasan yang sama dengan
+   .efftbl .n dan rest timer.
+
+   Lebar minimum dipatok supaya tepi kanannya sejajar walau angkanya 8 atau 482. */
+.item .kc{
+  flex:none;min-width:52px;text-align:right;display:flex;flex-direction:column;
+  align-items:flex-end;gap:1px;line-height:1;
+}
+.item .kc b{
+  font-size:16px;font-weight:600;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;
+}
+.item .kc span{font-size:11px;color:var(--label-3);letter-spacing:.01em}
 .tag{
   display:inline-flex;align-items:center;gap:3px;background:var(--surface-2);
   color:var(--label-2);border-radius:6px;padding:3px 7px;font-size:12px;
@@ -462,6 +492,12 @@ h4.sec{
   letter-spacing:-.006em;transition:background var(--fast),color var(--fast);
 }
 .chip:active{background:var(--surface-2)}
+/* Chip yang isinya membawa SATUAN, bukan kata.
+   `.chip` meng-`capitalize` isinya, dan itu benar untuk label kategori ("dada", "punggung") tapi
+   salah untuk satuan: "350 ml" jadi "350 Ml". Satuan SI bukan kata, dan kapitalnya membawa arti —
+   "Ml" tidak berarti apa pun, dan di satuan lain kesalahan yang sama menghasilkan satuan yang
+   BEDA (mm vs Mm, ms vs Ms). Label di dalamnya sudah datang berkapital dari pack bahasa. */
+.chip.unit{text-transform:none}
 .chip.on{background:var(--acc);color:var(--on-acc);font-weight:500}
 
 /* =========================== CONTROLS ==================================== */

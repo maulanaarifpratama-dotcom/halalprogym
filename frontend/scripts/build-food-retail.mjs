@@ -210,16 +210,108 @@ const b0 = n => Math.round(n)
 const b1 = n => Math.round(n * 10) / 10
 
 /**
- * Nama produk sering tercemar SKU di depan: "17000725 Oreo Original (Vanilla)". Prefiks angka
- * panjang dibuang; angka pendek TIDAK, karena "3 Sapi" dan "2 Tang" itu merek sungguhan.
+ * Membersihkan nama produk. Datanya kontribusi pengguna, dan itu terlihat.
+ *
+ * Yang diperbaiki, urut dari yang paling merusak keterbacaan daftar:
+ *
+ *   "17000725 Oreo Original"          -> SKU di depan
+ *   "SUSU ULTRA MILK COKLAT 250ML"    -> ALL-CAPS, dan ukuran kemasan diulang
+ *   "Indomie Goreng Rendang 5X91G"    -> notasi multipack di ekor
+ *   "Ultra milk full cream 250 ml E-1B" -> kode internal distributor
+ *   "- Fresco", "Ahh'"                -> tanda baca menggantung
+ *
+ * UKURAN KEMASAN DIBUANG DARI NAMA, dan itu bukan penghematan karakter: ukurannya sekarang punya
+ * tempat sendiri (chip "Kemasan · 350 ml" dan baris subjudul). Membiarkannya di nama berarti
+ * informasi yang sama muncul dua kali di satu baris, dan daftar yang harus dipindai mata di gym
+ * kehilangan tepat hal yang membuatnya bisa dipindai.
+ *
+ * Konsekuensinya kunci dedup HARUS memuat ukuran kemasan — kalau tidak, "Pocari Sweat 350ml" dan
+ * "Pocari Sweat 500 ml" runtuh jadi satu nama dan salah satunya hilang. Itu produk yang berbeda.
  */
+
+/** Satuan yang boleh muncul sebagai notasi ukuran di ekor nama. */
+const RE_UKURAN_EKOR = /[\s(\[-]*\b\d+(?:[.,]\d+)?\s*(?:g|gr|gram|kg|ml|l|liter|lt)\b[\s)\]]*$/i
+/** Multipack di ekor: "5X91G", "3 x 200 ml", "isi 10". */
+const RE_MULTIPACK_EKOR = /[\s(\[-]*\b(?:isi\s*)?\d+\s*[x×]\s*\d+(?:[.,]\d+)?\s*(?:g|gr|gram|kg|ml|l|liter)?\b[\s)\]]*$/i
+/** Kode internal distributor di ekor: "E-1B", "PDS", "K-3". Huruf+angka pendek, bukan kata. */
+const RE_KODE_EKOR = /\s+[A-Z]{1,3}-?\d{1,2}[A-Z]?$/
+
+/**
+ * Title case yang TIDAK merusak akronim dan merek.
+ *
+ * Dipakai HANYA kalau namanya nyaris seluruhnya kapital — nama yang campur ("Teh Pucuk Melati")
+ * dibiarkan apa adanya, karena penulisnya sudah memutuskan. Token pendek (<= 3 huruf) dibiarkan
+ * kapital: "ABC", "UHT", "PDS", "SKM" adalah merek dan singkatan, bukan kata yang salah tulis.
+ */
+function rapikanKapital(n) {
+  const huruf = n.replace(/[^a-zA-Z]/g, '')
+  if (huruf.length < 4) return n
+  const kapital = (n.match(/[A-Z]/g) || []).length / huruf.length
+  // Dua ujung yang dirapikan: nyaris seluruhnya KAPITAL, dan sama sekali TANPA kapital
+  // ("ultra milk mini strawberry"). Yang di tengah dibiarkan — penulisnya sudah memutuskan.
+  if (kapital > 0 && kapital < 0.7) return n
+  return n.split(/(\s+)/).map(tok => {
+    if (/^\s+$/.test(tok)) return tok
+    const h = tok.replace(/[^a-zA-Z]/g, '')
+    if (h.length <= 3) return tok
+    return tok.charAt(0).toUpperCase() + tok.slice(1).toLowerCase()
+  }).join('')
+}
+
+/**
+ * Membuang segmen yang terulang di ekor: "Kopiko Cappucino - Kopiko - Kopiko - Kopiko".
+ *
+ * Polanya khas OFF: nama merek ditempelkan ke nama produk, sekali per kontributor. Lima baris
+ * kena, dan lima baris jelek di daftar yang harus dipindai mata cukup untuk memperbaikinya.
+ *
+ * PEMISAHNYA TANDA HUBUNG BERSPASI, dan itu bukan detail. Memecah di setiap tanda hubung akan
+ * merusak "Beng-beng" — merek sungguhan yang justru sangat dikenal. Dan menggabungkan kata kembar
+ * berurutan (pendekatan yang sempat terpikir) akan merusak "Beng Beng Nuts", "Gado gado",
+ * "Koro Koro", dan "Demi-Sel Sel": ketujuhnya nama yang benar. Kelas kesalahan yang sama dengan
+ * substring — yang dibuang justru bagian yang menentukan artinya.
+ */
+function buangSegmenTerulang(n) {
+  const seg = n.split(/\s+-\s+/)
+  if (seg.length < 2) return n
+  const out = []
+  for (const t of seg) {
+    const k = t.trim().toLowerCase()
+    if (out.length && out[out.length - 1].trim().toLowerCase() === k) continue
+    out.push(t)
+  }
+  // Ekor yang KATANYA sudah muncul lebih awal di nama itu sendiri juga mubazir:
+  // "Kopiko Cappucino - Kopiko". Yang belum muncul dibiarkan — "… - Rious" adalah informasi.
+  while (out.length > 1) {
+    const ekor = out[out.length - 1].trim().toLowerCase()
+    const depan = out.slice(0, -1).join(' ').toLowerCase()
+    if (ekor && depan.includes(ekor)) out.pop()
+    else break
+  }
+  return out.join(' - ')
+}
+
 function bersihkanNama(s) {
-  return String(s || '')
+  let n = String(s || '')
     .replace(/^\s*\d{5,}\s+/, '')
-    // Tanda baca di ujung: OFF punya nama seperti "- Fresco" dan "Ahh'" karena datanya
-    // kontribusi pengguna. Yang tersisa setelah ini diperiksa lagi oleh `namaWajar`.
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  // Ekor dibuang berlapis: satu nama bisa punya multipack DAN ukuran, "5X91G 91g".
+  for (let i = 0; i < 3; i++) {
+    const sebelum = n
+    n = n.replace(RE_KODE_EKOR, '')
+      .replace(RE_MULTIPACK_EKOR, '')
+      .replace(RE_UKURAN_EKOR, '')
+      .trim()
+    if (n === sebelum) break
+  }
+
+  n = buangSegmenTerulang(n)
+  n = rapikanKapital(n)
+
+  return n
     .replace(/^[\s\-–—_.,:;'"`(\[]+/, '')
-    .replace(/[\s\-–—_.,:;'"`]+$/, '')
+    .replace(/[\s\-–—_.,:;'"`([]+$/, '')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -246,10 +338,17 @@ function namaWajar(n) {
  */
 function bersihkanMerek(brands, nama) {
   const teks = Array.isArray(brands) ? brands.join(',') : String(brands || '')
-  const m = teks.split(',')[0].trim()
+  let m = teks.split(',')[0].trim().replace(/\s+/g, ' ')
   if (!m) return ''
+  if (m.length > 28) return ''
+  // Casing merek di OFF acak: "mayora", "Mayora", "MAYORA" untuk perusahaan yang sama. Di daftar
+  // yang diurut dan dipindai mata, tiga bentuk satu merek terlihat seperti tiga merek.
+  m = rapikanKapital(m)
+  if (/^[a-z]/.test(m)) m = m.charAt(0).toUpperCase() + m.slice(1)
+  // Dibuang kalau sudah termuat di namanya — perbandingannya setelah dirapikan, supaya
+  // "Ultra Milk" vs "ultrajaya" tidak lolos karena bedanya cuma huruf besar.
   if (nama.toLowerCase().includes(m.toLowerCase())) return ''
-  return m.length > 28 ? '' : m
+  return m
 }
 
 /**
@@ -322,8 +421,20 @@ function cair(tags, quantity) {
   return /\d+(?:\.\d+)?\s*(ml|l|liter)/.test(String(quantity || '').toLowerCase())
 }
 
-const kunci = (nama, merek) =>
-  (merek + '|' + nama).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+/**
+ * Kunci dedup: NAMA + UKURAN KEMASAN. Merek sengaja TIDAK ikut.
+ *
+ * Ukuran kemasan wajib ikut sejak ukurannya dibuang dari nama — tanpa itu "Pocari Sweat 350ml"
+ * dan "Pocari Sweat 500 ml" runtuh jadi satu dan salah satunya hilang. Itu produk berbeda.
+ *
+ * Merek TIDAK ikut karena dia sering kosong di sebagian baris untuk produk yang sama:
+ * "Ultra milk full cream" muncul tiga kali — dengan merek, tanpa merek, dan dengan kapital yang
+ * berbeda. Untuk catatan makan, dua baris dengan nama dan ukuran yang sama ADALAH hal yang sama,
+ * dan tiga baris kembar di daftar yang harus dipindai mata lebih buruk daripada satu baris yang
+ * mereknya kurang lengkap. Yang menang tetap yang datanya paling lengkap.
+ */
+const kunci = (nama, kemasan) =>
+  (nama + '|' + (kemasan || 0)).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
 async function main() {
   if (!existsSync(CACHE)) mkdirSync(CACHE, { recursive: true })
@@ -435,7 +546,6 @@ async function main() {
     }
 
     const merek = bersihkanMerek(p.brands, nama)
-    const k = kunci(nama, merek)
     const baris = {
       c: String(p.code || ''),
       n: nama,
@@ -450,11 +560,15 @@ async function main() {
       // dan menyimpannya berarti setiap pengguna mengunduh angka yang tidak pernah dia lihat.
       _scan: Number(p.unique_scans_n) || 0,
     }
+    const k = kunci(nama, baris.s)
     const ada = peta.get(k)
     if (ada) {
       buang.duplikat++
       // Yang menang: makronya lebih lengkap. Bukan yang datang lebih dulu.
-      const skor = x => (x.p !== undefined ? 1 : 0) + (x.ca !== undefined ? 1 : 0) + (x.f !== undefined ? 1 : 0) + (x.s ? 1 : 0)
+      // Merek ikut dihitung sejak dia dilepas dari kunci: yang punya merek lebih berguna di
+      // daftar daripada yang tidak, dan tanpa ini pemenangnya ditentukan urutan kedatangan.
+      const skor = x => (x.p !== undefined ? 1 : 0) + (x.ca !== undefined ? 1 : 0)
+        + (x.f !== undefined ? 1 : 0) + (x.s ? 1 : 0) + (x.b ? 1 : 0)
       if (skor(baris) > skor(ada)) peta.set(k, baris)
       continue
     }

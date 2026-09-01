@@ -85,7 +85,19 @@ describe('Brazilian Portuguese locale', () => {
     // Kunci ini ada karena satu pertanyaan di layar: "29 kkal itu dari berapa ml?" Katalog dulu
     // menulis "per 100 g" untuk teh dalam botol, dan itu satuan yang tidak bisa dibayangkan
     // orang — lalu sebotol 350 ml dicatat sebagai 29 kkal padahal 102.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(338)
+    // 338 -> 336: keadaan kosong lembar katalog dirancang ulang, dan tiga kunci ikut berubah.
+    //
+    // KELUAR: 'Loading the database…' dan 'Type at least two letters'. Yang pertama diganti ruang
+    // tenang — chunk katalognya turun dalam puluhan milidetik, dan satu baris teks yang berkedip
+    // lalu hilang lebih mengganggu daripada tidak ada apa-apa. Yang kedua adalah jalan buntu: dia
+    // memberi perintah tanpa memberi tahu apa yang bisa dicari.
+    //
+    // KELUAR juga: 'Product'. Sekarang cuma bahan pokok yang ditandai, karena dia minoritas (59
+    // dari 817) dan penandanya membawa informasi — label di SETIAP baris berhenti jadi label.
+    //
+    // MASUK: 'Search {0} packaged products and {1} Indonesian staples.', yang menjawab pertanyaan
+    // yang orang benar-benar punya di layar kosong: apa isinya.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(336)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')

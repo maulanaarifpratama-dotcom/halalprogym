@@ -245,3 +245,35 @@ describe('satuan tampilan: gram vs mililiter', () => {
     expect(servingChoices(teh)[0]!.label).toBe('Pack')
   })
 })
+
+
+describe('satuan tidak boleh dikapitalkan oleh CSS', () => {
+  /**
+   * `.chip` meng-`capitalize` isinya, dan itu benar untuk label kategori ("dada", "punggung") tapi
+   * SALAH untuk satuan: "350 ml" tampil sebagai "350 Ml". Ketangkap dengan membaca layar, bukan
+   * dari kode maupun dari tes mana pun.
+   *
+   * Bukan cuma soal rapi. Kapital di satuan SI MEMBAWA ARTI, dan di satuan lain kesalahan yang
+   * sama menghasilkan satuan yang berbeda: mm vs Mm (10^6 kali), ms vs Ms. "Ml" tidak berarti apa
+   * pun, dan itu justru kenapa dia lolos — tidak ada yang salah secara mencolok.
+   */
+  const css = readFileSync(new URL('../index.css', import.meta.url), 'utf8')
+  const jsx = readFileSync(new URL('../components/FoodDbSheet.jsx', import.meta.url), 'utf8')
+
+  it('kelas .chip.unit ada dan mematikan text-transform', () => {
+    expect(css).toMatch(/\.chip\.unit\s*\{[^}]*text-transform:\s*none/)
+  })
+
+  it('chip porsi memakainya', () => {
+    // Dipaku ke SUMBER karena inilah satu-satunya tempat satuan dirender di dalam chip.
+    expect(jsx).toContain("'chip unit'")
+  })
+
+  it('`.chip` dasar memang meng-capitalize — jadi penjaga di atas menjaga sesuatu', () => {
+    // Tanpa ini, seseorang bisa mencabut `capitalize` dari `.chip` dan dua tes di atas jadi
+    // penjaga yang tidak menjaga apa pun.
+    const blok = (css.match(/\.chip\{[^}]*\}/) || [])[0] || ''
+    expect(blok, 'blok .chip tidak ketemu').toBeTruthy()
+    expect(blok).toContain('text-transform:capitalize')
+  })
+})

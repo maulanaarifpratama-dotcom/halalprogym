@@ -147,6 +147,22 @@ const dariRitel = (r: BarisRitel): CatalogueFood => ({
   servingLabel: r.s ? 'Pack' : undefined,
 })
 
+/**
+ * Benih pencarian untuk keadaan kosong — enam titik masuk yang bisa diketuk.
+ *
+ * SENGAJA TIDAK DITERJEMAHKAN, dan itu bukan kelalaian: ini nama makanan, bukan teks UI. Katalognya
+ * berisi produk Indonesia apa pun bahasa app-nya, jadi pengguna Mandarin yang mencari di katalog
+ * ini juga mengetik "nasi" — menerjemahkan benihnya jadi 米饭 akan menghasilkan nol hasil.
+ *
+ * Hidup di `lib/` dan bukan di komponennya justru karena itu: penjaga `no-untranslated-id` memindai
+ * literal string di `components/`, dan benih ini akan tertandai di sana dengan benar.
+ *
+ * Dipilih untuk menutupi dua sumber sekaligus — "Nasi", "Tempe", "Telur" mengenai bahan pokok
+ * (USDA), "Indomie", "Teh", "Susu" mengenai produk ritel (Open Food Facts). Orang jadi melihat
+ * kedua isi katalog dari ketukan pertama, bukan cuma satu.
+ */
+export const QUICK_SEEDS = ['Nasi', 'Tempe', 'Telur', 'Indomie', 'Teh', 'Susu'] as const
+
 let cache: CatalogueFood[] | null = null
 
 /**

@@ -789,11 +789,8 @@ export default {
   'Food database': '식품 데이터베이스',
   'Database': '데이터베이스',
   'Search a product or ingredient': '제품이나 재료 검색',
-  'Loading the database…': '데이터베이스를 불러오는 중…',
-  'Type at least two letters': '두 글자 이상 입력하세요',
   'Nothing matches that': '일치하는 항목이 없습니다',
   'Ingredient': '재료',
-  'Product': '제품',
   'Already in your foods': '이미 내 음식에 있음',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': '데이터: Open Food Facts (ODbL 1.0), USDA FoodData Central (퍼블릭 도메인).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': '내장 데이터베이스에서 포장 식품과 기본 식재료를 찾고, 조리된 음식은 AI로 추정하거나, 라벨을 보고 직접 입력하세요.',
@@ -802,4 +799,6 @@ export default {
   'per 100 {0}': '100{0}당',
   'How many ml?': '몇 ml?',
   'Pack': '포장',
+  'Search {0} packaged products and {1} Indonesian staples.':
+    '포장 식품 {0}개와 인도네시아 기본 식재료 {1}개를 검색하세요.',
 }
