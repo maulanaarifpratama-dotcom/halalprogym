@@ -374,6 +374,9 @@ export const PT_BR_OVERRIDES = {
   'Food database': 'Banco de alimentos',
   'Database': 'Banco de dados',
   'Search a product or ingredient': 'Buscar um produto ou ingrediente',
+  'per 100 {0}': 'por 100 {0}',
+  'How many ml?': 'Quantos ml?',
+  'Pack': 'Embalagem',
   'Ingredient': 'Ingrediente',
   'Product': 'Produto',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).':

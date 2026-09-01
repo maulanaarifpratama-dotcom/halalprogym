@@ -70,20 +70,34 @@ import type { Food } from './nutrition.js'
 
 export type FoodSource = 'usda' | 'off'
 
+/**
+ * Satuan yang DITAMPILKAN. Angkanya sendiri selalu per 100 gram — OFF dan USDA sama-sama begitu.
+ *
+ * Untuk minuman, UI harus menulis "per 100 ml". Bukan karena lebih rapi: "29 kkal per 100 g" untuk
+ * teh dalam botol adalah satuan yang tidak bisa dibayangkan orang, dan satuan yang tidak bisa
+ * dibayangkan membuat orang menebak — lalu mencatat sebotol 350 ml sebagai 29 kkal, padahal 102.
+ *
+ * Untuk minuman berbasis air, 100 ml dan 100 g selisihnya di bawah 5%. Itu perkiraan, dan dia
+ * disebutkan di sini bukan disembunyikan.
+ */
+export type FoodUnit = 'g' | 'ml'
+
 export interface CatalogueFood {
   /** `usda:169757` atau `off:8992753100015`. Prefiks sumber ikut supaya id tidak pernah bentrok. */
   id: string
   name: string
   brand?: string
   src: FoodSource
-  /** Per 100 gram, selalu. */
+  /** Per 100 gram, selalu — apa pun `unit`-nya. */
   kcal: number
+  /** Satuan yang ditampilkan. Lihat `FoodUnit`. */
+  unit: FoodUnit
   protein?: number
   carb?: number
   fat?: number
-  /** Gram untuk satu porsi. 0/undefined = tidak dinyatakan. */
+  /** Ukuran satu porsi/kemasan dalam `unit`. 0/undefined = tidak dinyatakan. */
   servingG?: number
-  /** Keterangan porsi rumah tangga ("1 centong"). Hanya untuk baris kurasi kami. */
+  /** Keterangan porsinya ("1 centong" untuk bahan pokok, "Pack" untuk produk kemasan). */
   servingLabel?: string
   /** Deskripsi USDA aslinya, supaya padanan yang tidak sempurna bisa dilihat bukan disembunyikan. */
   note?: string
@@ -98,6 +112,8 @@ interface BarisUsda {
 interface BarisRitel {
   c: string; n: string; b: string; k: number
   p?: number; ca?: number; f?: number; s?: number
+  /** 1 = cair. Tidak ada artinya padat — lihat kepala `food-retail.js`. */
+  l?: number
 }
 
 const dariUsda = (r: BarisUsda): CatalogueFood => ({
@@ -105,6 +121,9 @@ const dariUsda = (r: BarisUsda): CatalogueFood => ({
   name: r.nama,
   src: 'usda',
   kcal: r.kcal,
+  // Bahan pokok semuanya ditimbang, termasuk santan dan minyak: resep Indonesia menyebut
+  // "50 g santan", bukan "50 ml", dan angka USDA-nya memang per gram.
+  unit: 'g',
   protein: r.protein,
   carb: r.carb,
   fat: r.fat,
@@ -119,10 +138,13 @@ const dariRitel = (r: BarisRitel): CatalogueFood => ({
   brand: r.b || undefined,
   src: 'off',
   kcal: r.k,
+  unit: r.l ? 'ml' : 'g',
   protein: r.p,
   carb: r.ca,
   fat: r.f,
   servingG: r.s || undefined,
+  // Label 'Pack' diterjemahkan di UI, bukan di sini — `lib/` tidak menyimpan teks tampilan.
+  servingLabel: r.s ? 'Pack' : undefined,
 })
 
 let cache: CatalogueFood[] | null = null
@@ -252,6 +274,11 @@ export function toFood(c: CatalogueFood): Food {
     basis: 'per100g',
     kcal: c.kcal,
   }
+  // `Food` sengaja TIDAK diberi field satuan. Alasannya: `macrosOf` menghitung `qty / 100` dan
+  // itu benar untuk gram maupun mililiter, jadi satuan cuma urusan tampilan — dan menambah field
+  // ke `Food` berarti menambah field ke state yang disinkronkan, untuk sesuatu yang tidak
+  // mengubah satu pun perhitungan. Untuk minuman, angka gram dan mililiternya memang setara
+  // dalam 5%, dan itu sudah dinyatakan di `FoodUnit`.
   if (c.protein !== undefined) f.protein = c.protein
   if (c.carb !== undefined) f.carb = c.carb
   if (c.fat !== undefined) f.fat = c.fat

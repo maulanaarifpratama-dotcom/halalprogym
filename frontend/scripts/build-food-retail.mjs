@@ -94,7 +94,11 @@ const UA = 'HalalProGym/0.1 (github.com/maulanaarifpratama-dotcom/halalprogym)'
  * tidak punya data", dan seluruh fitur akan dibatalkan atas dasar yang salah.
  */
 const PAGE_SIZE = 100
-const FIELDS = 'code,product_name,brands,quantity,serving_size,nutriments,categories_tags,unique_scans_n'
+// `serving_size` TIDAK ADA di endpoint ini — sudah diperiksa dengan membuang filter field dan
+// membaca seluruh kunci yang dikembalikan. Memintanya tetap tidak error, dia cuma tidak datang,
+// dan akibatnya porsi kemasan NOL di semua 759 baris tanpa satu pun tanda. Yang dipakai
+// sekarang `quantity` ("350 ml"), yang memang ada.
+const FIELDS = 'code,product_name,brands,quantity,nutriments,categories_tags,unique_scans_n'
 
 /**
  * SEMUA halaman diambil, lalu popularitasnya diurutkan DI SINI — bukan di server.
@@ -249,17 +253,73 @@ function bersihkanMerek(brands, nama) {
 }
 
 /**
- * `serving_size` bebas teks: "85 g", "27.6 g", "240ml", "1 serving (250 ml)".
- * ml diperlakukan sebagai gram, dan itu PERKIRAAN yang disebutkan: untuk minuman berbasis air
- * selisihnya di bawah 5%, dan alternatifnya membuang porsi seluruh kategori minuman.
+ * Ukuran KEMASAN dari `quantity` ("350 ml", "85 g", "5 x 91 g").
+ *
+ * Ini yang menjawab pertanyaan yang paling sering muncul di layar: "29 kkal itu dari berapa ml?"
+ * Tanpa ini satu-satunya tombol porsi adalah 100 g, dan Teh Pucuk 350 ml akan dicatat sebagai 29
+ * kkal padahal sebotolnya ~102 kkal — salah lebih dari tiga kali lipat, ke arah yang membuat
+ * orang mengira dia makan lebih sedikit daripada kenyataannya.
+ *
+ * MULTIPACK dipecah ke SATU unit: "5 x 91 g" jadi 91, bukan 455. Orang makan satu bungkus, bukan
+ * satu dus — dan tombol "455 g" untuk Indomie 5-pak adalah tombol yang tidak pernah benar.
  */
-function porsiGram(s) {
-  const t = String(s || '').toLowerCase()
-  const m = t.match(/(\d+(?:[.,]\d+)?)\s*(g|gr|gram|ml|mililiter)\b/)
-  if (!m) return 0
-  const n = Number(String(m[1]).replace(',', '.'))
-  if (!Number.isFinite(n) || n <= 0 || n > 2000) return 0
-  return Math.round(n)
+function kemasanGram(quantity) {
+  const t = String(quantity || '').toLowerCase().replace(',', '.')
+  // Multipack lebih dulu, karena polanya memuat pola tunggal di dalamnya.
+  const multi = t.match(/(\d+)\s*[x×]\s*(\d+(?:\.\d+)?)\s*(g|gr|gram|ml|l|liter)\b/)
+  const tunggal = t.match(/(\d+(?:\.\d+)?)\s*(g|gr|gram|ml|l|liter)\b/)
+  const m = multi ? { n: Number(multi[2]), u: multi[3] } : tunggal ? { n: Number(tunggal[1]), u: tunggal[2] } : null
+  if (!m || !Number.isFinite(m.n) || m.n <= 0) return 0
+  // Liter dan kilogram-nya sengaja tidak ditangani sebagai unit terpisah selain `l`: OFF menulis
+  // "1 l" untuk Ultra Milk 1 liter, dan itu satu-satunya bentuk yang benar-benar muncul.
+  const g = /^l/.test(m.u) ? m.n * 1000 : m.n
+  if (g < 1 || g > 5000) return 0
+  return Math.round(g)
+}
+
+/**
+ * Tag OFF yang benar-benar berarti CAIR. Dicocokkan EKSAK, bukan substring.
+ *
+ * Versi pertama memakai regex `/beverage|drink|water|.../`, dan itu langsung menandai **Indomie
+ * Goreng Rendang** sebagai minuman — karena tag payung OFF `en:plant-based-foods-and-beverages`
+ * memuat kata "beverages" dan mencakup makanan DAN minuman sekaligus.
+ *
+ * Ini jebakan substring yang KETIGA di fitur ini, setelah `rum` di "rumput laut" dan `gin` di
+ * "original". Kelas yang sama, tempat yang beda tiap kali. Pelajarannya bukan "hati-hati dengan
+ * kata kunci" — pelajarannya **jangan mencocokkan sebagian pada data yang berhierarki**: yang
+ * hilang atau tersisa justru bagian yang menentukan artinya.
+ *
+ * Dua payung yang SENGAJA tidak masuk daftar:
+ *   · `plant-based-foods-and-beverages`         — mencakup keduanya
+ *   · `beverages-and-beverages-preparations`    — memuat bubuk seperti Energen, yang per 100 g
+ */
+const TAG_CAIR = new Set([
+  'beverages', 'waters', 'mineral-waters', 'spring-waters', 'flavoured-waters',
+  'juices', 'fruit-juices', 'vegetable-juices', 'fruit-based-beverages', 'nectars',
+  'sodas', 'carbonated-drinks', 'colas', 'lemonades',
+  'teas', 'iced-teas', 'green-teas', 'black-teas',
+  'coffees', 'coffee-drinks', 'iced-coffees',
+  'milks', 'dairy-drinks', 'fermented-milk-products', 'yogurt-drinks',
+  'plant-based-beverages', 'soy-milks', 'almond-milks',
+  'energy-drinks', 'sports-drinks', 'isotonic-drinks',
+  'syrups', 'concentrated-syrups',
+])
+
+/**
+ * Apakah produknya CAIR, dan kenapa itu bukan kosmetik.
+ *
+ * Angka gizi OFF selalu per 100 gram, dan untuk minuman UI harus mengatakan "per 100 ml" — bukan
+ * karena lebih rapi, tapi karena "per 100 g" untuk teh dalam botol adalah satuan yang tidak bisa
+ * dibayangkan orang, dan satuan yang tidak bisa dibayangkan membuat orang menebak.
+ *
+ * Untuk minuman berbasis air, 100 ml dan 100 g selisihnya di bawah 5%; itu perkiraan yang
+ * disebutkan, bukan disembunyikan.
+ *
+ * Sinyalnya kategori OFF DAN satuan kemasannya, karena keduanya sering kosong sendiri-sendiri.
+ */
+function cair(tags, quantity) {
+  if (tags.some(t => TAG_CAIR.has(t))) return true
+  return /\d+(?:\.\d+)?\s*(ml|l|liter)/.test(String(quantity || '').toLowerCase())
 }
 
 const kunci = (nama, merek) =>
@@ -320,10 +380,10 @@ async function main() {
     if (!namaWajar(nama)) { buang.namaTakWajar++; continue }
 
     const n = p.nutriments || {}
+    const tags = (p.categories_tags || []).map(t => String(t).replace(/^[a-z]{2}:/, ''))
 
     if (typeof n.alcohol_100g === 'number' && n.alcohol_100g > 0) { buang.alkohol++; continue }
 
-    const tags = (p.categories_tags || []).map(t => String(t).replace(/^[a-z]{2}:/, ''))
     if (tags.some(t => TAG_HARAM.includes(t))) { buang.tagHaram++; continue }
 
     const teks = (nama + ' ' + (Array.isArray(p.brands) ? p.brands.join(' ') : p.brands || '')).toLowerCase()
@@ -382,7 +442,10 @@ async function main() {
       b: merek,
       k: b0(kcal),
       p: protein, ca: carb, f: fat,
-      s: porsiGram(p.serving_size),
+      s: kemasanGram(p.quantity),
+      // 1 = cair, jadi UI menulis "per 100 ml" bukan "per 100 g". Disimpan sebagai angka dan
+      // dihilangkan kalau false, supaya tidak menambah byte untuk mayoritas yang padat.
+      ...(cair(tags, p.quantity) ? { l: 1 } : {}),
       // Dipakai untuk memeringkat, lalu DIBUANG sebelum ditulis: dia metadata OFF, bukan gizi,
       // dan menyimpannya berarti setiap pengguna mengunduh angka yang tidak pernah dia lihat.
       _scan: Number(p.unique_scans_n) || 0,
@@ -416,6 +479,8 @@ async function main() {
   console.log('dibuang     :')
   for (const [k, v] of Object.entries(buang)) if (v) console.log('  ' + k.padEnd(12) + v)
   console.log('Atwater meleset >35% (tetap dipakai, cuma dicatat): ' + atwaterMeleset.length)
+  console.log('punya ukuran kemasan : ' + rows.filter(r => r.s).length)
+  console.log('ditandai cair        : ' + rows.filter(r => r.l).length)
 
   if (REPORT) {
     console.log('\n--- yang TERTANDAI kata kunci dan dibuang (periksa mata; yang halal masukkan ke IZINKAN) ---')
@@ -451,7 +516,9 @@ async function main() {
  *   c  = barcode (juga id-nya, dan pintu masuk pemindai barcode nanti)
  *   n  = nama, b = merek
  *   k  = kkal/100 g, p/ca/f = protein/karbo/lemak gram per 100 g (boleh kosong)
- *   s  = gram per porsi menurut kemasan (0 = tidak dinyatakan)
+ *   s  = ukuran KEMASAN dalam gram/ml (0 = tidak dinyatakan). Multipack dipecah ke satu unit.
+ *   l  = 1 kalau produknya cair, jadi UI menulis "per 100 ml" bukan "per 100 g". Tidak ada
+ *        artinya padat.
  *
  * KELENGKAPAN: ${terhentiDi ? terhentiDi + ' dari ' + halaman + ' halaman OFF terambil — katalog ini SEBAGIAN, karena skrip terhenti oleh 503 berulang. Jalankan ulang skripnya untuk melengkapinya; cache membuat yang sudah ada tidak diunduh lagi.' : halaman + ' halaman OFF terambil, lengkap sesuai batas MAX_HALAMAN.'}
  */

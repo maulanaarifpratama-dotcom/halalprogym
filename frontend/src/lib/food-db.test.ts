@@ -14,7 +14,7 @@ import { macrosOf } from './nutrition.js'
  */
 
 const f = (o: Partial<CatalogueFood>): CatalogueFood => ({
-  id: 'usda:1', name: 'X', src: 'usda', kcal: 100, ...o,
+  id: 'usda:1', name: 'X', src: 'usda', kcal: 100, unit: 'g', ...o,
 })
 
 describe('normalize', () => {
@@ -210,5 +210,38 @@ describe('bahan pokok USDA — bentuk berkas yang dibuat mesin', () => {
       expect(r.porsi, r.nama).toBeGreaterThan(0)
       expect(r.porsi, r.nama).toBeLessThanOrEqual(500)
     }
+  })
+})
+
+
+describe('satuan tampilan: gram vs mililiter', () => {
+  /**
+   * Angkanya selalu per 100 gram, tapi yang DITAMPILKAN harus ikut produknya.
+   *
+   * "29 kkal per 100 g" untuk teh dalam botol adalah satuan yang tidak bisa dibayangkan orang,
+   * dan satuan yang tidak bisa dibayangkan membuat orang menebak — lalu mencatat sebotol 350 ml
+   * sebagai 29 kkal, padahal 102. Salah lebih dari tiga kali lipat, ke arah yang membuat orang
+   * mengira dia makan lebih sedikit daripada kenyataannya.
+   */
+  it('bahan pokok selalu gram', () => {
+    const semua = (USDA as { id: string }[]).length
+    expect(semua).toBeGreaterThan(50)
+    // Resep Indonesia menyebut "50 g santan", bukan "50 ml", dan angka USDA-nya per gram.
+    expect(f({ src: 'usda' }).unit).toBe('g')
+  })
+
+  it('toFood TIDAK menambahkan field satuan ke Food', () => {
+    // `macrosOf` menghitung qty/100, dan itu benar untuk gram maupun mililiter. Menambah field
+    // ke `Food` berarti menambah field ke state yang DISINKRONKAN, untuk sesuatu yang tidak
+    // mengubah satu pun perhitungan.
+    const food = toFood(f({ unit: 'ml', kcal: 29 })) as unknown as Record<string, unknown>
+    expect('unit' in food).toBe(false)
+    expect(food.basis).toBe('per100g')
+  })
+
+  it('porsi kemasan dan 100 keduanya ada untuk minuman', () => {
+    const teh = f({ unit: 'ml', kcal: 29, servingG: 350, servingLabel: 'Pack' })
+    expect(servingChoices(teh).map(x => x.g)).toEqual([350, 100])
+    expect(servingChoices(teh)[0]!.label).toBe('Pack')
   })
 })

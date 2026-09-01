@@ -78,7 +78,7 @@ export default function FoodDbSheet({ close, onLogged }) {
               <div className="grow">
                 <div className="tt">{c.name}</div>
                 <div className="ss">
-                  {fmtNum(c.kcal)} {t('kcal')} {t('per 100 g')}
+                  {fmtNum(c.kcal)} {t('kcal')} {t('per 100 {0}', c.unit)}
                   {c.brand ? ' · ' + c.brand : ''}
                   {' · '}{c.src === 'usda' ? t('Ingredient') : t('Product')}
                   {sudah ? ' · ' + t('Already in your foods') : ''}
@@ -131,14 +131,19 @@ export default function FoodDbSheet({ close, onLogged }) {
         <Button key={p.g} size="sm"
           variant={String(p.g) === gram ? 'primary' : undefined}
           onClick={() => setGram(String(p.g))}>
-          {p.label ? p.label + ' · ' + p.g + ' g' : p.g + ' g'}
+          {(p.label ? t(p.label) + ' · ' : '') + p.g + ' ' + picked.unit}
         </Button>
       ))}
     </div>
 
-    <div className="small dim" style={{ marginBottom: 4 }}>{t('How many grams?')}</div>
+    {/* Label satuannya ikut produknya. Menanyakan "berapa gram?" untuk teh dalam botol adalah
+        pertanyaan yang orang jawab dengan menebak. */}
+    <div className="small dim" style={{ marginBottom: 4 }}>
+      {picked.unit === 'ml' ? t('How many ml?') : t('How many grams?')}
+    </div>
     <TextField type="number" inputMode="decimal"
-      value={gram} onChange={e => setGram(e.target.value)} aria-label={t('How many grams?')} />
+      value={gram} onChange={e => setGram(e.target.value)}
+      aria-label={picked.unit === 'ml' ? t('How many ml?') : t('How many grams?')} />
 
     <div className="row" style={{ gap: 14, margin: '14px 0 4px' }}>
       <div>

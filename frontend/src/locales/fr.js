@@ -803,4 +803,9 @@ export default {
   'Already in your foods': 'Déjà dans tes aliments',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Données : Open Food Facts (ODbL 1.0) et USDA FoodData Central (domaine public).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Cherche les produits emballés et les aliments de base dans la base intégrée, laisse l\'IA estimer un plat cuisiné, ou saisis toi-même les valeurs de l\'étiquette.',
+
+  // --- satuan porsi katalog makanan ---
+  'per 100 {0}': 'pour 100 {0}',
+  'How many ml?': 'Combien de ml ?',
+  'Pack': 'Emballage',
 }

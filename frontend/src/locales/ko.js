@@ -797,4 +797,9 @@ export default {
   'Already in your foods': '이미 내 음식에 있음',
   'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': '데이터: Open Food Facts (ODbL 1.0), USDA FoodData Central (퍼블릭 도메인).',
   'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': '내장 데이터베이스에서 포장 식품과 기본 식재료를 찾고, 조리된 음식은 AI로 추정하거나, 라벨을 보고 직접 입력하세요.',
+
+  // --- satuan porsi katalog makanan ---
+  'per 100 {0}': '100{0}당',
+  'How many ml?': '몇 ml?',
+  'Pack': '포장',
 }

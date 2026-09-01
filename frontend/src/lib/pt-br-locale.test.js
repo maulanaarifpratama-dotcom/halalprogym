@@ -77,7 +77,15 @@ describe('Brazilian Portuguese locale', () => {
     // itu bukan kelalaian — ada 16 override lain yang juga identik sebelum katalog makanan ada.
     // Fungsinya MEMAKU nilainya: kalau kata pt-PT diperbaiki nanti, pt-BR tidak ikut berubah
     // tanpa ada yang meninjaunya. Untuk baris atribusi lisensi itu justru yang diinginkan.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(335)
+    // 335 -> 338: tiga kunci satuan porsi ('per 100 {0}', 'How many ml?', 'Pack'). Semuanya
+    // jadi override karena kata Brasilnya berbeda dari Portugal: 'Embalagem' dipakai keduanya
+    // tapi 'Quantos ml?' vs bentuk *tu* di pack PT, dan 'por 100 {0}' ditulis eksplisit supaya
+    // satuan porsi tidak ikut berubah kalau pt-PT diubah tanpa peninjauan.
+    //
+    // Kunci ini ada karena satu pertanyaan di layar: "29 kkal itu dari berapa ml?" Katalog dulu
+    // menulis "per 100 g" untuk teh dalam botol, dan itu satuan yang tidak bisa dibayangkan
+    // orang — lalu sebotol 350 ml dicatat sebagai 29 kkal padahal 102.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(338)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
