@@ -295,7 +295,14 @@ export default function Settings() {
           This link IS that offer — do not remove it. See CLAUDE.md. */}
       <a href="https://github.com/maulanaarifpratama-dotcom/halalprogym" target="_blank" rel="noopener">kode sumber</a> ·
       fork dari <a href="https://gitlab.com/DuarteSantos8/opengym" target="_blank" rel="noopener">openGym</a><br />
-      data latihan: ExerciseDB (MIT) · diagram otot: MuscleMap (MIT)
+      data latihan: ExerciseDB (MIT) · diagram otot: MuscleMap (MIT)<br />
+      {/* ATRIBUSI ODbL: ini SYARAT lisensi Open Food Facts, bukan sopan santun. Databasenya
+          ODbL 1.0, isinya DbCL 1.0, dan turunan kami (`lib/food-retail.js`) ikut ODbL. Gambar
+          produknya CC BY-SA 3.0 dan karena itu TIDAK PERNAH diambil. USDA FoodData Central
+          domain publik (CC0) — atribusinya diminta, bukan diwajibkan, dan diberikan. Jangan
+          hapus baris ini; dia dijaga tes. */}
+      data makanan: <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a> (ODbL 1.0) ·{' '}
+      <a href="https://fdc.nal.usda.gov" target="_blank" rel="noopener">USDA FoodData Central</a> (domain publik)
     </div>
   </div>
 }

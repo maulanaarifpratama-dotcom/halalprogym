@@ -754,7 +754,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': 'Kilitli. Bir şeyi düzeltmek için anahtarı aç.',
   'Logged': 'Kaydedildi',
   'Model (optional) — default {0}': 'Model (isteğe bağlı) — varsayılan {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': 'Yerleşik besin veritabanı yok — sayılar senin, etiketten ya da tariften. Ya da kendi API anahtarınla YZ’nin tahmin etmesine izin ver.',
   'No connection. You can still add the food by hand.': 'Bağlantı yok. Besini yine de elle ekleyebilirsin.',
   'No serving weight was given, so 100 g is assumed.': 'Porsiyon ağırlığı verilmedi, bu yüzden 100 g varsayıldı.',
   'Not set up': 'Ayarlanmadı',
@@ -789,4 +788,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} sa {1} dk',
   '{0} min': '{0} dk',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': 'Besin veritabanı',
+  'Database': 'Veritabanı',
+  'Search a product or ingredient': 'Ürün veya malzeme ara',
+  'Loading the database…': 'Veritabanı yükleniyor…',
+  'Type at least two letters': 'En az iki harf yaz',
+  'Nothing matches that': 'Eşleşen bir şey yok',
+  'Ingredient': 'Malzeme',
+  'Product': 'Ürün',
+  'Already in your foods': 'Zaten besinlerinde var',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Veri: Open Food Facts (ODbL 1.0) ve USDA FoodData Central (kamu malı).',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Paketli ürünleri ve temel besinleri yerleşik veritabanında ara, pişmiş bir yemeği yapay zekâya tahmin ettir ya da değerleri etiketten kendin gir.',
 }

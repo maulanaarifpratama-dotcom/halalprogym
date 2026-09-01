@@ -20,7 +20,8 @@
     "test": "vitest run",
     "test:utc": "node scripts/test-utc.mjs",
     "test:watch": "vitest",
-    "verify": "npm run typecheck && npm run check:names && npm run check:locales && npm run check:locale-keys && npm test && npm run test:utc && npm run build"
+    "verify": "npm run typecheck && npm run check:names && npm run check:locales && npm run check:locale-keys && npm test && npm run test:utc && npm run build",
+    "food:retail": "node scripts/build-food-retail.mjs"
   },
   "license": "AGPL-3.0-or-later",
   "dependencies": {

@@ -754,7 +754,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': 'Zablokowane. Włącz przełącznik, aby coś poprawić.',
   'Logged': 'Zapisane',
   'Model (optional) — default {0}': 'Model (opcjonalnie) — domyślnie {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': 'Brak wbudowanej bazy produktów — liczby są twoje, z etykiety albo z przepisu. Albo niech SI je oszacuje twoim własnym kluczem API.',
   'No connection. You can still add the food by hand.': 'Brak połączenia. Nadal możesz dodać produkt ręcznie.',
   'No serving weight was given, so 100 g is assumed.': 'Nie podano wagi porcji, więc przyjęto 100 g.',
   'Not set up': 'Nieskonfigurowane',
@@ -789,4 +788,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} godz. {1} min',
   '{0} min': '{0} min',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': 'Baza produktów',
+  'Database': 'Baza',
+  'Search a product or ingredient': 'Szukaj produktu lub składnika',
+  'Loading the database…': 'Ładowanie bazy…',
+  'Type at least two letters': 'Wpisz co najmniej dwie litery',
+  'Nothing matches that': 'Brak wyników',
+  'Ingredient': 'Składnik',
+  'Product': 'Produkt',
+  'Already in your foods': 'Już masz to na liście',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Dane: Open Food Facts (ODbL 1.0) i USDA FoodData Central (domena publiczna).',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Szukaj produktów paczkowanych i podstawowych składników we wbudowanej bazie, pozwól AI oszacować gotowe danie albo wpisz wartości z etykiety samodzielnie.',
 }

@@ -46,6 +46,67 @@ so the mapping and the images can never drift apart. The catalogue-id to photo m
 The Unlicense requires no attribution. It is given here anyway, because knowing where a dataset
 came from is what lets the next person verify it.
 
+## Food database
+
+Two sources, two licences, and the split is deliberate.
+
+### Packaged retail products — Open Food Facts
+
+`frontend/src/lib/food-retail.js` is a **derived database** built from
+[**Open Food Facts**](https://world.openfoodfacts.org) by `frontend/scripts/build-food-retail.mjs`.
+
+Open Food Facts licences its work in three layers, and only two of them are used here:
+
+| Layer | Licence | Used? |
+| --- | --- | --- |
+| the database | **ODbL 1.0** | yes — this derived database is therefore **also ODbL 1.0** |
+| the contents (individual facts) | **DbCL 1.0** | yes |
+| **product images** | CC BY-SA 3.0 | **no — never fetched at all** |
+
+The images are excluded on purpose. CC BY-SA share-alike propagates into derivative works, and
+this project has already paid for one licensed-media trap (see *Exercise data & media* below) by
+rebuilding every movement demo from scratch. The build script never requests an image field, and
+`frontend/src/lib/food-db.test.ts` fails if anyone adds one.
+
+ODbL requires attribution. It is given in this file, in the header of the generated data file, in
+the app's **Settings → About**, and on the food-search sheet itself where the data is actually
+used. Those are load-bearing, not decorative.
+
+Alcoholic and pork-derived products are dropped at build time. That filter is conservative and
+best-effort — Open Food Facts categories are user-contributed and often absent — so it is not a
+halal certification. The label on the package is what decides.
+
+### Staple ingredients — USDA FoodData Central
+
+`frontend/src/lib/food-usda.js` holds 59 hand-curated Indonesian staples (rice, tempeh, tofu, egg,
+chicken, coconut milk, …) with values from
+[**USDA FoodData Central**](https://fdc.nal.usda.gov), SR Legacy, released as **CC0 1.0** — public
+domain, no conditions. Attribution is requested rather than required, and is given:
+
+> U.S. Department of Agriculture, Agricultural Research Service, Beltsville Human Nutrition
+> Research Center. *FoodData Central*, SR Legacy (2019-04-01).
+
+Every row carries its `fdcId`, so any number can be checked against
+`https://fdc.nal.usda.gov/food-details/<fdcId>/nutrients`. The **Indonesian names and household
+serving sizes are ours**, not USDA's, and the original USDA description is kept on each row so an
+imperfect match stays visible instead of being hidden.
+
+The ids were picked by hand, not by search. USDA's own search returns *Ostrich, top loin* for
+"beef top sirloin", and the top hit for "mackerel" is **salted** mackerel at 305 kcal/100 g —
+roughly three times the fish an Indonesian recipe means.
+
+### What is NOT here, and why
+
+The **Tabel Komposisi Pangan Indonesia** (TKPI, Kementerian Kesehatan) is by far the best-fitting
+source in substance — it exists precisely for Indonesian food. It is **not used**, because the
+official Kemenkes repository publishes it under *"© Copyright 2022. All Rights Reserved by
+Kemenkes"* with no open-licence statement of any kind. Redistributing it inside this app is not
+permitted.
+
+Cooked dishes (nasi uduk, rendang, gado-gado) are in neither source: they are not retail products
+and not raw ingredients. Those are handled by the AI estimate path, which sends nothing to us and
+distributes no food data at all — which is exactly why it was built.
+
 ## Body diagram geometry
 
 The muscle outlines the body maps are drawn from (`frontend/src/lib/body-paths.js`) are derived

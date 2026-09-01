@@ -61,7 +61,23 @@ describe('Brazilian Portuguese locale', () => {
     // sudah tercatat di pack ini sejak kunci waktu salat masuk. Dia sempat masuk ke blok
     // ekor default export, dan tes ini yang menangkapnya: kunci yang TAMPAK diwarisi tapi
     // sebenarnya di-override adalah tepat drift yang mekanisme ini ada untuk menemukan.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(325)
+    // 325 -> 335: sebelas kunci katalog makanan bawaan MASUK, satu kunci lama KELUAR.
+    //
+    // Yang keluar: "No built-in food database ...". Teks sumbernya dihapus karena klaimnya jadi
+    // salah begitu database bawaannya benar-benar ada, dan kunci yang menunjuk teks yang tidak
+    // ada lagi ditolak `locale-orphans`.
+    //
+    // Delapan dari yang masuk berbeda regional dan bukan selera: "banco de dados" (BR) vs
+    // "base de dados" (PT), "buscar" vs "procurar", "carregando" vs "a carregar", "digite" vs
+    // "escreve" — dan sapaan orang kedua, karena pack PT memakai bentuk *tu* ("teus alimentos")
+    // sementara BR memakai *você* ("seus alimentos").
+    //
+    // Tiga sisanya nilainya IDENTIK dengan pt-PT: 'Ingrediente', 'Produto', dan baris atribusi
+    // yang isinya nama lembaga dan nama lisensi. Ketiganya tetap ditulis sebagai override, dan
+    // itu bukan kelalaian — ada 16 override lain yang juga identik sebelum katalog makanan ada.
+    // Fungsinya MEMAKU nilainya: kalau kata pt-PT diperbaiki nanti, pt-BR tidak ikut berubah
+    // tanpa ada yang meninjaunya. Untuk baris atribusi lisensi itu justru yang diinginkan.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(335)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -91,6 +107,8 @@ describe('Brazilian Portuguese locale', () => {
     // dipakai di kedua varian. Jadi warisan, bukan override.
     // 492 -> 494: dua kunci satuan hitungan mundur ('{0} hr {1} min', '{0} min'). Portugal
     // dan Brasil sama-sama memakai 'h' dan 'min', jadi warisan.
+    // Katalog makanan bawaan TIDAK mengubah angka ini: sebelas kuncinya semua jadi override
+    // eksplisit, dan kunci lama yang dihapus juga override. Jadi warisannya tetap 494.
     expect(inherited).toHaveLength(494)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
@@ -133,3 +151,4 @@ describe('Brazilian Portuguese locale', () => {
     expect(ptBR['Starter plan loaded — Mon Push · Wed Pull · Fri Legs']).toContain('Seg Push · Qua Pull')
   })
 })
+

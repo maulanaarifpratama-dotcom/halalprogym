@@ -926,7 +926,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': 'Terkunci. Nyalakan sakelarnya kalau ada yang perlu dibetulkan.',
   'Logged': 'Tercatat',
   'Model (optional) — default {0}': 'Model (opsional) — bawaan {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': 'Tidak ada database makanan bawaan — angkanya milikmu, dari label atau resep. Atau minta AI memperkirakannya dengan API key milikmu sendiri.',
   'No connection. You can still add the food by hand.': 'Tidak ada koneksi. Makanannya masih bisa ditambahkan manual.',
   'No serving weight was given, so 100 g is assumed.': 'Berat porsinya tidak diberikan, jadi dianggap 100 g.',
   'Not set up': 'Belum disiapkan',
@@ -959,4 +958,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} jam {1} mnt',
   '{0} min': '{0} mnt',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': 'Database makanan',
+  'Database': 'Database',
+  'Search a product or ingredient': 'Cari produk atau bahan',
+  'Loading the database…': 'Memuat database…',
+  'Type at least two letters': 'Ketik minimal dua huruf',
+  'Nothing matches that': 'Tidak ada yang cocok',
+  'Ingredient': 'Bahan',
+  'Product': 'Produk',
+  'Already in your foods': 'Sudah ada di daftarmu',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Data: Open Food Facts (ODbL 1.0) dan USDA FoodData Central (domain publik).',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Cari produk kemasan dan bahan pokok di database bawaan, minta AI memperkirakan masakan matang, atau isi sendiri angkanya dari label.',
 }

@@ -755,7 +755,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': 'Заблокировано. Включите переключатель, чтобы что-то исправить.',
   'Logged': 'Записано',
   'Model (optional) — default {0}': 'Модель (необязательно) — по умолчанию {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': 'Встроенной базы продуктов нет — числа ваши, с этикетки или из рецепта. Либо пусть их оценит ИИ с вашим собственным ключом API.',
   'No connection. You can still add the food by hand.': 'Нет соединения. Продукт всё равно можно добавить вручную.',
   'No serving weight was given, so 100 g is assumed.': 'Вес порции не указан, поэтому принято 100 г.',
   'Not set up': 'Не настроено',
@@ -790,4 +789,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} ч {1} мин',
   '{0} min': '{0} мин',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': 'База продуктов',
+  'Database': 'База',
+  'Search a product or ingredient': 'Найти продукт или ингредиент',
+  'Loading the database…': 'Загрузка базы…',
+  'Type at least two letters': 'Введите хотя бы две буквы',
+  'Nothing matches that': 'Ничего не найдено',
+  'Ingredient': 'Ингредиент',
+  'Product': 'Продукт',
+  'Already in your foods': 'Уже в ваших продуктах',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': 'Данные: Open Food Facts (ODbL 1.0) и USDA FoodData Central (общественное достояние).',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Ищите упакованные продукты и базовые ингредиенты во встроенной базе, попросите ИИ оценить готовое блюдо или введите значения с этикетки сами.',
 }

@@ -22,6 +22,7 @@ import { t } from '../lib/i18n.js'
 import Icon from '../components/Icon.jsx'
 import { Button, Row, Section, TextField } from '../components/ui.jsx'
 import AiFoodSheet from '../components/AiFoodSheet.jsx'
+import FoodDbSheet from '../components/FoodDbSheet.jsx'
 import { confirmSheet } from '../sheets.jsx'
 
 export default function Food() {
@@ -103,14 +104,21 @@ export default function Food() {
       </Section>
     )}
 
+    {/* TIGA JALUR, dan urutannya sengaja.
+        · "Log food"  — makanan yang SUDAH tersimpan. Paling cepat untuk yang dimakan tiap hari.
+        · "Database"  — katalog bawaan: bahan pokok + produk ritel. Offline, nol kuota.
+        · "AI"        — masakan matang yang tidak ada di katalog mana pun. Butuh kunci sendiri.
+        Yang paling murah berdiri paling depan: jalur pertama dan kedua jalan tanpa jaringan,
+        tanpa kunci, dan tanpa kuota siapa pun. */}
     <div className="row" style={{ gap: 8, margin: '16px 0 10px' }}>
       <Button variant="primary" icon="plus" className="grow"
         onClick={() => useUI.getState().openSheet(close => <PickSheet close={close} onPick={addEntry} />)}>
         {t('Log food')}
       </Button>
-      {/* Perkiraan AI berdiri di SEBELAH pencatatan manual, tidak menggantikannya. Jalur manual
-          jalan tanpa kunci, tanpa jaringan, dan tanpa kuota siapa pun — jadi dia yang tetap
-          jadi tombol utama. */}
+      <Button icon="magnifier"
+        onClick={() => useUI.getState().openSheet(close => <FoodDbSheet close={close} />)}>
+        {t('Database')}
+      </Button>
       <Button icon="sparkles"
         onClick={() => useUI.getState().openSheet(close => <AiFoodSheet close={close} />)}>
         {t('AI')}
@@ -169,7 +177,10 @@ export default function Food() {
       {t('Add a food')}
     </Button>
     <p className="sect-f" style={{ marginTop: 14 }}>
-      {t('No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.')}
+      {/* Teks lamanya berbunyi "No built-in food database", dan itu jadi SALAH begitu katalog
+          masuk. Klaim di UI yang basi lebih buruk daripada tidak ada teks sama sekali: dia
+          mengajari orang bahwa fitur yang ada itu tidak ada. */}
+      {t('Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.')}
     </p>
   </div>
 }

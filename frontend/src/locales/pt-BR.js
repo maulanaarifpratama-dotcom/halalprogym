@@ -22,7 +22,6 @@ export const PT_BR_OVERRIDES = {
   'Locked. Turn the switch on to correct anything.': 'Travado. Ligue a chave para corrigir algo.',
   'Logged': 'Registrado',
   'Model (optional) — default {0}': 'Modelo (opcional) — padrão {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': 'Sem banco de alimentos embutido — os números são seus, do rótulo ou da receita. Ou deixe a IA estimar com sua própria chave de API.',
   'No connection. You can still add the food by hand.': 'Sem conexão. Você ainda pode adicionar o alimento na mão.',
   'No serving weight was given, so 100 g is assumed.': 'O peso da porção não foi informado, então 100 g é o que vale.',
   'Optional. With your own API key, the app can estimate calories and macros from a description like "nasi uduk satu porsi" — which is exactly what no free, commercially usable Indonesian food database gives us.': 'Opcional. Com sua própria chave de API, o app consegue estimar calorias e macros a partir de uma descrição como "nasi uduk satu porsi" — justamente o que nenhum banco de alimentos indonésio gratuito e liberado para uso comercial nos dá.',
@@ -370,7 +369,20 @@ export const PT_BR_OVERRIDES = {
   'Today\'s intake': 'Consumo de hoje',
   'Your foods': 'Seus alimentos',
   '{0} left today': 'faltam {0} hoje',
-  '{0} over your target': '{0} acima da sua meta'
+  '{0} over your target': '{0} acima da sua meta',
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': 'Banco de alimentos',
+  'Database': 'Banco de dados',
+  'Search a product or ingredient': 'Buscar um produto ou ingrediente',
+  'Ingredient': 'Ingrediente',
+  'Product': 'Produto',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).':
+    'Dados: Open Food Facts (ODbL 1.0) e USDA FoodData Central (domínio público).',
+  'Loading the database…': 'Carregando o banco de dados…',
+  'Type at least two letters': 'Digite pelo menos duas letras',
+  'Nothing matches that': 'Nada corresponde',
+  'Already in your foods': 'Já está nos seus alimentos',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': 'Busque produtos embalados e alimentos básicos no banco embutido, deixe a IA estimar um prato pronto, ou digite você mesmo os números do rótulo.',
 }
 export default { ...pt, ...PT_BR_OVERRIDES,
   /* demo gerakan: dua bingkai, posisi awal dan akhir */
@@ -400,4 +412,5 @@ export default { ...pt, ...PT_BR_OVERRIDES,
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} h {1} min',
   '{0} min': '{0} min',
+
 }

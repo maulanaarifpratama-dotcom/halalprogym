@@ -303,30 +303,125 @@ versi web sementara app-nya tetap tamu, tanpa pesan error di mana pun. Ada di `d
 **BELUM DIUJI DI PERANGKAT.** Keputusan jalur dan pembacaan URL-nya bertes (15 tes), tapi
 browser-sistem-lalu-deep-link cuma bisa dibuktikan dengan APK di HP sungguhan.
 
-## Catatan makan — dan kenapa TIDAK ADA database makanan bawaan
+## Catatan makan, dan database makanan bawaan — pertanyaan lisensinya SUDAH DIJAWAB
 
 `lib/nutrition.ts` + layar `/food`. Kalori dan makro, target harian, dan pemecahan
 sahur/berbuka di hari puasa.
 
-**Makanannya dibuat pengguna sendiri.** Itu keputusan lisensi, bukan kekurangan fitur — dan
-alasannya sama persis dengan alasan gambar latihan harus dibangun ulang:
+Dokumen ini dulu menulis **"TIDAK ADA database makanan bawaan"** dengan tiga sumber yang
+semuanya bermasalah dan tidak satu pun dijawab, ditutup aturan: *"sebelum salah satunya dijawab,
+jangan commit satu baris pun data makanan."* Pertanyaannya sekarang dijawab, diverifikasi ke
+sumbernya masing-masing — bukan dari hafalan:
 
-| Sumber | Masalahnya |
-| --- | --- |
-| TKPI (Kemenkes) | Lisensi redistribusi komersial **tidak jelas**. Harus dipastikan dulu. |
-| Open Food Facts | **ODbL** — share-alike pada databasenya. Bisa dipakai, tapi bawa kewajiban. |
-| USDA FoodData Central | Domain publik dan aman, tapi isinya makanan Amerika. |
+| Sumber | Lisensi sebenarnya | Dipakai? |
+| --- | --- | --- |
+| **USDA FoodData Central** | **CC0 1.0**, domain publik | **Ya** — bahan pokok |
+| **Open Food Facts** — database | **ODbL 1.0** | **Ya** — turunannya ikut ODbL + atribusi |
+| **Open Food Facts** — isi | **DbCL 1.0** | Ya |
+| **Open Food Facts** — GAMBAR | CC BY-SA 3.0 | **TIDAK.** Share-alike menular. |
+| **TKPI (Kemenkes)** | **"© Copyright 2022. All Rights Reserved"** | **TIDAK BOLEH.** |
 
-Yang terakhir itu yang menentukan: pengguna app ini mencari "nasi uduk", dan itu tidak ada di
-USDA. Jadi database bawaan bukan cuma soal lisensi, dia juga harus **Indonesia** untuk berguna.
+**TKPI itu bukan lagi "belum jelas", dia "tidak boleh"** — dan bedanya penting. Selama
+berbulan-bulan catatan "harus dipastikan dulu" membuat setiap sesi mengira ini pekerjaan yang
+menunggu keputusan. Repositori resminya (`repository.kemkes.go.id/book/668`) tidak punya satu pun
+pernyataan lisensi terbuka. Itu menyakitkan, karena isinya justru paling tepat: TKPI memang
+dibuat untuk pangan Indonesia. Jangan diperiksa ulang, dan **jangan pernah di-commit.**
 
-Menambahkan database nanti **tidak mengubah satu pun fungsi** di `lib/nutrition.ts` — dia cuma
-mengisi `foods` dari sumber lain. Itu memang cara memisahkannya.
+### Dua sumber, dua berkas, dua lisensi — dan kenapa dipisah
 
-**Keputusan itu sekarang punya jawaban yang tidak menunggu siapa pun** — lihat bagian di bawah.
-Kalau nanti ada yang mau menambah database bawaan juga, pertanyaan lisensinya tetap berlaku:
-pastikan TKPI, atau terima kewajiban ODbL Open Food Facts. Sebelum salah satunya dijawab, jangan
-commit satu baris pun data makanan.
+| Berkas | Isi | Lisensi |
+| --- | --- | --- |
+| `lib/food-usda.js` | 59 bahan pokok dikurasi tangan, tiap baris membawa `fdcId`-nya | CC0 |
+| `lib/food-retail.js` | 759 produk ritel, **dibuat mesin** oleh `scripts/build-food-retail.mjs` | ODbL |
+
+Dipisah karena kewajibannya beda. Mencampurnya berarti seluruh berkas harus ODbL, termasuk baris
+yang sebenarnya CC0 — dan lebih buruk, tidak ada lagi cara melihat mana yang mana.
+
+**NOL GAMBAR, dan itu diperiksa dari sumber.** Skrip pembuatnya tidak pernah meminta field
+gambar; `food-db.test.ts` gagal kalau ada yang menambahkannya, dan `food-retail.test.ts` menolak
+URL apa pun di dalam data. Repo ini sudah membayar satu jebakan media berlisensi (Gym visual)
+dengan membangun ulang seluruh demo gerakan.
+
+**Atribusi ODbL ada di TIGA tempat, dan ketiganya wajib**: `NOTICE.md`, Pengaturan → Tentang, dan
+**lembar pencarian makanan itu sendiri**. Yang ketiga paling gampang dianggap berlebihan dan
+justru paling penting — atribusi yang cuma ada di layar Tentang tidak terlihat oleh siapa pun yang
+sedang memakai datanya. Dipaku `food-attribution.test.ts`.
+
+### Katalog TIDAK PERNAH masuk ke `S`
+
+`S.foods` disinkronkan ke Supabase. Katalog dimuat sebagai **chunk terpisah** (21,5 KB gzip,
+`import()` dinamis), dan memilih satu baris **MENGADOPSI**-nya sekali ke `S.foods` — persis
+seperti yang sudah dilakukan jalur AI. Tiga akibat yang semuanya diinginkan: `S.foods` tumbuh
+hanya sebesar yang benar-benar dimakan orang; riwayat tidak ikut membusuk saat katalog dibangun
+ulang; dan nol perubahan pada `MealEntry`, `macrosOf`, maupun lapisan sync.
+
+Adopsi **tidak menimpa** yang sudah ada. Begitu diadopsi, baris itu milik pengguna, dan angka yang
+dia koreksi karena beda dengan label di tangannya harus menang atas katalog.
+
+### Pencarian: token, BUKAN skor kemiripan
+
+Aturan yang sama dengan foto gerakan, dan alasannya berlaku lebih keras di sini: *susu* 61 kkal vs
+*susu kental manis* 336 kkal, dan *tanpa gula* vs *gula* adalah kebalikan yang cuma dibedakan satu
+kata. Kecocokan persis SELALU mengalahkan kecocokan sebagian, apa pun panjang namanya.
+
+### Saringan halal, dan kelas kesalahan yang terulang di sini
+
+OFF memuat produk beralkohol dan berbahan babi. Yang dipakai untuk membuang adalah sinyal
+terstruktur (`alcohol_100g > 0`, tag kategori) plus kata kunci **pada BATAS KATA**.
+
+Versi pertama memakai `includes()`, dan dari 25 produk yang ditandai **24 SALAH**: `rum` cocok
+dengan "**rum**put laut", `gin` dengan "ori**gin**al" dan "an**gin**", `ale` dengan "k**ale**" dan
+"D**ale**s", `arak` dengan "Ac**arak**i" (jamu). Satu-satunya yang benar adalah "San Miguel **Pale**
+Pilsen" — dan menarik, batas kata saja juga melewatkannya, karena 'ale' bukan kata di situ. Jadi
+perbaikannya dua sisi: batas kata, DAN kata yang lebih spesifik (`pilsen`, `pilsner`).
+
+Ini kelas yang sama dengan skor kemiripan yang dilarang untuk foto gerakan, dan dia terulang
+justru di berkas yang komentarnya sendiri memperingatkannya. Cacatnya **tidak terlihat dari kode
+maupun dari jumlah baris hasil** — cuma dari `--report` yang benar-benar dibaca.
+
+Saringannya konservatif dan **best-effort**: tag OFF adalah kontribusi pengguna dan sering kosong,
+jadi ini bukan sertifikasi halal. Yang menentukan tetap label di kemasan, dan itu dikatakan di
+`NOTICE.md`.
+
+### Plafon datanya, diukur bukan diperkirakan
+
+Dari 4.693 produk ber-tag Indonesia di indeks OFF, cuma **824 punya angka kalori**. Yang tanpa
+kalori juga tanpa kalori di API v2 — jadi datanya memang tidak ada, bukan indeksnya yang kurang.
+Dua contohnya menjelaskan kenapa: *"BENIH MENTIMUN VITANI"* (benih tanam) dan *"Hydrating mist"*
+(kosmetik) ikut ber-tag Indonesia. Setelah saringan nama dan gizi, **759** yang terpakai.
+
+Jadi 759 itu mendekati plafon data ritel Indonesia yang berlisensi terbuka, bukan hasil setengah
+jalan. Kalau nanti mau menaikkannya, yang menaikkan bukan skrip ini — yang menaikkan adalah orang
+yang menyumbang data ke Open Food Facts.
+
+**NOL KALORI DITERIMA, dan itu bukan detail.** Versi pertama menolak `kcal < 1`, dan akibatnya
+langsung terlihat: **Aqua tidak ada di katalog**, begitu juga air mineral lain dan teh tawar. Nol
+yang dinyatakan OFF adalah DATA, bukan data yang hilang — bedanya persis yang sudah dijaga di
+`fetchRemoteState` ("tidak tahu" vs "server kosong"). Dan orang yang mencari "Aqua" lalu tidak
+menemukannya menyimpulkan databasenya payah, bukan menyimpulkan airnya nol kalori.
+
+### Endpoint OFF: `search.openfoodfacts.org`, bukan `/api/v2/search`
+
+Jangan diulang jalannya. `/api/v2/search` dengan `page_size=100` + `fields` yang memuat
+`nutriments` membalas **503 berulang**; halaman yang sama membalas **200 seketika** dengan
+`fields=code` saja. Jadi yang menjatuhkannya **biaya per-request, bukan rate limit** — diagnosis
+pertama salah di sini, dan memperlambat jeda ke 15 detik tidak memperbaiki apa pun.
+`search.openfoodfacts.org` mengembalikan **600 produk dalam 3 detik tanpa jeda**.
+
+Bentuk responsnya beda: hasilnya di `hits` bukan `products`, `brands` **array** bukan string, dan
+sintaks query harus `countries_tags:"en:indonesia"` — `countries:indonesia` mengembalikan **NOL
+tanpa error**, yang terbaca seperti "Indonesia memang tidak punya data". Skripnya berhenti keras
+kalau hasilnya nol, justru karena itu.
+
+Cache di `food-cache/`, **di luar `public/`** (Vite menyalin `public/` ke `dist/` di setiap build —
+repo ini sudah pernah mengirim 39 MB media yang tidak dipakai ke Vercel karena itu). Menyegarkan
+data: `npm run food:retail` (tambahkan `--report` dan **baca laporannya**).
+
+### Masakan matang tetap urusan AI
+
+Nasi uduk, rendang, gado-gado tidak ada di kedua sumber: dia bukan produk ritel dan bukan bahan
+mentah. Itu tetap dijawab perkiraan gizi AI di bawah — yang justru dipasang karena jalan buntu
+lisensi ini, dan LLM tahu nasi uduk. Jalur manual tetap ada dan tetap jalan tanpa apa pun.
 
 ## Perkiraan gizi AI — kunci milik pengguna, dan kenapa itu MENJAWAB jalan buntu lisensi
 

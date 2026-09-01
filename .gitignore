@@ -50,3 +50,4 @@ node_modules
 
 # Scratch Supabase CLI (cli-latest, dsb). Bukan konfigurasi, bukan migration.
 supabase/.temp/
+frontend/food-cache/

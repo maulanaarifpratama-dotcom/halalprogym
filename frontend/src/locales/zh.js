@@ -747,7 +747,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': '已锁定。要改动请打开开关。',
   'Logged': '已记录',
   'Model (optional) — default {0}': '模型（可选）——默认 {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': '没有内置食物数据库——数字由你自己填，来自包装标签或食谱。也可以用你自己的 API 密钥让 AI 估算。',
   'No connection. You can still add the food by hand.': '没有网络。你仍然可以手动添加食物。',
   'No serving weight was given, so 100 g is assumed.': '没有给出每份重量，因此按 100 克计算。',
   'Not set up': '尚未设置',
@@ -782,4 +781,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0} 小时 {1} 分',
   '{0} min': '{0} 分钟',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': '食物数据库',
+  'Database': '数据库',
+  'Search a product or ingredient': '搜索产品或食材',
+  'Loading the database…': '正在加载数据库…',
+  'Type at least two letters': '请至少输入两个字符',
+  'Nothing matches that': '没有匹配结果',
+  'Ingredient': '食材',
+  'Product': '产品',
+  'Already in your foods': '已在你的食物中',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': '数据：Open Food Facts（ODbL 1.0）与 USDA FoodData Central（公有领域）。',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': '在内置数据库中搜索包装食品和基础食材，让 AI 估算熟食，或自己按标签输入数值。',
 }

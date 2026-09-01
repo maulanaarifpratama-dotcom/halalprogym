@@ -750,7 +750,6 @@ export default {
   'Locked. Turn the switch on to correct anything.': '잠겨 있습니다. 고치려면 스위치를 켜세요.',
   'Logged': '기록됨',
   'Model (optional) — default {0}': '모델(선택) — 기본값 {0}',
-  'No built-in food database — the numbers are yours, from the label or the recipe. Or let AI estimate them with your own API key.': '내장 음식 데이터베이스는 없습니다 — 숫자는 라벨이나 조리법에서 직접 넣습니다. 또는 본인의 API 키로 AI가 추정하게 할 수 있습니다.',
   'No connection. You can still add the food by hand.': '연결이 없습니다. 음식은 여전히 직접 추가할 수 있습니다.',
   'No serving weight was given, so 100 g is assumed.': '1회 제공량이 없어서 100 g으로 가정했습니다.',
   'Not set up': '설정되지 않음',
@@ -785,4 +784,17 @@ export default {
   // --- hitungan mundur waktu salat ---
   '{0} hr {1} min': '{0}시간 {1}분',
   '{0} min': '{0}분',
+
+  // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  'Food database': '식품 데이터베이스',
+  'Database': '데이터베이스',
+  'Search a product or ingredient': '제품이나 재료 검색',
+  'Loading the database…': '데이터베이스를 불러오는 중…',
+  'Type at least two letters': '두 글자 이상 입력하세요',
+  'Nothing matches that': '일치하는 항목이 없습니다',
+  'Ingredient': '재료',
+  'Product': '제품',
+  'Already in your foods': '이미 내 음식에 있음',
+  'Data: Open Food Facts (ODbL 1.0) and USDA FoodData Central (public domain).': '데이터: Open Food Facts (ODbL 1.0), USDA FoodData Central (퍼블릭 도메인).',
+  'Search the built-in database for packaged products and staples, let AI estimate a cooked dish, or enter the numbers yourself from the label.': '내장 데이터베이스에서 포장 식품과 기본 식재료를 찾고, 조리된 음식은 AI로 추정하거나, 라벨을 보고 직접 입력하세요.',
 }
