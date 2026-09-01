@@ -11,4 +11,21 @@
 // lands in a self-hosted bundle.
 export const DEMO = import.meta.env.VITE_DEMO === '1'
 export const DEMO_SEEDED = 'gym_demo_seeded_v1'
-export const REPO = 'https://gitlab.com/DuarteSantos8/opengym'
+/**
+ * Tautan source yang ditawarkan app ke pengguna.
+ *
+ * Ini menunjuk repo KITA, bukan upstream — dan itu bukan preferensi, itu syarat lisensi. AGPL
+ * menuntut penawaran Corresponding Source dari VERSI YANG DIMODIFIKASI; menunjuk openGym yang
+ * tidak dimodifikasi tidak memenuhinya sama sekali.
+ *
+ * Nilainya sempat tertinggal menunjuk `gitlab.com/DuarteSantos8/opengym` setelah fork — sisa
+ * warisan yang tidak terlihat karena dia CUMA dipakai di cabang `DEMO`, dan build demo tidak
+ * pernah dikirim. Jadi bukan pelanggaran yang hidup, tapi jebakan yang menunggu orang pertama
+ * yang menjalankan `VITE_DEMO=1`.
+ *
+ * Atribusi ke openGym tetap ada dan tetap wajib — tempatnya `NOTICE.md` dan baris "fork dari" di
+ * Pengaturan, bukan tautan yang berlabel "source code".
+ *
+ * Dijaga `source-link.test.ts`.
+ */
+export const REPO = 'https://github.com/maulanaarifpratama-dotcom/halalprogym'
