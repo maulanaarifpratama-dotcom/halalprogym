@@ -194,7 +194,7 @@ describe('Media — tiga tingkat demo gerakan', () => {
     // yang benar masuk), dan tes ini memang harus merah waktu itu supaya keputusannya dilihat
     // orang. Alasan lengkapnya di `catalogue-integrity.test.js`.
     const berfoto = all.filter(e => demoFrames(e).length > 0).length
-    expect(berfoto).toBeGreaterThanOrEqual(338)
+    expect(berfoto).toBeGreaterThanOrEqual(376)
   })
 
   it('Thumb memakai bingkai pertama kalau ada, ikon kalau tidak — 50px terlalu kecil untuk peta otot', async () => {

@@ -86,7 +86,59 @@ const HAND_ALIASES = {
   '0117': 'Sumo Deadlift',                       // barbell sumo deadlift
   '0308': 'Dumbbell Flyes',                      // dumbbell fly
   '0314': 'Incline Dumbbell Press',              // dumbbell incline bench press
-  '0274': 'Crunches'                             // crunch floor - tg=abs, eq=body weight
+  '0274': 'Crunches',                            // crunch floor - tg=abs, eq=body weight
+
+  // ---------------------------------------------------------------------------------------
+  // Tiga baris yang tadinya di sini DICABUT setelah `tokenset-noise` ditambahkan: dumbbell
+  // bench squat, dumbbell neutral grip bench press, dan mixed grip chin-up sekarang cocok
+  // lewat ATURAN. Alias yang mubazir cuma menyembunyikan aturan mana yang sebenarnya bekerja.
+  //
+  // Audit 2026-09-02: 425 usulan disaring jadi 60 kandidat oleh penjaga kata-penentu-varian,
+  // lalu diperiksa satu per satu. Yang di bawah diterima; sisanya tidak, hampir semuanya karena
+  // kelas alatnya benar-benar berbeda (cable -> dumbbell, smith -> barbell, bodyweight -> barbell).
+  //
+  // ENAM di antaranya diputuskan dengan MELIHAT FOTONYA, dan dua membalikkan keputusan yang akan
+  // diambil dari metadata saja. Itu sebabnya baris-baris itu diberi catatan FOTO.
+  '0028': 'Clean and Press',                              // barbell clean and press
+  '0018': 'Standing Towel Triceps Extension',             // assisted standing triceps extension (with towel)
+  '0029': 'Front Squat (Clean Grip)',                     // barbell clean-grip front squat
+  '0063': 'Narrow Stance Squats',                         // barbell narrow stance squat
+  '0066': 'One-Arm Side Deadlift',                        // barbell one arm side deadlift
+  '0074': 'Rack Pulls',                                   // barbell rack pull
+  '0090': 'Seated Good Mornings',                         // barbell seated good morning
+  '0167': 'Kneeling High Pulley Row',                     // cable high row (kneeling)
+  '0171': 'Incline Cable Flye',                           // cable incline fly
+  '0237': 'Rope Straight-Arm Pulldown',                   // cable straight arm pulldown (with rope)
+  '0238': 'Straight-Arm Pulldown',                        // cable straight arm pulldown
+  '0248': 'Lying Cambered Barbell Row',                   // FOTO: telungkup di bangku, batang cambered
+  '0302': 'Decline Dumbbell Flyes',                       // dumbbell decline fly
+  '0319': 'Incline Dumbbell Flyes',                       // dumbbell incline fly
+  '0432': 'Stiff-Legged Dumbbell Deadlift',               // dumbbell stiff leg deadlift
+  '0446': 'Close-Grip EZ Bar Curl',                       // ez barbell close-grip curl - EZ di kedua sisi
+  '0518': 'Alternating Hang Clean',                       // kettlebell alternating hang clean
+  '0525': 'Bottoms-Up Clean From The Hang Position',      // kettlebell bottoms up clean from the hang position
+  '0534': 'Goblet Squat',                                 // FOTO: kettlebell di dada - versi kettlebell yang benar
+  '0536': 'Lunge Pass Through',                           // kettlebell lunge pass through
+  '0545': 'Plyo Kettlebell Pushups',                      // kettlebell plyo push-up
+  '0593': 'Reverse Hyperextension',                       // lever reverse hyperextension - mesin di kedua sisi
+  '0743': 'Hack Squat',                                   // FOTO: mesin hack squat bertumpu piringan = sled
+  '0744': 'Lying Machine Squat',                          // sled lying squat
+  '0748': 'Smith Machine Bench Press',                    // smith bench press
+  '0760': 'Smith Machine Leg Press',                      // smith leg press
+  '0770': 'Smith Machine Squat',                          // smith squat
+  '0775': 'Smith Machine Upright Row',                    // smith upright row
+  '0814': 'Dips - Triceps Version',                       // FOTO: torso tegak, siku rapat = versi trisep
+  '0835': 'Weighted Ball Hyperextension',                 // weighted hyperextension (on stability ball)
+  '0850': 'Weighted Ball Side Bend',                      // weighted side bend (on stability ball)
+  '1004': 'Squat with Bands',                             // FOTO: pita di bahu, TANPA barbel - metadata fedb
+                                                          //       menulis 'barbell' dan itu keliru
+  '1354': 'Overhead Slam',                                // medicine ball overhead slam
+  // '1748' DICABUT: nama kita sebenarnya "...triceps extension BEHIND HEAD", dan kandidatnya
+  // tidak punya itu. "Behind head" mengubah sudut sendi bahu — itu kata penentu varian, bukan
+  // kata gramatikal. Daftar kandidat saya memotong namanya di 42 karakter dan menyembunyikan
+  // kata itu; penjaga alias-tidak-ketemu yang menangkapnya, bukan mata saya.
+  '1758': 'Sit-Up',                                       // FOTO: kaki dikait di bawah dumbbell
+  '2186': 'Decline EZ Bar Triceps Extension',             // ez barbell decline triceps extension
 }
 
 /**
@@ -135,6 +187,11 @@ const HAND_REJECTS = {
   // tidak konsisten. Fotonya barbel bebas sementara namanya menyebut mesin, jadi apa pun yang
   // benar, yang tampil di layar membingungkan.
   '0574': 'lever bent over row -> Bent Over Barbell Row',
+
+  // Dua ini diputuskan dengan MELIHAT foto kandidatnya, dan fotonya membalikkan apa yang
+  // metadata sarankan:
+  '0755': 'smith hack squat -> Hack Squat (FOTO: mesin hack squat bertumpu piringan, bukan Smith)',
+  '1760': 'dumbbell goblet squat -> Goblet Squat (FOTO: kettlebell di dada, bukan dumbbell)',
 }
 
 /**
@@ -158,6 +215,20 @@ const words = s => String(s || '').toLowerCase().replace(/['‘’]/g, '').repla
   .replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean).map(sing)
 const exactKey = s => words(s).join(' ')
 const setKey = s => [...new Set(words(s))].sort().join(' ')
+/**
+ * Tokenset yang MEMBUANG kata gramatikal.
+ *
+ * `setKey` memakai `words()` yang tidak membuang NOISE, jadi "band squat" dan "Squat with Bands"
+ * punya kunci berbeda ("band squat" vs "band squat with") walau himpunan kata bermaknanya identik.
+ * Tiga latihan hilang karena itu, dan ketiganya benar: "dumbbell bench squat" ->
+ * "Dumbbell Squat To A Bench", "dumbbell neutral grip bench press" ->
+ * "Dumbbell Bench Press with Neutral Grip", "mixed grip chin-up" -> "Mixed Grip Chin".
+ *
+ * Aman karena NOISE sudah dikurasi dan sengaja TIDAK memuat satu pun kata gerakan, arah,
+ * cengkeraman, atau postur — membuangnya tidak bisa menghapus pembeda varian. Indeksnya tetap
+ * menolak kunci yang ambigu, jadi dua latihan berbeda yang runtuh ke satu kunci tetap dibuang.
+ */
+const setKeyBersih = s => [...new Set(words(s).filter(w => !NOISE.has(w)))].sort().join(' ')
 const squashKey = s => sing(String(s || '').toLowerCase().replace(VARIANT, '').replace(/[^a-z0-9]/g, ''))
 const base = s => String(s || '').split(' - ')[0]
 
@@ -220,6 +291,8 @@ async function main() {
     ['exact', buildIdx(exactKey), exactKey],
     ['squash', buildIdx(squashKey), squashKey],
     ['tokenset', buildIdx(setKey), setKey],
+    // Setelah tokenset biasa: yang cocok tanpa membuang apa pun harus menang lebih dulu.
+    ['tokenset-noise', buildIdx(setKeyBersih), setKeyBersih],
     ['baseset', buildIdx(n => setKey(base(n))), setKey]
   ]
 

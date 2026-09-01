@@ -117,7 +117,16 @@ describe('peta foto demo menunjuk latihan yang benar-benar ada', () => {
     // — mungkin dengan skor kemiripan, yang sudah ditolak karena "rear delt raise" jadi "rear
     // delt ROW" dan orang meniru demo yang dia lihat. Perubahan angka ini harus dilihat orang.
     //
-    // 340 -> 338, dan TURUNNYA DISENGAJA. Audit 2026-09-02 memeriksa mata seluruh 186 kecocokan
+    // 340 -> 338 -> 376. Turunnya disengaja, naiknya juga.
+    //
+    // NAIK 338 -> 376 (audit 2026-09-02, tahap kedua): 425 usulan disaring jadi 60 kandidat
+    // oleh penjaga kata-penentu-varian, lalu diperiksa satu per satu — DELAPAN di antaranya
+    // dengan MELIHAT FOTONYA, dan dua foto membalikkan keputusan yang akan diambil dari
+    // metadata saja: 'Squat with Bands' bertanda equipment=barbell padahal fotonya pita tanpa
+    // barbel, dan 'Goblet Squat' memperlihatkan kettlebell sehingga versi dumbbell ditolak.
+    // Ditambah satu aturan: tokenset yang membuang kata gramatikal.
+    //
+    // TURUN 340 -> 338 sebelumnya, dan itu juga disengaja. Audit 2026-09-02 memeriksa mata seluruh 186 kecocokan
     // yang namanya tidak identik, dan menemukan tujuh yang memasang foto ALAT YANG BERBEDA:
     // Smith machine dipasangkan foto mesin tuas (`smith shoulder press` -> Leverage Shoulder
     // Press), dipasangkan latihan tanpa alat (`smith chair squat` -> Chair Squat), dan satu baris
@@ -128,7 +137,7 @@ describe('peta foto demo menunjuk latihan yang benar-benar ada', () => {
     // yang sebelumnya menutup jalur kata untuk seluruh kettlebell. Jadi 7 salah keluar, 5 benar
     // masuk: cakupan turun 0,2 poin dan ketepatannya naik. Itu pertukaran yang aturan di repo ini
     // memang minta — orang meniru demo yang dia lihat.
-    expect(Object.keys(MEDIA).length).toBe(338)
+    expect(Object.keys(MEDIA).length).toBe(376)
   })
 
   it('angka yang DITULIS di dokumentasi sama dengan yang sebenarnya', () => {

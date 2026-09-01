@@ -35,7 +35,7 @@ jsDelivr seperti yang dilakukan upstream. Fig-leaf "diunduh runtime, tidak kami 
 milik upstream **tidak berlaku untuk produk komersial.**
 
 Yang dipakai sekarang: **foto free-exercise-db**, lisensinya Unlicense, diverifikasi lewat API
-GitHub (`spdx_id`) bukan badge README. 338 dari 1.324 latihan terpetakan, dan **25,5% itu angka
+GitHub (`spdx_id`) bukan badge README. 376 dari 1.324 latihan terpetakan, dan **28,4% itu angka
 yang disengaja** — lihat `scripts/build-exercise-media.mjs`. Aturannya konservatif: nama identik,
 atau selisih kata tanpa makna gerakan DAN otot primer setuju.
 
