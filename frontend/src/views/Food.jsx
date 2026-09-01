@@ -1,13 +1,22 @@
 // Catatan makan: kalori dan makro hari ini.
 //
-// TIDAK ADA DATABASE MAKANAN BAWAAN, dan itu keputusan lisensi bukan kekurangan. Alasannya
-// lengkap di kepala lib/nutrition.ts; ringkasnya: repo ini sudah pernah membayar mahal untuk
-// aset yang lisensinya tidak diperiksa, dan tiga sumber database makanan yang ada masing-masing
-// punya masalah sendiri (TKPI Kemenkes tidak jelas untuk komersial, Open Food Facts ODbL
-// share-alike, USDA domain publik tapi isinya makanan Amerika).
+// TIGA JALUR MENCATAT, dan urutan tombolnya mengikuti biayanya:
 //
-// Yang dikirim: mesinnya, lengkap. Makanan dibuat sendiri sekali lalu dipakai ulang — dan
-// itu memang cara kebanyakan orang mencatat, karena yang dimakan berulang cuma belasan jenis.
+//   1. "Log food" — makanan yang SUDAH tersimpan. Nol jaringan, nol kuota, paling cepat untuk
+//      yang dimakan tiap hari. Ini yang jadi tombol utama.
+//   2. "Database" — katalog bawaan: 59 bahan pokok (USDA, CC0) + produk ritel Indonesia
+//      (Open Food Facts, ODbL). Offline setelah chunk-nya turun sekali.
+//   3. "AI"       — masakan matang yang tidak ada di katalog mana pun, karena dia bukan produk
+//      ritel dan bukan bahan mentah. Butuh kunci milik pengguna sendiri.
+//
+// Kepala berkas ini dulu berbunyi "TIDAK ADA DATABASE MAKANAN BAWAAN". Itu sudah tidak benar
+// sejak katalognya masuk — dan komentar yang mengklaim ketiadaan fitur yang ADA lebih buruk
+// daripada tidak ada komentar: dia mengajari orang bahwa fiturnya tidak ada. Alasan lisensinya
+// yang lengkap ada di kepala `lib/nutrition.ts` dan di `lib/food-db.ts`.
+//
+// SATUAN DITAMPILKAN LEWAT `unitOf`, JANGAN DITULIS APA ADANYA. Tiga tempat di berkas ini pernah
+// menulis 'g' begitu saja, dan akibatnya minuman yang dicatat 350 ml tampil "350 g" — kalorinya
+// benar, satuannya bohong. Lihat catatan `Food.unit` di nutrition.ts.
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore, DEF } from '../store/useStore.js'
@@ -16,7 +25,7 @@ import { fmtNum, todayISO, uid } from '../lib/format.js'
 import { cityById, DEFAULT_CITY_ID } from '../lib/prayer.js'
 import { fastingWindow, isFastingDay } from '../lib/ramadan.js'
 import {
-  entriesOn, macrosOf, progressTo, totalsByWindow, totalsOn, validateFood,
+  entriesOn, macrosOf, progressTo, totalsByWindow, totalsOn, unitOf, validateFood,
 } from '../lib/nutrition.js'
 import { t } from '../lib/i18n.js'
 import Icon from '../components/Icon.jsx'
@@ -136,7 +145,7 @@ export default function Food() {
               <div className="grow">
                 <div className="tt">{nameOf(e.foodId)}</div>
                 <div className="ss">
-                  {food?.basis === 'per100g' ? fmtNum(e.qty) + ' g' : fmtNum(e.qty) + ' × ' + (food?.serving || t('serving'))}
+                  {food?.basis === 'per100g' ? fmtNum(e.qty) + ' ' + unitOf(food) : fmtNum(e.qty) + ' × ' + (food?.serving || t('serving'))}
                   {' · '}{fmtNum(m.kcal)} {t('kcal')}
                 </div>
               </div>
@@ -160,7 +169,7 @@ export default function Food() {
               <div className="tt">{f.name}</div>
               <div className="ss">
                 {fmtNum(f.kcal)} {t('kcal')}{' '}
-                {f.basis === 'per100g' ? t('per 100 g') : t('per {0}', f.serving || t('serving'))}
+                {f.basis === 'per100g' ? t('per 100 {0}', unitOf(f)) : t('per {0}', f.serving || t('serving'))}
               </div>
             </div>
             <Icon name="chevronRight" className="chev" />
@@ -220,7 +229,7 @@ function PickSheet({ close, onPick }) {
         <button type="button" key={f.id} className="item" onClick={() => { setPicked(f); setQty(f.basis === 'per100g' ? '100' : '1') }}>
           <div className="grow">
             <div className="tt">{f.name}</div>
-            <div className="ss">{fmtNum(f.kcal)} {t('kcal')} {f.basis === 'per100g' ? t('per 100 g') : t('per {0}', f.serving || t('serving'))}</div>
+            <div className="ss">{fmtNum(f.kcal)} {t('kcal')} {f.basis === 'per100g' ? t('per 100 {0}', unitOf(f)) : t('per {0}', f.serving || t('serving'))}</div>
           </div>
           <Icon name="chevronRight" className="chev" />
         </button>
@@ -237,7 +246,9 @@ function PickSheet({ close, onPick }) {
   return <>
     <h3>{picked.name}</h3>
     <div className="muted small" style={{ marginBottom: 12 }}>
-      {picked.basis === 'per100g' ? t('How many grams?') : t('How many {0}?', picked.serving || t('servings'))}
+      {picked.basis === 'per100g'
+        ? (unitOf(picked) === 'ml' ? t('How many ml?') : t('How many grams?'))
+        : t('How many {0}?', picked.serving || t('servings'))}
     </div>
     <TextField type="number" inputMode="decimal" value={qty} onChange={e => setQty(e.target.value)} />
     <div style={{ height: 12 }} />

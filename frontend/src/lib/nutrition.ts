@@ -1,23 +1,26 @@
 /**
  * Catatan makan: kalori dan makro.
  *
- * SATU KEPUTUSAN LISENSI YANG MEMBENTUK SELURUH MODUL INI: TIDAK ADA DATABASE MAKANAN BAWAAN.
+ * KEPUTUSAN LISENSI YANG MEMBENTUK MODUL INI — DAN YANG SUDAH BERUBAH
  *
- * Modul ini menyimpan makanan yang DIBUAT PENGGUNA SENDIRI, dan mendaur ulangnya. Bukan karena
- * database bawaan tidak berguna — dia sangat berguna — tapi karena repo ini sudah pernah
- * membayar mahal untuk aset yang lisensinya tidak diperiksa (gambar 1.324 latihan, © Gym visual,
- * dan seluruh lapis visual harus dibangun ulang). Aturan yang lahir dari situ berlaku di sini:
+ * Kepala berkas ini dulu berbunyi "TIDAK ADA DATABASE MAKANAN BAWAAN", dengan tiga sumber yang
+ * masalahnya semua tercatat sebagai "harus dipastikan dulu". Itu sudah tidak benar, dan
+ * membiarkannya berarti sesi berikutnya memutuskan dari premis yang salah.
  *
- *   - Tabel Komposisi Pangan Indonesia (Kemenkes) — lisensinya TIDAK JELAS untuk redistribusi
- *     komersial. Harus dipastikan sebelum satu barisnya masuk repo.
- *   - Open Food Facts — ODbL, share-alike PADA DATABASE-nya. Bisa dipakai, tapi membawa
- *     kewajiban tersendiri yang harus disadari, bukan ditemukan belakangan.
- *   - USDA FoodData Central — domain publik, aman, tapi isinya makanan Amerika. "Nasi uduk"
- *     tidak ada di sana, dan itu justru yang dicari pengguna app ini.
+ * Pertanyaannya dijawab 2026-09-01, diverifikasi ke sumbernya masing-masing:
  *
- * Jadi yang dikirim sekarang adalah MESINNYA, lengkap dan bertes, dengan makanan buatan sendiri.
- * Menambahkan database bawaan nanti tidak mengubah satu pun fungsi di berkas ini — dia cuma
- * mengisi `foods` dari sumber lain. Itu memang cara memisahkannya.
+ *   - USDA FoodData Central  -> CC0 1.0, domain publik. DIPAKAI: 59 bahan pokok dikurasi tangan.
+ *   - Open Food Facts        -> ODbL 1.0 (database) + DbCL 1.0 (isi). DIPAKAI: produk ritel
+ *                               Indonesia, dengan atribusi dan turunannya ikut ODbL.
+ *   - Open Food Facts GAMBAR -> CC BY-SA 3.0. TIDAK diambil sama sekali; share-alike menular.
+ *   - TKPI (Kemenkes)        -> "(c) Copyright 2022. All Rights Reserved". TIDAK BOLEH.
+ *                               Ini bukan lagi "belum jelas". Jangan diperiksa ulang.
+ *
+ * Yang TIDAK berubah, dan itu intinya: **berkas ini tidak tahu apa-apa soal katalog.** Katalognya
+ * hidup di `food-db.ts` sebagai chunk terpisah, dan memilih satu baris MENGADOPSI-nya sekali ke
+ * `S.foods` — bentuk yang sama dengan makanan buatan pengguna dan dengan perkiraan AI. Jadi
+ * `Food`, `MealEntry`, `macrosOf`, dan seluruh perhitungan di sini tidak berubah satu baris pun
+ * saat katalog masuk. Itu memang cara memisahkannya, dan itu terbukti.
  *
  * SEMUANYA MURNI. Tidak ada React, tidak ada localStorage, tidak ada tanggal implisit — sama
  * seperti lib/ yang lain, dan karena alasan yang sama: angka yang salah di sini tidak akan
@@ -39,6 +42,24 @@ export interface Food {
   fat?: number
   /** Untuk `perServing`: keterangan porsinya ("1 piring", "1 butir"). Bebas teks. */
   serving?: string
+  /**
+   * Satuan untuk `per100g`. HANYA `'ml'` yang pernah disimpan; tidak ada berarti gram.
+   *
+   * KENAPA DIA ADA, PADAHAL TIDAK MENGUBAH SATU PUN PERHITUNGAN
+   *
+   * `macrosOf` menghitung `qty/100`, dan itu benar untuk gram maupun mililiter. Jadi field ini
+   * murni untuk TAMPILAN — dan versi pertama sengaja tidak menyimpannya, dengan alasan "jangan
+   * menambah field ke state yang disinkronkan untuk sesuatu yang tidak mengubah hitungan".
+   *
+   * Alasan itu menimbang biaya sync dan MELUPAKAN biaya tampilan. Akibatnya terlihat langsung di
+   * layar: lembar katalog benar menulis "Kemasan · 350 ml" dan "Berapa ml?", lalu begitu tercatat
+   * barisnya berbunyi **"350 g"** dan "24 kkal per 100 g". Kalorinya benar; satuannya bohong.
+   *
+   * Disimpan sebagai `'ml'`-saja dan bukan `'g'|'ml'` supaya dua hal sekaligus: payload sync tidak
+   * tumbuh untuk mayoritas makanan yang memang gram, dan defaultnya eksplisit di satu tempat
+   * (`unitOf`) bukan tersebar di setiap pemanggil.
+   */
+  unit?: 'ml'
 }
 
 export interface MealEntry {
@@ -74,6 +95,17 @@ const num = (v: unknown): number => {
 
 /** Pembulatan satu desimal untuk gram; kalori dibulatkan ke bilangan bulat. */
 const g1 = (n: number): number => Math.round(n * 10) / 10
+
+/**
+ * Satuan tampilan untuk satu makanan. Satu sumber, dipakai setiap tempat yang menulis satuan.
+ *
+ * Tersebar di tiga tempat sebelum ini, semuanya menulis `'g'` apa adanya — jadi minuman yang
+ * dicatat dalam ml tampil dalam gram di daftar hari ini, di daftar makanan pengguna, dan di
+ * lembar pemilih. Satu helper membuat kesalahan itu tidak bisa terjadi di tempat keempat.
+ */
+export function unitOf(food: Pick<Food, 'unit'> | null | undefined): 'g' | 'ml' {
+  return food && food.unit === 'ml' ? 'ml' : 'g'
+}
 
 /**
  * Makro untuk satu entri.

@@ -298,16 +298,40 @@ export function toFood(c: CatalogueFood): Food {
   if (c.protein !== undefined) f.protein = c.protein
   if (c.carb !== undefined) f.carb = c.carb
   if (c.fat !== undefined) f.fat = c.fat
+  // Satuan ikut HANYA kalau ml. Lihat catatan `Food.unit` di nutrition.ts: versi pertama tidak
+  // menyimpannya sama sekali, dan akibatnya minuman tampil dalam gram begitu tercatat.
+  if (c.unit === 'ml') f.unit = 'ml'
   return f
 }
 
 /**
  * Mengadopsi baris katalog ke daftar makanan pengguna, sekali saja.
  *
- * Mengembalikan daftar BARU dan makanannya. Kalau id-nya sudah ada, daftarnya dikembalikan apa
- * adanya dan yang sudah ada yang dipakai — TIDAK ditimpa. Menimpanya akan membuang suntingan
- * pengguna sendiri: begitu diadopsi, baris itu miliknya, dan angka kemasan yang dia koreksi
- * karena beda dengan label di tangannya harus menang atas katalog.
+ * Mengembalikan daftar BARU dan makanannya. Kalau id-nya sudah ada, yang sudah ada yang dipakai —
+ * angka dan namanya TIDAK ditimpa. Menimpanya akan membuang suntingan pengguna sendiri: begitu
+ * diadopsi, baris itu miliknya, dan angka kemasan yang dia koreksi karena beda dengan label di
+ * tangannya harus menang atas katalog.
+ *
+ * SATU KEKECUALIAN, DAN BATASNYA TEGAS: field `unit` yang HILANG diisi dari katalog.
+ *
+ * Itu bukan pelanggaran aturan di atas, dan bedanya bisa dinyatakan tepat: dia MENAMBAHKAN
+ * informasi yang tidak pernah ada, bukan mengubah informasi yang ada. Dan dia tidak mungkin
+ * bertentangan dengan suntingan pengguna, karena tidak ada satu pun UI untuk menyetel satuan —
+ * satu-satunya sumbernya katalog.
+ *
+ * Kenapa dibutuhkan: makanan yang diadopsi SEBELUM `Food.unit` ada tidak punya field itu, jadi
+ * minuman yang sudah tercatat tampil "350 g" selamanya. Dengan ini dia sembuh sendiri begitu
+ * orangnya memilih produk yang sama dari katalog lagi — tanpa migrasi yang memaksa katalog dimuat
+ * saat boot, yang justru merusak alasan katalog itu dimuat lazy.
+ *
+ * KONTRAK UNTUK PEMANGGIL: `foods` yang dikembalikan adalah array yang **BERBEDA REFERENSINYA**
+ * kalau ada yang berubah — baik penambahan baru maupun perbaikan `unit` — dan array yang SAMA
+ * kalau tidak ada apa pun yang berubah. Jadi `hasil.foods !== foods` adalah satu-satunya
+ * pertanyaan yang perlu ditanyakan pemanggil sebelum menyimpan.
+ *
+ * `sudahAda` TIDAK boleh dipakai untuk memutuskan menyimpan atau tidak, dan itu sudah pernah
+ * salah: pemanggil menulis `if (!sudahAda) simpan(...)`, jadi daftar yang sudah diperbaiki
+ * dibuang dan perbaikannya tidak pernah tersimpan. `sudahAda` cuma untuk teks yang ditampilkan.
  */
 export function adopt(
   foods: Food[] | undefined,
@@ -315,7 +339,18 @@ export function adopt(
 ): { foods: Food[]; food: Food; sudahAda: boolean } {
   const list = foods || []
   const ada = list.find(f => f && f.id === c.id)
-  if (ada) return { foods: list, food: ada, sudahAda: true }
+  if (ada) {
+    // Hanya kalau HILANG, dan hanya untuk ml. Yang sudah punya nilai tidak disentuh.
+    if (ada.unit === undefined && c.unit === 'ml') {
+      const diperbaiki: Food = { ...ada, unit: 'ml' }
+      return {
+        foods: list.map(f => (f && f.id === c.id ? diperbaiki : f)),
+        food: diperbaiki,
+        sudahAda: true,
+      }
+    }
+    return { foods: list, food: ada, sudahAda: true }
+  }
   const food = toFood(c)
   return { foods: [...list, food], food, sudahAda: false }
 }

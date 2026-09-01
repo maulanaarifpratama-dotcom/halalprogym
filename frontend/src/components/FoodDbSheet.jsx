@@ -123,7 +123,10 @@ export default function FoodDbSheet({ close, onLogged }) {
   const simpan = (jugaCatat) => {
     if (jugaCatat && !sah) { toast(t('Enter a valid amount')); return }
     const hasilAdopsi = adopt(foods, picked)
-    if (!hasilAdopsi.sudahAda) update(s => { s.foods = hasilAdopsi.foods })
+    // Dibandingkan REFERENSINYA, bukan `sudahAda`: `adopt` juga mengembalikan daftar baru saat
+    // dia memperbaiki `unit` yang hilang pada makanan yang sudah ada. Versi pertama menulis
+    // `if (!sudahAda)`, jadi perbaikannya dibuang dan tidak pernah tersimpan.
+    if (hasilAdopsi.foods !== foods) update(s => { s.foods = hasilAdopsi.foods })
     if (jugaCatat) {
       update(s => {
         s.meals = [...(s.meals || []), {

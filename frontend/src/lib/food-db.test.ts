@@ -5,7 +5,7 @@ import {
   type CatalogueFood,
 } from './food-db.js'
 import USDA from './food-usda.js'
-import { macrosOf } from './nutrition.js'
+import { macrosOf, unitOf } from './nutrition.js'
 
 /**
  * Katalog makanan bawaan. Yang diuji di sini bukan datanya (itu di `food-db-data.test.ts`), tapi
@@ -122,6 +122,64 @@ describe('adopt — sekali saja, dan TIDAK menimpa', () => {
     expect(b.food.name).toBe('Pocari (label saya)')
   })
 
+  it('MENGISI `unit` yang hilang pada makanan yang sudah ada', () => {
+    /**
+     * Makanan yang diadopsi SEBELUM `Food.unit` ada tidak punya field itu, jadi minuman yang sudah
+     * tercatat tampil "350 g" selamanya. Ini yang membuatnya sembuh sendiri begitu orangnya
+     * memilih produk yang sama dari katalog lagi.
+     *
+     * Bukan pelanggaran aturan "tidak menimpa": dia MENAMBAHKAN informasi yang tidak pernah ada,
+     * dan tidak mungkin bertentangan dengan suntingan pengguna karena tidak ada UI untuk menyetel
+     * satuan.
+     */
+    const cair = f({ id: 'off:c', name: 'Pocari', src: 'off', kcal: 24, unit: 'ml' })
+    const lama = { id: 'off:c', name: 'Pocari', basis: 'per100g' as const, kcal: 24 }
+    const r = adopt([lama], cair)
+    expect(r.sudahAda).toBe(true)
+    expect(r.food.unit).toBe('ml')
+    expect(r.foods[0]!.unit).toBe('ml')
+  })
+
+  it('TIDAK menyentuh angka maupun nama saat mengisi satuan', () => {
+    // Batas kekecualiannya harus tegas: satu field, dan cuma kalau hilang.
+    const cair = f({ id: 'off:c', name: 'Pocari Sweat', src: 'off', kcal: 24, unit: 'ml' })
+    const disunting = { id: 'off:c', name: 'Pocari (label saya)', basis: 'per100g' as const, kcal: 19 }
+    const r = adopt([disunting], cair)
+    expect(r.food.kcal).toBe(19)
+    expect(r.food.name).toBe('Pocari (label saya)')
+    expect(r.food.unit).toBe('ml')
+  })
+
+  it('mengembalikan array yang SAMA kalau tidak ada yang berubah', () => {
+    /**
+     * Kontrak untuk pemanggil, dan dia sudah pernah salah dipakai: `FoodDbSheet` menulis
+     * `if (!sudahAda) simpan(...)`, jadi daftar yang sudah diperbaiki dibuang dan perbaikannya
+     * tidak pernah tersimpan. Yang benar `hasil.foods !== foods`.
+     */
+    const padat = f({ id: 'off:d', name: 'Indomie', src: 'off', kcal: 462 })
+    const daftar = [{ id: 'off:d', name: 'Indomie', basis: 'per100g' as const, kcal: 462 }]
+    const r = adopt(daftar, padat)
+    expect(r.foods, 'tidak ada yang berubah, jadi referensinya harus sama').toBe(daftar)
+  })
+
+  it('mengembalikan array BERBEDA saat mengisi satuan, supaya pemanggil menyimpannya', () => {
+    const cair = f({ id: 'off:e', name: 'Teh', src: 'off', kcal: 30, unit: 'ml' })
+    const daftar = [{ id: 'off:e', name: 'Teh', basis: 'per100g' as const, kcal: 30 }]
+    const r = adopt(daftar, cair)
+    expect(r.foods).not.toBe(daftar)
+  })
+
+  it('pemanggilnya memakai perbandingan REFERENSI, bukan `sudahAda`', () => {
+    // Dipaku ke sumber: kontrak di atas tidak berarti apa-apa kalau pemanggilnya mengabaikannya,
+    // dan itu tepat yang terjadi di versi pertama.
+    const src = readFileSync(new URL('../components/FoodDbSheet.jsx', import.meta.url), 'utf8')
+    expect(src).toContain('hasilAdopsi.foods !== foods')
+    expect(
+      /if \(!hasilAdopsi\.sudahAda\) update/.test(src),
+      'pemanggil kembali memakai !sudahAda — perbaikan unit akan dibuang'
+    ).toBe(false)
+  })
+
   it('tahan atas daftar undefined', () => {
     expect(() => adopt(undefined, c)).not.toThrow()
     expect(adopt(undefined, c).foods.length).toBe(1)
@@ -230,13 +288,38 @@ describe('satuan tampilan: gram vs mililiter', () => {
     expect(f({ src: 'usda' }).unit).toBe('g')
   })
 
-  it('toFood TIDAK menambahkan field satuan ke Food', () => {
-    // `macrosOf` menghitung qty/100, dan itu benar untuk gram maupun mililiter. Menambah field
-    // ke `Food` berarti menambah field ke state yang DISINKRONKAN, untuk sesuatu yang tidak
-    // mengubah satu pun perhitungan.
-    const food = toFood(f({ unit: 'ml', kcal: 29 })) as unknown as Record<string, unknown>
+  it('toFood MEMBAWA satuan ml — dan alasan versi pertama tidak, salah', () => {
+    /**
+     * Versi pertama tes ini menuntut yang SEBALIKNYA: `expect('unit' in food).toBe(false)`, dengan
+     * alasan "macrosOf menghitung qty/100 dan itu benar untuk gram maupun mililiter, jadi jangan
+     * menambah field ke state yang disinkronkan untuk sesuatu yang tidak mengubah hitungan".
+     *
+     * Alasan itu menimbang biaya sync dan MELUPAKAN biaya tampilan — dan biaya tampilannya
+     * terlihat langsung di layar begitu satu minuman dicatat: lembar katalog benar menulis
+     * "Kemasan · 350 ml" dan "Berapa ml?", lalu barisnya di "Dicatat hari ini" berbunyi
+     * **"350 g"** dan di "Makananmu" berbunyi "24 kkal per 100 g".
+     *
+     * Kalorinya benar sepanjang waktu; yang salah satuannya. Dan itu kelas kesalahan yang paling
+     * mudah lolos tes: tidak ada yang melempar, tidak ada angka yang berubah.
+     */
+    const food = toFood(f({ unit: 'ml', kcal: 29 }))
+    expect(food.unit).toBe('ml')
+  })
+
+  it('makanan gram TIDAK membawa field satuan sama sekali', () => {
+    // Hanya 'ml' yang pernah disimpan; tidak ada berarti gram. Itu menjaga payload sync tidak
+    // tumbuh untuk mayoritas makanan, dan membuat defaultnya hidup di satu tempat (`unitOf`).
+    const food = toFood(f({ unit: 'g', kcal: 100 })) as unknown as Record<string, unknown>
     expect('unit' in food).toBe(false)
-    expect(food.basis).toBe('per100g')
+  })
+
+  it('unitOf memberi default gram untuk makanan lama yang belum punya field itu', () => {
+    // Makanan yang sudah tersimpan di perangkat orang TIDAK punya `unit`. Kalau `unitOf`
+    // mengembalikan undefined untuk mereka, baris daftar akan berbunyi "91 undefined".
+    expect(unitOf({})).toBe('g')
+    expect(unitOf(null)).toBe('g')
+    expect(unitOf(undefined)).toBe('g')
+    expect(unitOf({ unit: 'ml' })).toBe('ml')
   })
 
   it('porsi kemasan dan 100 keduanya ada untuk minuman', () => {
