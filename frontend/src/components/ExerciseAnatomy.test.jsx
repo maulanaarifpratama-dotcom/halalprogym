@@ -189,9 +189,12 @@ describe('Media — tiga tingkat demo gerakan', () => {
     const nihil = all.filter(e =>
       demoFrames(e).length === 0 && Object.keys(musclesOf(e)).length === 0)
     expect(nihil.map(e => e.id + ' ' + e.n)).toEqual([])
-    // Dan cakupan fotonya tidak boleh turun tanpa disadari.
+    // Dan cakupan fotonya tidak boleh turun TANPA DISADARI — kata terakhir itu yang penting.
+    // Angka ini pernah turun dengan sengaja (340 -> 338, tujuh foto beralat salah dibuang, lima
+    // yang benar masuk), dan tes ini memang harus merah waktu itu supaya keputusannya dilihat
+    // orang. Alasan lengkapnya di `catalogue-integrity.test.js`.
     const berfoto = all.filter(e => demoFrames(e).length > 0).length
-    expect(berfoto).toBeGreaterThanOrEqual(340)
+    expect(berfoto).toBeGreaterThanOrEqual(338)
   })
 
   it('Thumb memakai bingkai pertama kalau ada, ikon kalau tidak — 50px terlalu kecil untuk peta otot', async () => {

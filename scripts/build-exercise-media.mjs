@@ -101,6 +101,53 @@ const HAND_ALIASES = {
  * Keduanya mendapat diagram otot, dan itu jawaban yang lebih jujur daripada foto yang salah.
  */
 
+/**
+ * DITOLAK MANUAL: kecocokan terbaik yang tersedia menampilkan ALAT YANG BERBEDA, jadi lebih baik
+ * tidak ada foto sama sekali.
+ *
+ * Ini pasangan `HAND_ALIASES` di atas, dan dia perlu ada karena aturannya asimetris: alias
+ * MENAMBAH kecocokan yang aturan otomatis lewatkan, daftar ini MEMBUANG kecocokan yang aturan
+ * otomatis terima dengan salah. Tanpa keduanya, satu-satunya cara memperbaiki satu baris adalah
+ * memperketat aturan untuk semua baris — dan itu sudah diukur: memecah kelas `smith` dari
+ * `machine` membuang TUJUH kecocokan yang benar ("Smith Machine Bent Over Row", "Smith Machine
+ * Squat", "Smith Machine Incline Bench Press", ...) untuk membuang enam yang salah. Pertukaran
+ * yang buruk, dan itu sebabnya perbaikannya per-baris.
+ *
+ * Setiap baris di bawah sudah dilihat satu per satu: nama kita, nama fedb, dan alat di kedua sisi.
+ * Latihan ini mendapat diagram otot MuscleMap, dan itu jawaban yang lebih jujur daripada foto
+ * mesin yang salah — orang meniru demo yang dia lihat.
+ */
+const HAND_REJECTS = {
+  // Smith machine (batang vertikal terpandu) vs mesin tuas plate-loaded. Bukan alat yang sama,
+  // dan bedanya terlihat jelas di foto.
+  '0752': 'smith deadlift -> Leverage Deadlift',
+  '0766': 'smith shoulder press -> Leverage Shoulder Press',
+  '0767': 'smith shrug -> Leverage Shrug',
+
+  // Smith machine -> latihan TANPA alat sama sekali.
+  '0750': 'smith chair squat -> Chair Squat (body only)',
+  '0769': 'smith sprint lunge -> Lunge Sprint (tanpa mesin)',
+
+  // Smith machine -> mesin curl generik. Curl di Smith machine bukan gerakan yang sama.
+  '1683': 'smith machine bicep curl -> Machine Bicep Curl',
+
+  // Katalog kita menandai eq=barbell untuk latihan yang NAMANYA "lever" — data sumbernya sendiri
+  // tidak konsisten. Fotonya barbel bebas sementara namanya menyebut mesin, jadi apa pun yang
+  // benar, yang tampil di layar membingungkan.
+  '0574': 'lever bent over row -> Bent Over Barbell Row',
+}
+
+/**
+ * EZ BARBELL SENGAJA TETAP SEKELAS DENGAN BARBELL, dan itu keputusan bukan kelalaian.
+ *
+ * Lima latihan `ez barbell` memakai foto barbel lurus ("ez barbell curl" -> "Barbell Curl"), dan
+ * satu arah sebaliknya ("barbell reverse preacher curl" -> foto EZ bar). Batangnya memang
+ * berbeda bentuk, tapi GERAKANNYA identik dan lifter menukarnya tanpa berpikir. Aturan di berkas
+ * ini soal makna gerakan, bukan soal inventaris alat.
+ *
+ * Ditulis di sini supaya tidak ditanyakan ulang setiap audit.
+ */
+
 const argv = process.argv.slice(2)
 const DRY = argv.includes('--dry')
 const REPORT = argv.includes('--report')
@@ -129,6 +176,11 @@ const EQ = {
   'trap bar': 'barbell', 'smith machine': 'machine', dumbbell: 'dumbbell', kettlebell: 'kettlebell',
   cable: 'cable', 'body weight': 'body', 'body only': 'body', 'leverage machine': 'machine',
   'sled machine': 'machine', machine: 'machine', band: 'bands', bands: 'bands',
+  // JAMAK. free-exercise-db menulis 'kettlebells', katalog kita 'kettlebell', dan tanpa
+  // baris ini `sameEq` salah untuk SELURUH kettlebell — jalur kata jadi tertutup dan tujuh
+  // kecocokan yang benar hilang (goblet squat, bent press, alternating renegade row, ...).
+  // Diukur, dan ketujuhnya diperiksa mata.
+  kettlebells: 'kettlebell',
   'medicine ball': 'ball', 'exercise ball': 'ball', 'stability ball': 'ball', 'bosu ball': 'ball'
 }
 const eqc = v => EQ[String(v || '').toLowerCase().trim()] || String(v || '').toLowerCase().trim() || null
@@ -190,7 +242,13 @@ async function main() {
   const byExactName = new Map(fedb.map(e => [e.name, e]))
   const aliasMisses = []
 
+  const rejected = []
+
   for (const ex of ours) {
+    // Ditolak manual: dipotong SEBELUM alias, supaya tidak ada jalur yang bisa memulihkannya
+    // diam-diam nanti.
+    if (HAND_REJECTS[ex.id]) { rejected.push(`${ex.id} ${HAND_REJECTS[ex.id]}`); continue }
+
     let found = null, tag = null
 
     // Tingkat 0: alias yang diperiksa manusia. Menang atas semuanya - kalau seseorang sudah
@@ -240,6 +298,7 @@ async function main() {
   console.log(`COCOK             : ${hit} (${(hit / ours.length * 100).toFixed(1)}%)`)
   Object.entries(how).sort((a, b) => b[1] - a[1]).forEach(([k, v]) => console.log(`   ${k.padEnd(11)} ${v}`))
   console.log(`tidak identik     : ${notIdentical.length} (dicetak dengan --report)`)
+  console.log(`ditolak manual    : ${rejected.length}`)
   console.log(`ditolak ambigu    : ${ambiguous.length}`)
 
   if (REPORT) {

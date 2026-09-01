@@ -112,11 +112,23 @@ describe('peta foto demo menunjuk latihan yang benar-benar ada', () => {
   })
 
   it('cakupan foto dipatok PERSIS, bukan rentang', () => {
-    // 340 itu hasil aturan pencocokan yang konservatif, dan itu keputusan yang tercatat.
+    // 338 itu hasil aturan pencocokan yang konservatif, dan itu keputusan yang tercatat.
     // Dipatok persis, bukan sebagai rentang: kenaikan berarti seseorang melonggarkan aturannya
     // — mungkin dengan skor kemiripan, yang sudah ditolak karena "rear delt raise" jadi "rear
     // delt ROW" dan orang meniru demo yang dia lihat. Perubahan angka ini harus dilihat orang.
-    expect(Object.keys(MEDIA).length).toBe(340)
+    //
+    // 340 -> 338, dan TURUNNYA DISENGAJA. Audit 2026-09-02 memeriksa mata seluruh 186 kecocokan
+    // yang namanya tidak identik, dan menemukan tujuh yang memasang foto ALAT YANG BERBEDA:
+    // Smith machine dipasangkan foto mesin tuas (`smith shoulder press` -> Leverage Shoulder
+    // Press), dipasangkan latihan tanpa alat (`smith chair squat` -> Chair Squat), dan satu baris
+    // yang data sumbernya sendiri tidak konsisten (`lever bent over row` bertanda eq=barbell).
+    // Ketujuhnya masuk `HAND_REJECTS` dan sekarang mendapat diagram otot.
+    //
+    // Lima kecocokan BENAR masuk di saat yang sama, dari normalisasi 'kettlebells' -> 'kettlebell'
+    // yang sebelumnya menutup jalur kata untuk seluruh kettlebell. Jadi 7 salah keluar, 5 benar
+    // masuk: cakupan turun 0,2 poin dan ketepatannya naik. Itu pertukaran yang aturan di repo ini
+    // memang minta — orang meniru demo yang dia lihat.
+    expect(Object.keys(MEDIA).length).toBe(338)
   })
 
   it('angka yang DITULIS di dokumentasi sama dengan yang sebenarnya', () => {

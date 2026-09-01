@@ -35,9 +35,25 @@ jsDelivr seperti yang dilakukan upstream. Fig-leaf "diunduh runtime, tidak kami 
 milik upstream **tidak berlaku untuk produk komersial.**
 
 Yang dipakai sekarang: **foto free-exercise-db**, lisensinya Unlicense, diverifikasi lewat API
-GitHub (`spdx_id`) bukan badge README. 340 dari 1.324 latihan terpetakan, dan **25,7% itu angka
+GitHub (`spdx_id`) bukan badge README. 338 dari 1.324 latihan terpetakan, dan **25,5% itu angka
 yang disengaja** — lihat `scripts/build-exercise-media.mjs`. Aturannya konservatif: nama identik,
 atau selisih kata tanpa makna gerakan DAN otot primer setuju.
+
+**Ada DUA daftar tangan, dan keduanya perlu.** `HAND_ALIASES` menambah kecocokan yang aturan
+otomatis lewatkan; `HAND_REJECTS` membuang kecocokan yang aturan otomatis terima dengan SALAH.
+Tanpa yang kedua, satu-satunya cara memperbaiki satu baris adalah memperketat aturan untuk semua
+baris — dan itu sudah diukur: memecah kelas `smith` dari `machine` membuang **tujuh** kecocokan
+yang benar ("Smith Machine Bent Over Row", "Smith Machine Squat", …) untuk membuang enam yang
+salah. Pertukaran yang buruk, jadi perbaikannya per-baris.
+
+Yang ditolak sekarang tujuh, semuanya kelas **alat yang berbeda**: Smith machine dipasangkan foto
+mesin tuas (`smith shoulder press` → *Leverage Shoulder Press*), dipasangkan latihan tanpa alat
+(`smith chair squat` → *Chair Squat*), dan satu baris yang data sumbernya sendiri tidak konsisten
+(`lever bent over row` bertanda `eq: barbell` di katalog kita). Ketujuhnya mendapat diagram otot,
+dan itu jawaban yang lebih jujur daripada foto mesin yang salah.
+
+**`ez barbell` SENGAJA tetap sekelas dengan `barbell`.** Batangnya beda bentuk, gerakannya
+identik, dan lifter menukarnya tanpa berpikir. Jangan ditanyakan ulang setiap audit.
 
 **Skor kemiripan DILARANG untuk pencocokan ini.** Percobaan dengan Jaccard >= 0.6 menghasilkan
 490 kecocokan, dan kesalahannya justru yang paling berbahaya: "rear delt raise" -> "rear delt

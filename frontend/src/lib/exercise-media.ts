@@ -20,7 +20,7 @@ import type { Exercise } from './types.js'
  * yang ingin kamu tiru. GIF menang untuk tempo, dan tempo bukan yang orang cari saat menatap
  * demo di antara set.
  *
- * PEMETAANNYA CUMA 340 DARI 1.324 (25,7%), DENGAN SENGAJA
+ * PEMETAANNYA CUMA 338 DARI 1.324 (25,5%), DENGAN SENGAJA
  *
  * Dibangun `scripts/build-exercise-media.mjs`, dan aturannya konservatif: nama identik, atau
  * selisih kata yang tidak membawa makna gerakan DAN otot primer setuju. Skor kemiripan
