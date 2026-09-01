@@ -176,7 +176,10 @@ const IZINKAN = [
   /bir\s*pletok/i,     // minuman rempah Betawi, nol alkohol
   /ginger\s*beer/i,    // umumnya nol alkohol
   /non[-\s]?alcohol/i, // dinyatakan sendiri
-  /ale[-\s]?ale/i, // minuman jeli buah merek Wings; nol alkohol, namanya kebetulan saja
+  // Minuman jeli buah merek Wings; nol alkohol, namanya kebetulan saja. Pengecualian ini
+  // sempat MATI selama satu commit: `\b`-nya tertulis sebagai byte backspace literal oleh
+  // heredoc, jadi regexnya tidak pernah cocok dan produknya tetap dibuang.
+  /\bale[-\s]?ale\b/i,
 ]
 
 const tidur = ms => new Promise(r => setTimeout(r, ms))
@@ -288,6 +291,24 @@ function buangSegmenTerulang(n) {
     else break
   }
   return out.join(' - ')
+}
+
+/**
+ * Satuan yang ditulis kontributor di EKOR NAMA — 'ml', 'g', atau null.
+ *
+ * Ini sinyal terstruktur yang sebelumnya dibuang bersama ukurannya, dan itu kehilangan yang mahal.
+ * `quantity` dari OFF ternyata sampah untuk sebagian besar produk ("1", "1000", "RH. 30", "23"),
+ * tapi NAMANYA justru membawa satuannya: "Buavita Juice Jambu 245ml", "Frestea madu 500 Ml".
+ *
+ * Dan dia membedakan yang TIDAK bisa dibedakan kata kunci: "kopi tubruk gadjah 150 gr" dan
+ * "ABC Kopi Susu 27g" itu BUBUK, sementara "Frestea Teh Melati 350ml" cair. Menandai cair dari
+ * kata "kopi" atau "teh" akan salah pada dua yang pertama — kelas yang sama dengan `rum` yang
+ * cocok dengan "rumput laut".
+ */
+function satuanEkor(s) {
+  const m = String(s || '').toLowerCase().match(RE_UKURAN_EKOR)
+  if (!m) return null
+  return /(ml|liter|mililiter)/.test(m[0]) || /\bl\b/.test(m[0]) ? 'ml' : 'g'
 }
 
 function bersihkanNama(s) {
@@ -416,9 +437,13 @@ const TAG_CAIR = new Set([
  *
  * Sinyalnya kategori OFF DAN satuan kemasannya, karena keduanya sering kosong sendiri-sendiri.
  */
-function cair(tags, quantity) {
+function cair(tags, quantity, satuanDariNama, servingSize) {
   if (tags.some(t => TAG_CAIR.has(t))) return true
-  return /\d+(?:\.\d+)?\s*(ml|l|liter)/.test(String(quantity || '').toLowerCase())
+  // Satuan yang kontributor tulis SENDIRI — dari ekor nama atau dari ukuran porsi. Bukan tebakan,
+  // dan bukan kata kunci: itu yang membuat "kopi tubruk 150 gr" tetap gram.
+  if (satuanDariNama === 'ml') return true
+  if (/\d+(?:[.,]\d+)?\s*(ml|liter|mililiter)\b/.test(String(servingSize || '').toLowerCase())) return true
+  return /\b\d+(?:\.\d+)?\s*(ml|l|liter)\b/.test(String(quantity || '').toLowerCase())
 }
 
 /**
@@ -487,6 +512,8 @@ async function main() {
   const peta = new Map()
 
   for (const p of mentah) {
+    // Dihitung dari nama ASLI, sebelum ekornya dibuang — setelah itu satuannya sudah hilang.
+    const satuanNama = satuanEkor(p.product_name)
     const nama = bersihkanNama(p.product_name)
     if (!namaWajar(nama)) { buang.namaTakWajar++; continue }
 
@@ -555,7 +582,7 @@ async function main() {
       s: kemasanGram(p.quantity),
       // 1 = cair, jadi UI menulis "per 100 ml" bukan "per 100 g". Disimpan sebagai angka dan
       // dihilangkan kalau false, supaya tidak menambah byte untuk mayoritas yang padat.
-      ...(cair(tags, p.quantity) ? { l: 1 } : {}),
+      ...(cair(tags, p.quantity, satuanNama, p.serving_size) ? { l: 1 } : {}),
       // Dipakai untuk memeringkat, lalu DIBUANG sebelum ditulis: dia metadata OFF, bukan gizi,
       // dan menyimpannya berarti setiap pengguna mengunduh angka yang tidak pernah dia lihat.
       _scan: Number(p.unique_scans_n) || 0,

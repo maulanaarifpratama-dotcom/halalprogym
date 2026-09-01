@@ -332,7 +332,7 @@ dibuat untuk pangan Indonesia. Jangan diperiksa ulang, dan **jangan pernah di-co
 | Berkas | Isi | Lisensi |
 | --- | --- | --- |
 | `lib/food-usda.js` | 59 bahan pokok dikurasi tangan, tiap baris membawa `fdcId`-nya | CC0 |
-| `lib/food-retail.js` | 759 produk ritel, **dibuat mesin** oleh `scripts/build-food-retail.mjs` | ODbL |
+| `lib/food-retail.js` | 758 produk ritel, **dibuat mesin** oleh `scripts/build-food-retail.mjs` | ODbL |
 
 Dipisah karena kewajibannya beda. Mencampurnya berarti seluruh berkas harus ODbL, termasuk baris
 yang sebenarnya CC0 — dan lebih buruk, tidak ada lagi cara melihat mana yang mana.
@@ -349,7 +349,7 @@ sedang memakai datanya. Dipaku `food-attribution.test.ts`.
 
 ### Katalog TIDAK PERNAH masuk ke `S`
 
-`S.foods` disinkronkan ke Supabase. Katalog dimuat sebagai **chunk terpisah** (21,5 KB gzip,
+`S.foods` disinkronkan ke Supabase. Katalog dimuat sebagai **chunk terpisah** (23 KB gzip,
 `import()` dinamis), dan memilih satu baris **MENGADOPSI**-nya sekali ke `S.foods` — persis
 seperti yang sudah dilakukan jalur AI. Tiga akibat yang semuanya diinginkan: `S.foods` tumbuh
 hanya sebesar yang benar-benar dimakan orang; riwayat tidak ikut membusuk saat katalog dibangun
@@ -388,9 +388,9 @@ jadi ini bukan sertifikasi halal. Yang menentukan tetap label di kemasan, dan it
 Dari 4.693 produk ber-tag Indonesia di indeks OFF, cuma **824 punya angka kalori**. Yang tanpa
 kalori juga tanpa kalori di API v2 — jadi datanya memang tidak ada, bukan indeksnya yang kurang.
 Dua contohnya menjelaskan kenapa: *"BENIH MENTIMUN VITANI"* (benih tanam) dan *"Hydrating mist"*
-(kosmetik) ikut ber-tag Indonesia. Setelah saringan nama dan gizi, **759** yang terpakai.
+(kosmetik) ikut ber-tag Indonesia. Setelah saringan nama dan gizi, **758** yang terpakai.
 
-Jadi 759 itu mendekati plafon data ritel Indonesia yang berlisensi terbuka, bukan hasil setengah
+Jadi 758 itu mendekati plafon data ritel Indonesia yang berlisensi terbuka, bukan hasil setengah
 jalan. Kalau nanti mau menaikkannya, yang menaikkan bukan skrip ini — yang menaikkan adalah orang
 yang menyumbang data ke Open Food Facts.
 
@@ -529,6 +529,44 @@ Satu pemakaian sempat luput dari penukaran mekanis: `bwDeltaColor()` di `sheets.
 mengembalikan `'var(--acc)'` sebagai string, jadi pencarian teks `color: 'var(--acc)'` tidak
 menemukannya. Yang lewat variabel selalu luput.
 
+## Baris daftar adalah TOMBOL, dan `--label-3` sudah dinaikkan — dua aturan a11y
+
+**Setiap baris `.item` yang bisa diketuk harus `<button>`, bukan `<div>`.** CSS-nya sudah ditulis
+untuk itu sejak awal (`text-align:left` dan `width:100%` cuma berarti apa-apa pada tombol), tapi
+JSX-nya memakai `<div>` di **18 tempat** — jadi setiap baris daftar di app ini tidak masuk urutan
+tab, tidak merespons Enter/Space, dan tidak disebut sebagai kontrol oleh pembaca layar. Diperbaiki
+2026-09-01, dan diverifikasi dengan Tab sungguhan: cincin lime 2px, `offset` 2px, radius tetap 16px.
+
+Dua akibat yang harus dijaga:
+
+- **Baris yang punya DUA aksi bukan satu tombol.** Baris latihan di Library membuka detail DAN
+  punya tombol "Plan". `<button>` di dalam `<button>` itu HTML yang tidak sah. Bentuknya: barisnya
+  wadah `<div className="item">`, aksi utamanya `<button className="imain">` yang mengambil
+  thumbnail PLUS teks — bukan cuma teks, karena target ketuk yang menyusut adalah memperbaiki
+  keyboard sambil memperburuk jempol. Terukur 229×50 px = 67% lebar baris di 375px.
+- **Baris TANPA `onClick` sendiri tetap `<div>`.** Baris "Logged today" di `Food.jsx` cuma memuat
+  tombol hapus; dia bukan kontrol, dan memaksanya jadi tombol menghasilkan nesting yang tidak sah.
+
+Dijaga `list-rows.test.ts`, yang memindai SELURUH `.jsx`. Daftar "elemen interaktif"-nya memuat
+KOMPONEN berhuruf besar (`<Button>`, `<Switch>`, `<TextField>`, …), bukan cuma tag HTML — karena
+pemeriksaan yang cuma mencari `<button` huruf kecil justru yang melewatkan pelanggaran pertama.
+
+**`--label-3` sudah dinaikkan dan JANGAN diturunkan lagi.** Pada `.40` dia memberi 3,49:1 di tema
+gelap dan **2,65:1 di tema terang** — di bawah 4,5:1 yang WCAG AA tuntut untuk teks biasa. Dia
+dipakai 24 kali, hampir semuanya teks, termasuk `.field::placeholder`: jadi setiap kolom pencarian
+di app ini punya placeholder yang tidak lolos. Sekarang `.52` (gelap) dan `.60` (terang), terukur
+4,67–5,12 di ketiga permukaan.
+
+Bentuknya identik dengan cerita `--acc-ink` di atas: kesadarannya ada di komentar, pengukurannya
+tidak. `contrast.test.ts` dulu cuma memaku AKSEN — sekarang seluruh tangga label (`label`,
+`label-2`, `label-3` × 3 permukaan × 2 tema). **Tes kontras yang cuma menutup satu keluarga token
+memberi rasa aman yang lebih luas daripada cakupannya.**
+
+Satu lagi dari kelas yang sama: `.chip` meng-`capitalize` isinya, jadi "350 ml" tampil
+**"350 Ml"**. Kapital di satuan SI membawa arti — mm vs Mm itu 10⁶ kali. Ditutup `.chip.unit`,
+dengan tes yang juga memaku `.chip` dasar MASIH meng-capitalize; kalau tidak, penjaganya berhenti
+menjaga apa pun tanpa ada yang tahu.
+
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
 GitHub melaporkan 11 kerentanan (8 high, 1 critical) di repo ini. Semuanya satu rantai:
@@ -591,7 +629,7 @@ Upstream masih aktif dan masih memperbaiki bug di `lib/` — logika domain yang 
 cd frontend && npm install
 cd frontend && npm run dev       # dev server
 cd frontend && npm run verify    # SELURUH gate, ini yang dipakai sebelum commit
-cd frontend && npm test          # vitest — 983 test case, JANGAN dibiarkan merah
+cd frontend && npm test          # vitest — JANGAN dibiarkan merah
 ```
 
 `npm run verify` menjalankan berurutan: `typecheck` → `check:names` → `check:locales` →

@@ -122,3 +122,46 @@ describe('produk yang benar-benar dicari orang Indonesia ada di dalamnya', () =>
     })
   }
 })
+
+
+describe('penanda cair (`l`) — dia yang menentukan "350 ml" atau "350 g"', () => {
+  /**
+   * `l: 1` membuat UI menulis satuan ml. Kalau penandanya hilang saat katalog dibangun ulang,
+   * setiap minuman tampil "350 g" — salah, dan tidak ada error di mana pun. Sebelum tes ini,
+   * field itu punya NOL tes di tingkat data.
+   *
+   * Deteksinya memakai tiga sinyal terstruktur, semuanya ditulis kontributor sendiri: tag
+   * kategori OFF, satuan di ekor NAMA ("Frestea madu 500 Ml"), dan satuan di `serving_size`.
+   * Kata kunci nama TIDAK dipakai, dan itu yang menjaga "kopi tubruk gadjah 150 gr" tetap gram.
+   */
+  const cair = rows.filter(r => (r as { l?: number }).l === 1)
+
+  it('ada yang ditandai cair, dan jumlahnya wajar', () => {
+    // Nol berarti deteksinya mati; setengah katalog berarti dia terlalu longgar.
+    expect(cair.length).toBeGreaterThan(40)
+    expect(cair.length).toBeLessThan(rows.length / 2)
+  })
+
+  it('`l` hanya pernah bernilai 1 — tidak pernah 0, false, atau string', () => {
+    // Nilai selain 1 berarti pembuatnya menulis field yang tidak dibaca UI, dan itu bug yang
+    // tampil sebagai satuan yang salah, bukan sebagai error.
+    const nilai = new Set(rows.map(r => (r as { l?: unknown }).l).filter(v => v !== undefined))
+    expect([...nilai]).toEqual([1])
+  })
+
+  it('bubuk dan sachet TIDAK ditandai cair', () => {
+    // Uji arah sebaliknya, dan ini yang paling mudah rusak kalau seseorang menambahkan kata
+    // kunci nama: "kopi" dan "teh" muncul di produk bubuk maupun minuman siap saji.
+    const salah = cair.filter(r => /\b(bubuk|powder|tubruk|sachet|instan|instant)\b/i.test(r.n))
+    expect(salah.map(r => r.n), 'produk bubuk ditandai cair').toEqual([])
+  })
+
+  it('yang jelas minuman kemasan dalam ml memang tertandai', () => {
+    // Cakupan, bukan bentuk. Kalau ini kosong, deteksinya hijau sambil tidak menandai apa pun
+    // yang berguna.
+    const contoh = rows.filter(r => /pocari|frestea|buavita|teh pucuk melati/i.test(r.n))
+    expect(contoh.length, 'contoh minuman tidak ada di katalog').toBeGreaterThan(2)
+    const tertandai = contoh.filter(r => (r as { l?: number }).l === 1)
+    expect(tertandai.length, 'nol minuman kemasan tertandai cair').toBeGreaterThan(0)
+  })
+})
