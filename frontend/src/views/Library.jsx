@@ -46,16 +46,24 @@ export default function Library() {
       {eqOpts.map(x => <button key={x} className={'chip' + (eqOn === x ? ' on' : '')} onClick={() => { setEq(x); setShown(40) }}>{t(x)}</button>)}
     </div>}
     <div className="list">
-      <div className="item" onClick={() => customExSheet(null, ex => exerciseDetailSheet(ex), q.trim())}>
+      <button type="button" className="item" onClick={() => customExSheet(null, ex => exerciseDetailSheet(ex), q.trim())}>
         <div className="thumb thumb-x"><Icon name="sparkles" /></div>
         <div className="grow"><div className="tt">{t('Create your own exercise')}</div><div className="ss">{t('name + body part, no demo photo')}</div></div><Icon name="plus" className="chev" />
-      </div>
+      </button>
       {f.slice(0, shown).map(e => {
         const best = bestWeightFor(S, e.id)
-        return <div key={e.id} className="item" onClick={() => exerciseDetailSheet(e)}>
-          <Thumb ex={e} />
-          <div className="grow"><div className="tt capitalize">{exerciseNameFor(e)}</div><div className="ss capitalize">{t(e.tg || e.bp)} · {t(e.eq)}</div></div>
+        // Baris ini punya DUA aksi — buka detail, dan "Plan" — jadi dia bukan satu tombol.
+        // <button> di dalam <button> tidak sah, jadi barisnya tetap wadah dan aksi utamanya
+        // tombol sendiri yang mengambil thumbnail plus teksnya (lihat .item .imain).
+        return <div key={e.id} className="item">
+          <button type="button" className="imain" onClick={() => exerciseDetailSheet(e)}>
+            <Thumb ex={e} />
+            <div className="grow"><div className="tt capitalize">{exerciseNameFor(e)}</div><div className="ss capitalize">{t(e.tg || e.bp)} · {t(e.eq)}</div></div>
+          </button>
           {best > 0 && <span className="tag acc">{fmtNum(best)}</span>}
+          {/* `stopPropagation` tidak lagi dibutuhkan sejak barisnya bukan tombol, tapi dibiarkan:
+              dia tidak berbahaya, dan mencabutnya berarti perilaku ini bergantung pada struktur
+              DOM yang bisa berubah lagi. */}
           <Button size="sm" variant="tinted" icon="plus" onClick={ev => { ev.stopPropagation(); addToRoutineSheet(e) }}>{t('Plan')}</Button>
         </div>
       })}

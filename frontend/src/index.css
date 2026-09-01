@@ -452,6 +452,19 @@ h4.sec{
 .item .tt{font-size:16px;font-weight:400;line-height:1.25;letter-spacing:-.009em}
 .item .ss{color:var(--label-2);font-size:13px;margin-top:2px}
 .item .grow{flex:1;min-width:0}
+/* --- aksi utama di dalam baris yang punya DUA aksi ---
+   Sebagian baris daftar bukan satu tombol: baris latihan membuka detail DAN punya tombol "Plan"
+   sendiri. <button> di dalam <button> itu HTML yang tidak sah, jadi barisnya tetap wadah dan
+   aksi utamanya jadi tombol sendiri di dalamnya.
+
+   Dia mengambil thumbnail DAN teksnya, bukan cuma teksnya: kalau cuma teks, target ketuknya
+   menyusut di layar sentuh — dan memperbaiki keyboard sambil memperburuk jempol bukan perbaikan.
+   Sisa barisnya (tag, tombol kedua) tetap di luar, jadi urutan tab-nya dua dan itu memang benar:
+   ada dua aksi. */
+.item .imain{
+  display:flex;align-items:center;gap:12px;flex:1;min-width:0;
+  background:none;border:0;padding:0;margin:0;font:inherit;color:inherit;text-align:left;
+}
 .chev{color:var(--label);flex:none;font-size:15px;--icon-stroke:2.4}
 
 /* --- kolom kalori di baris daftar makanan ---

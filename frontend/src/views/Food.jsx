@@ -155,7 +155,7 @@ export default function Food() {
     {foods.length ? (
       <div className="list">
         {foods.map(f => (
-          <div key={f.id} className="item" onClick={() => useUI.getState().openSheet(close => <FoodSheet close={close} food={f} />)}>
+          <button type="button" key={f.id} className="item" onClick={() => useUI.getState().openSheet(close => <FoodSheet close={close} food={f} />)}>
             <div className="grow">
               <div className="tt">{f.name}</div>
               <div className="ss">
@@ -164,7 +164,7 @@ export default function Food() {
               </div>
             </div>
             <Icon name="chevronRight" className="chev" />
-          </div>
+          </button>
         ))}
       </div>
     ) : (
@@ -217,13 +217,13 @@ function PickSheet({ close, onPick }) {
     <h3>{t('Log food')}</h3>
     <div className="list">
       {foods.map(f => (
-        <div key={f.id} className="item" onClick={() => { setPicked(f); setQty(f.basis === 'per100g' ? '100' : '1') }}>
+        <button type="button" key={f.id} className="item" onClick={() => { setPicked(f); setQty(f.basis === 'per100g' ? '100' : '1') }}>
           <div className="grow">
             <div className="tt">{f.name}</div>
             <div className="ss">{fmtNum(f.kcal)} {t('kcal')} {f.basis === 'per100g' ? t('per 100 g') : t('per {0}', f.serving || t('serving'))}</div>
           </div>
           <Icon name="chevronRight" className="chev" />
-        </div>
+        </button>
       ))}
     </div>
   </>
