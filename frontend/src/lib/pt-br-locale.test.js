@@ -102,7 +102,12 @@ describe('Brazilian Portuguese locale', () => {
     // yang tidak cukup adalah membiarkan separuh pasangan dipaku dan separuhnya diwarisi.
     // Kalau pt-PT nanti mengubah 'tipos de equipamento', tunggalnya ikut bergerak sementara
     // pluralnya tidak, dan pt-BR menampilkan dua kata berbeda untuk satu hal.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(337)
+    // 337 -> 339: 'Next week' dan 'Next month'. Sembilan nama kontrol ikon (aria-label) masuk
+    // sekaligus — dulu semuanya ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca
+    // layar menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa. Tujuh di antaranya
+    // kata yang sama di kedua varian Portugis dan diwarisi; dua ini tidak, karena Portugal
+    // memakai 'seguinte' sementara Brasil mengatakan 'proxima/proximo'.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(339)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -147,7 +152,10 @@ describe('Brazilian Portuguese locale', () => {
     // 498 -> 499: satu kunci kardio, '{0} min @ {1} km/h'. Ringkasan kardio dulu menulis
     // "20 min @ 8 km/h" langsung di template, jadi tidak diterjemahkan sama sekali; Portugal
     // dan Brasil sama-sama memakai 'min' dan 'km/h', jadi warisan.
-    expect(inherited).toHaveLength(499)
+    // 499 -> 506: tujuh dari sembilan nama kontrol ikon. 'Limpar', 'Diminuir', 'Aumentar',
+    // 'Mover para cima', 'Mover para baixo', 'Semana anterior', 'Mes anterior' — kata yang
+    // sama di Portugal dan Brasil. Dua sisanya jadi override, lihat di atas.
+    expect(inherited).toHaveLength(506)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -170,7 +178,7 @@ describe('Brazilian Portuguese locale', () => {
     // latihan yang tercakup keduanya (aturan aurat di DESIGN.md).
     //
     // Tanpa hash, perubahan kata pada terjemahan warisan seperti ini lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('a9b521f03924fedd27f2bbe5251196d84b8b4502b9810bf687e4548afb782538')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('b780c55cc49a7faae0a6ed8015ca6b3a1e431335164d6170e272d9cf9b4444e3')
   })
 
   test('does not leak European Portuguese UI terms', () => {

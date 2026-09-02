@@ -7,6 +7,12 @@ export const PT_BR_OVERRIDES = {
   // Override regional: Portugal menulis "Ramadao", Brasil "Ramada". Pembeda yang sudah
   // tercatat di pack ini sejak kunci waktu salat masuk.
   'Ramadan': 'Ramadã',
+  // --- nama kontrol ikon: dua yang benar-benar beda regional ---
+  // Portugal memakai 'seguinte' untuk yang berikutnya; Brasil mengatakan 'próxima/próximo'.
+  // Tujuh kunci lain di kelompok yang sama ('Limpar', 'Aumentar', 'Mover para cima', ...)
+  // memang kata yang sama di kedua varian, jadi mereka diwarisi.
+  'Next week': 'Próxima semana',
+  'Next month': 'Próximo mês',
   // --- perkiraan gizi AI: kata Brasilnya berbeda dari Portugal ---
   'A free key from Google AI Studio is enough for everyday use.': 'Uma chave gratuita do Google AI Studio já basta para o dia a dia.',
   'Add your own API key in Settings first.': 'Primeiro adicione sua própria chave de API em Ajustes.',

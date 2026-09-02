@@ -4,6 +4,18 @@ export default {
   'Cancel': 'İptal',
   'Press back again to exit': 'Çıkmak için geri tuşuna tekrar basın',
   'Delete': 'Sil',
+  // --- nama kontrol ikon (aria-label) ---
+  // Semuanya dulu ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca layar
+  // menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa.
+  'Clear': 'Temizle',
+  'Decrease': 'Azalt',
+  'Increase': 'Artır',
+  'Move down': 'Aşağı taşı',
+  'Move up': 'Yukarı taşı',
+  'Next month': 'Sonraki ay',
+  'Next week': 'Sonraki hafta',
+  'Previous month': 'Önceki ay',
+  'Previous week': 'Önceki hafta',
   'Save': 'Kaydet',
   'Import': 'İçe aktar',
   'Discard': 'Vazgeç',

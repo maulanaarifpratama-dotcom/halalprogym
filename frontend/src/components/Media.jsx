@@ -84,11 +84,24 @@ export default function Media({ ex, id, compact, minimizable }) {
           onError={() => setFailedId(ex.id)}
         />
         {sizeToggle}
+        {/* Bingkainya dimajukan dengan mengetuk GAMBARNYA, dan itu dibiarkan — target ketuk
+            sebesar gambar adalah yang benar untuk jempol. Yang salah adalah itu SATU-SATUNYA
+            jalan: pemakai keyboard tidak pernah bisa melihat posisi kedua, jadi separuh
+            informasi demo tidak pernah sampai.
+
+            Petunjuk di sudut ini sudah MENGATAKAN keadaannya ("posisi awal"/"posisi akhir")
+            dan sudah berbagi CSS dengan tombol `.giftoggle` di sebelahnya, jadi menjadikannya
+            tombol tidak menambah satu baris gaya pun — dan justru membuat afordansi yang
+            selama ini cuma tersirat jadi terlihat.
+
+            `stopPropagation` supaya ketukan pada petunjuk tidak ikut memicu handler gambar dan
+            memajukan dua bingkai sekaligus. */}
         {!mini && many && (
-          <span className="gifhint">
+          <button type="button" className="gifhint"
+            onClick={e => { e.stopPropagation(); setFrame(f => f + 1) }}>
             <Icon name="reset" />
             {frame % srcs.length === 0 ? t('start position') : t('end position')}
-          </span>
+          </button>
         )}
       </div>
     )

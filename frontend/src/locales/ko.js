@@ -4,6 +4,18 @@ export default {
   'Cancel': '취소',
   'Press back again to exit': '뒤로를 한 번 더 누르면 종료됩니다',
   'Delete': '삭제',
+  // --- nama kontrol ikon (aria-label) ---
+  // Semuanya dulu ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca layar
+  // menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa.
+  'Clear': '지우기',
+  'Decrease': '감소',
+  'Increase': '증가',
+  'Move down': '아래로 이동',
+  'Move up': '위로 이동',
+  'Next month': '다음 달',
+  'Next week': '다음 주',
+  'Previous month': '이전 달',
+  'Previous week': '이전 주',
   'Save': '저장',
   'Import': '가져오기',
   'Discard': '버리기',

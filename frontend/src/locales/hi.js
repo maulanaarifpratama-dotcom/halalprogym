@@ -4,6 +4,18 @@ export default {
   'Cancel': 'रद्द करें',
   'Press back again to exit': 'बाहर निकलने के लिए फिर से बैक दबाएँ',
   'Delete': 'हटाएँ',
+  // --- nama kontrol ikon (aria-label) ---
+  // Semuanya dulu ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca layar
+  // menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa.
+  'Clear': 'साफ़ करें',
+  'Decrease': 'घटाएँ',
+  'Increase': 'बढ़ाएँ',
+  'Move down': 'नीचे ले जाएँ',
+  'Move up': 'ऊपर ले जाएँ',
+  'Next month': 'अगला महीना',
+  'Next week': 'अगला सप्ताह',
+  'Previous month': 'पिछला महीना',
+  'Previous week': 'पिछला सप्ताह',
   'Save': 'सहेजें',
   'Import': 'आयात करें',
   'Discard': 'छोड़ें',

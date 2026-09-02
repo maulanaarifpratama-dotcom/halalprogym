@@ -436,6 +436,32 @@ h4.sec{
   justify-content:center;margin:2px auto;
 }
 
+/* Kelas di bawah ini dipakai SEBAGAI kontrol, jadi tagnya `<button>`.
+   `.wday` dan `.today-row` sudah membawa separuh resetnya sejak awal (`background:none`,
+   `border:none`, `width:100%`, `text-align:left` — deklarasi yang cuma berarti apa-apa pada
+   tombol), tapi JSX-nya memakai `<div>`, jadi separuh yang lain tidak pernah dibutuhkan.
+   Sekarang dibutuhkan: `<button>` TIDAK mewarisi font-family dan color dari induknya, dan
+   anak-anaknya cuma menyetel ukuran — jadi tanpa `font:inherit` nama harinya dirender dengan
+   font bawaan browser.
+
+   `.card` dan `.mrow` tidak punya resetnya sama sekali, karena keduanya memang lahir sebagai
+   div dan cuma SEBAGIAN pemakaiannya jadi kontrol. Selektor `button.x` menutup itu tanpa
+   menyentuh pemakaian yang statis.
+
+   Resetnya SEMPIT dengan sengaja, dan batasnya diukur bukan diperkirakan. Versi pertama
+   menambahkan `display:block` dan `background:none` ke keempatnya, dan keduanya merusak:
+   `button.card` (0,1,1) mengalahkan `.row` (0,1,0), jadi chevron kartu Makanan turun ke baris
+   sendiri; dan `background:none` mengalahkan `.card{background:var(--surface)}`, jadi kartunya
+   kehilangan permukaannya. Terlihat di layar dalam satu tangkapan.
+
+   Jadi aturan ini tidak pernah menyentuh `display` maupun `background` pada kelas yang sudah
+   menyetelnya sendiri. Keempatnya sudah menyatakan display yang mereka inginkan; yang benar-benar
+   hilang cuma yang tidak diwarisi `<button>`. */
+button.wday,button.today-row,button.card,button.mrow{font:inherit;color:inherit;border:none}
+button.card,button.mrow{width:100%;text-align:left}
+/* `.mrow` satu-satunya yang tidak punya latar sendiri, jadi latar bawaan tombol harus dibuang. */
+button.mrow{background:none}
+
 /* ----------------------------------------------------------------- list -- */
 .list{display:flex;flex-direction:column;gap:8px}
 .item{

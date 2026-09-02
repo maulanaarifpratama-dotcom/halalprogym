@@ -631,6 +631,54 @@ set di kolom kiri. Sekarang `Set 1` … `Set 4`, dan `Set warm-up 1` untuk baris
 penomoran yang tetap restart per fase. Keadaannya tetap dibawa `aria-checked`, jadi namanya cukup
 menyebut BARIS MANA.
 
+**Aturan itu ternyata cuma berlaku untuk `.item`, dan LIMA kontrol lain lolos.** Penjaganya
+mencari `className="item"` sebagai literal, jadi dia melewatkan (1) kelas lain sama sekali, dan
+(2) baris `.item` yang className-nya dirangkai. Terukur di DOM hidup: **sembilan elemen
+bisa-diketuk di Beranda, nol yang masuk urutan tab** — jadi satu-satunya jalan memulai latihan
+lewat keyboard adalah tab bar di bawah, sementara aksi utama layarnya sendiri tidak bisa
+dijangkau.
+
+| Berkas | Kelas | Yang dilakukannya |
+| --- | --- | --- |
+| `Home.jsx` | `.today-row` | **AKSI UTAMA app ini** — mulai / lanjutkan latihan hari ini |
+| `Home.jsx` | `.wday` | tujuh sel hari, membuka lembar penjadwalan |
+| `Home.jsx` | `.card tappable` | kartu rentetan, membuka kalender |
+| `Stats.jsx` | `.mrow` | baris latihan per otot |
+| `RoutineEdit.jsx` | `'item' + …` | pelanggaran ke-19 aturan `.item`, disembunyikan satu penggabungan string |
+
+Dan seperti `.item`, **CSS-nya sudah lebih dulu ditulis untuk tombol**: `.wday` membawa
+`background:none;border:none`, `.today-row` membawa `width:100%;text-align:left`. Baris
+`RoutineEdit` memuat empat tombol, jadi dia dapat pola wadah yang sama (`.imain`, terukur
+249×50 px).
+
+**Reset CSS-nya SEMPIT dengan sengaja, dan batasnya diukur di layar.** `<button>` tidak mewarisi
+`font-family` maupun `color`, dan anak-anak keempat kelas itu cuma menyetel UKURAN — jadi
+`font:inherit` wajib. Tapi versi pertama juga menambahkan `display:block` dan `background:none`,
+dan keduanya merusak: `button.card` (0,1,1) mengalahkan `.row` dan `.card`, jadi chevron kartu
+Makanan turun ke baris sendiri DAN kartunya kehilangan permukaannya. Aturan itu sekarang tidak
+pernah menyentuh `display` maupun `background`.
+
+Pengecualiannya **per-baris beserta alasannya**, pola `HAND_REJECTS` yang sama: latar lembar
+(`.mback` — padanannya Escape, bukan tab stop), gambar demo (target jempol tambahan; kontrol
+keyboard-nya tombol `.gifhint` di dalamnya), dan heatmap 12 bulan (grid ratusan sel; datanya
+sama dengan layar Riwayat yang sudah bisa dijangkau — perbaikan sebenarnya roving tabindex, dan
+itu **belum** dikerjakan). Kuncinya penanda HARFIAH dari tag, bukan nama kelas: `Media.jsx`
+menulis `className={cls('')}`, jadi nama kelas yang dirender tidak pernah muncul di sumbernya.
+
+**Bingkai demo kedua dulu cuma bisa dilihat dengan MENGETUK gambarnya.** Jadi separuh informasi
+demo — posisi akhir gerakan — tidak pernah sampai ke pemakai keyboard. Petunjuk di sudut sudah
+mengatakan keadaannya dan sudah berbagi CSS dengan tombol `.giftoggle`, jadi menjadikannya tombol
+nol baris gaya baru. Handler gambarnya DIBIARKAN: target sebesar gambar itu yang benar untuk
+jempol, dan aturan "jangan perbaiki keyboard dengan memperburuk jempol" sudah tertulis di atas.
+
+**16 `aria-label` ditulis langsung dalam bahasa Inggris**, jadi nama kontrolnya Inggris di 13
+bahasa. Keempat checker tidak bisa melihatnya karena mereka bekerja dari `t()`, dan
+`no-untranslated-id.test.ts` mencari literal INDONESIA — literal Inggris justru luput darinya.
+Yang paling terasa: stepper "Decrease"/"Increase" dipakai untuk beban, reps, kalori, dan target
+berat, jadi pembaca layar menyebut "Increase" tiap kali beban ditambah. Sembilan kunci baru;
+`minus 0.1`/`plus 0.1` sengaja dipetakan ke `Decrease`/`Increase` karena langkah 0,1 itu detail
+implementasi, bukan hal yang perlu diucapkan.
+
 Dijaga `list-rows.test.ts`, yang memindai SELURUH `.jsx`. Daftar "elemen interaktif"-nya memuat
 KOMPONEN berhuruf besar (`<Button>`, `<Switch>`, `<TextField>`, …), bukan cuma tag HTML — karena
 pemeriksaan yang cuma mencari `<button` huruf kecil justru yang melewatkan pelanggaran pertama.

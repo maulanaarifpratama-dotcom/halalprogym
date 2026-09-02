@@ -56,8 +56,12 @@ export default function Home() {
     const iso = isoOf(d)
     const eff = effectiveRoutineId(S, iso), ovr = S.dayPlan[iso] !== undefined, done = doneDays.has(iso)
     const dot = done ? ' done' : ovr && eff ? ' ovr' : eff ? ' plan' : ''
-    strip.push(<div key={i} className={'wday' + (iso === todayISO() ? ' today' : '')} onClick={() => dayOverrideSheet(iso)}>
-      <div className="lbl">{t(DAYS[d.getDay()])}</div><div className="num">{d.getDate()}</div><div className={'dot' + dot} /></div>)
+    // Sel hari membuka lembar penjadwalan, jadi tagnya tombol. Namanya dari tanggal LENGKAP:
+    // isi selnya cuma "AHD" dan "30", dan pembaca layar membacanya "Ahd 30" tanpa bulan —
+    // padahal strip ini bisa digeser ke pekan mana pun.
+    strip.push(<button type="button" key={i} className={'wday' + (iso === todayISO() ? ' today' : '')}
+      aria-label={fmtDate(iso, true, true)} onClick={() => dayOverrideSheet(iso)}>
+      <div className="lbl">{t(DAYS[d.getDay()])}</div><div className="num">{d.getDate()}</div><div className={'dot' + dot} /></button>)
   }
   const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6)
   const wkLabel = weekOffset === 0 ? t('This week') : `${weekStart.getDate()} ${weekStart.toLocaleDateString(dateLocale(), { month: 'short' })} – ${weekEnd.getDate()} ${weekEnd.toLocaleDateString(dateLocale(), { month: 'short' })}`
@@ -84,9 +88,9 @@ export default function Home() {
 
     <div className="card">
       <div className="row between" style={{ marginBottom: 8 }}>
-        <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 15 }} onClick={() => setWeekOffset(w => w - 1)} aria-label="Previous week"><Icon name="chevronLeft" /></button>
+        <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 15 }} onClick={() => setWeekOffset(w => w - 1)} aria-label={t('Previous week')}><Icon name="chevronLeft" /></button>
         <div className="small muted" style={{ fontWeight: 500 }}>{wkLabel}</div>
-        <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 15 }} onClick={() => setWeekOffset(w => w + 1)} aria-label="Next week"><Icon name="chevronRight" /></button>
+        <button className="iconbtn" style={{ width: 30, height: 30, fontSize: 15 }} onClick={() => setWeekOffset(w => w + 1)} aria-label={t('Next week')}><Icon name="chevronRight" /></button>
       </div>
       <div className="week">{strip}</div>
       {/* Once today's session is logged the row stops asking for it. The week strip already
@@ -94,7 +98,11 @@ export default function Home() {
           routine name behind a green Start tag and read as still outstanding (issue #4).
           An in-progress session still wins — that one is happening right now. Tapping the
           row keeps working, so a second session in one day is a tap away, just not urged. */}
-      <div className="today-row" onClick={onToday}>
+      {/* AKSI UTAMA app ini, dan sampai 2026-09-02 dia `<div>` — jadi tidak bisa dijangkau
+          keyboard sama sekali. Terukur: sembilan elemen bisa-diketuk di Home, nol yang masuk
+          urutan tab. Kelas yang sama dengan 18 baris `.item`, dan CSS-nya pun sudah lebih dulu
+          ditulis untuk tombol (`width:100%`, `text-align:left`). */}
+      <button type="button" className="today-row" onClick={onToday}>
         <div className="row" style={{ gap: 9, minWidth: 0 }}>
           <span className="lrow-i" style={{ background: S.active ? 'var(--orange)' : doneToday ? 'var(--surface-3)' : routine ? 'var(--acc)' : 'var(--surface-3)' }}>
             <Icon name={S.active ? 'timer' : doneToday ? 'checkCircle' : routine ? glyphOf(routine.emoji) : 'moon'}
@@ -111,7 +119,7 @@ export default function Home() {
           : doneToday ? <span className="tag" style={{ color: 'var(--green)', background: 'color-mix(in srgb,var(--green) 16%,transparent)' }}>{t('Done')}</span>
           : routine ? <span className="tag acc">{t('Start')}</span>
           : <Icon name="plus" className="chev" />}
-      </div>
+      </button>
     </div>
 
     {!S.routines.length && !S.active && (
@@ -183,7 +191,7 @@ export default function Home() {
       </> : <div className="muted small">{t("No entries yet — log your weight to start the curve. It's also asked before every workout.")}</div>}
     </div>
 
-    <div className="card tappable" style={{ cursor: 'pointer' }} onClick={() => calendarSheet()}>
+    <button type="button" className="card tappable" onClick={() => calendarSheet()}>
       <div className="row between">
         <div>
           <div className="row" style={{ gap: 7, fontSize: 22, fontWeight: 600, letterSpacing: '-.021em' }}>
@@ -194,6 +202,6 @@ export default function Home() {
         </div>
         <Icon name="calendar" className="chev" style={{ fontSize: 20 }} />
       </div>
-    </div>
+    </button>
   </div>
 }

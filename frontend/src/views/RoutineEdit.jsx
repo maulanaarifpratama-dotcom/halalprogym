@@ -78,18 +78,29 @@ export default function RoutineEdit() {
       const linkedPrev = i > 0 && e.sg && r.ex[i - 1].sg === e.sg
       return <div key={i}>
         {unitFirst.has(i) && <div className="ss-label"><Icon name="link" />{t('Superset')}</div>}
-        <div className={'item' + (inSS.has(i) ? ' in-ss' : '')} onClick={() => {
-          exConfigSheet(ex, e, cfg => edit(x => { x[i] = { id: x[i].id, sg: x[i].sg, ...cfg } }), () => edit(x => { x.splice(i, 1); cleanupSg(x) }), r)
-        }}>
-          <Thumb ex={ex} />
-          <div className="grow"><div className="tt capitalize">{exerciseNameFor(ex)}</div><div className="ss">{exLine(e, S.unit)}</div>
-            {e.note && <div className="small dim" style={{ marginTop: 2 }}>{e.note}</div>}</div>
+        {/* Baris ini memuat EMPAT tombol (superset, naikkan, turunkan), jadi dia tidak boleh
+            jadi satu tombol — `<button>` di dalam `<button>` HTML yang tidak sah. Bentuknya
+            pola wadah yang sudah ditetapkan untuk baris dua-aksi: wadah `.item`, aksi utamanya
+            `.imain` yang mengambil thumbnail PLUS teks supaya target jempolnya tidak menyusut.
+
+            Sampai 2026-09-02 dia `<div onClick>`, dan penjaga `.item` yang sudah ada TIDAK
+            melihatnya: dia mencari `className="item"` sebagai literal, sementara baris ini
+            merangkainya (`'item' + (inSS.has(i) ? ' in-ss' : '')`). Pelanggaran ke-19 dari
+            aturan yang sama, disembunyikan oleh satu penggabungan string. */}
+        <div className={'item' + (inSS.has(i) ? ' in-ss' : '')}>
+          <button type="button" className="imain" onClick={() => {
+            exConfigSheet(ex, e, cfg => edit(x => { x[i] = { id: x[i].id, sg: x[i].sg, ...cfg } }), () => edit(x => { x.splice(i, 1); cleanupSg(x) }), r)
+          }}>
+            <Thumb ex={ex} />
+            <div className="grow"><div className="tt capitalize">{exerciseNameFor(ex)}</div><div className="ss">{exLine(e, S.unit)}</div>
+              {e.note && <div className="small dim" style={{ marginTop: 2 }}>{e.note}</div>}</div>
+          </button>
           {noEquip && <span className="tag" style={{ color: 'var(--orange)', borderColor: 'var(--orange)' }} title={t('Needs {0} — not in your active profile', t(ex.eq))}><Icon name="warning" /></span>}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 'none', alignItems: 'center' }}>
             {i > 0 && <button className={'iconbtn' + (linkedPrev ? ' on-ss' : '')} title={t('Superset with exercise above')} style={{ width: 32, height: 28, borderRadius: 8, fontSize: 15 }} onClick={ev => { ev.stopPropagation(); toggleLink(i) }}><Icon name="link" /></button>}
             <div style={{ display: 'flex', gap: 2 }}>
-              <button className="iconbtn" aria-label="Move up" style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, -1) }}><Icon name="chevronUp" /></button>
-              <button className="iconbtn" aria-label="Move down" style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, 1) }}><Icon name="chevronDown" /></button>
+              <button className="iconbtn" aria-label={t('Move up')} style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, -1) }}><Icon name="chevronUp" /></button>
+              <button className="iconbtn" aria-label={t('Move down')} style={{ width: 28, height: 24, borderRadius: 7, fontSize: 12 }} onClick={ev => { ev.stopPropagation(); move(i, 1) }}><Icon name="chevronDown" /></button>
             </div>
           </div>
         </div>

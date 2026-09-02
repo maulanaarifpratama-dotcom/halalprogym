@@ -4,6 +4,18 @@ export default {
   'Cancel': 'Cancelar',
   'Press back again to exit': 'Prima novamente para sair',
   'Delete': 'Eliminar',
+  // --- nama kontrol ikon (aria-label) ---
+  // Semuanya dulu ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca layar
+  // menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa.
+  'Clear': 'Limpar',
+  'Decrease': 'Diminuir',
+  'Increase': 'Aumentar',
+  'Move down': 'Mover para baixo',
+  'Move up': 'Mover para cima',
+  'Next month': 'Mês seguinte',
+  'Next week': 'Semana seguinte',
+  'Previous month': 'Mês anterior',
+  'Previous week': 'Semana anterior',
   'Save': 'Guardar',
   'Import': 'Importar',
   'Discard': 'Descartar',

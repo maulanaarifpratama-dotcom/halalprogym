@@ -67,6 +67,18 @@ export default {
   'Confirm': 'Konfirmasi',
   'Cancel': 'Batal',
   'Delete': 'Hapus',
+  // --- nama kontrol ikon (aria-label) ---
+  // Semuanya dulu ditulis langsung dalam bahasa Inggris di JSX, jadi pembaca layar
+  // menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa.
+  'Clear': 'Kosongkan',
+  'Decrease': 'Kurangi',
+  'Increase': 'Tambahkan',
+  'Move down': 'Turunkan',
+  'Move up': 'Naikkan',
+  'Next month': 'Bulan berikutnya',
+  'Next week': 'Pekan berikutnya',
+  'Previous month': 'Bulan sebelumnya',
+  'Previous week': 'Pekan sebelumnya',
   'Save': 'Simpan',
   'Import': 'Impor',
   'Done': 'Selesai',
