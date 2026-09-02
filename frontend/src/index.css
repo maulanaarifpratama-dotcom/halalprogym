@@ -1108,6 +1108,14 @@ button.mrow{background:none}
 .hm-grid{display:flex;gap:3px}
 .hm-col{display:flex;flex-direction:column;gap:3px}
 .hm-c{width:11px;height:11px;border-radius:3px;background:var(--surface-2);flex:none}
+/* Sel BERISI adalah `<button>` (roving tabindex — lihat kepala Heatmap.jsx), jadi dia butuh
+   reset yang tidak diwariskan tombol. `background` TIDAK disentuh: seluruh tangga `l1..l4` di
+   bawah yang menyetelnya, dan menimpanya di sini akan menghapus warna heatmap-nya. Pelajaran
+   yang sudah dibayar sekali di `button.card`. */
+button.hm-c{border:none;padding:0;font:inherit;color:inherit;cursor:pointer}
+/* Selnya 11px, jadi cincin fokus default terlalu rapat untuk terlihat sebagai cincin.
+   Offset 2px membuatnya terbaca tanpa menggeser tata letak — outline tidak memakan ruang. */
+button.hm-c:focus-visible{outline:2px solid var(--acc-ink);outline-offset:2px;border-radius:3px}
 .hm-c.l1{background:color-mix(in srgb,var(--acc) 30%,var(--surface-2))}
 .hm-c.l2{background:color-mix(in srgb,var(--acc) 55%,var(--surface-2))}
 .hm-c.l3{background:color-mix(in srgb,var(--acc) 78%,var(--surface-2))}

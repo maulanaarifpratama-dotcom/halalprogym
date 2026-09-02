@@ -151,14 +151,6 @@ describe('SETIAP <div> yang bisa diketuk, bukan cuma yang berkelas .item', () =>
     // `.gifhint` di sudut, yang memang sudah mengatakan keadaannya. Jadi ini target penunjuk
     // TAMBAHAN di atas kontrol yang sudah bisa dijangkau, bukan satu-satunya jalan.
     "className={cls('')}": 'target jempol tambahan; kontrol keyboard-nya tombol .gifhint di dalamnya',
-    // Heatmap 12 bulan: setiap hari BERISI bisa diketuk untuk membuka sesinya. Menjadikan
-    // ratusan sel jadi tab stop akan memperburuk keyboard, bukan memperbaikinya — pemakainya
-    // harus menekan Tab ratusan kali untuk melewati satu grafik. Dan datanya TIDAK terkunci di
-    // sini: layar Riwayat memuat setiap sesi sebagai baris tombol yang sudah bisa dijangkau.
-    // Perbaikan yang benar adalah roving tabindex (satu tab stop, panah untuk bergerak di
-    // dalam grid), dan itu belum dikerjakan — jadi ini pengecualian yang jujur, bukan selesai.
-    // Penanda tanpa spasi: sumbernya memasang baris baru antara className dan title.
-    'className={cls}': 'grid ratusan sel; datanya sama dengan layar Riwayat yang sudah bisa dijangkau',
   }
 
   it('nol <div onClick> di luar daftar pengecualian', () => {
@@ -183,9 +175,14 @@ describe('SETIAP <div> yang bisa diketuk, bukan cuma yang berkelas .item', () =>
   })
 
   it('daftar pengecualiannya tidak menumpuk diam-diam', () => {
-    // Dua sekarang. Angkanya dipaku supaya pengecualian ketiga adalah keputusan yang terlihat
-    // di diff, bukan baris yang menyelip.
-    expect(Object.keys(BOLEH_DIV)).toHaveLength(3)
+    // DUA sekarang, turun dari tiga: heatmap 12 bulan dulu di sini dengan alasan "roving
+    // tabindex belum dikerjakan", dan itu sudah dikerjakan (lihat kepala `Heatmap.jsx`). Sebuah
+    // pengecualian yang alasannya "belum dikerjakan" adalah utang, bukan keputusan — jadi dia
+    // harus HILANG dari daftar ini, bukan diperbarui kata-katanya.
+    //
+    // Angkanya dipaku supaya pengecualian ketiga adalah keputusan yang terlihat di diff, bukan
+    // baris yang menyelip.
+    expect(Object.keys(BOLEH_DIV)).toHaveLength(2)
     for (const alasan of Object.values(BOLEH_DIV)) expect(alasan.length).toBeGreaterThan(20)
   })
 

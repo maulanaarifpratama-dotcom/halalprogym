@@ -697,12 +697,36 @@ dan keduanya merusak: `button.card` (0,1,1) mengalahkan `.row` dan `.card`, jadi
 Makanan turun ke baris sendiri DAN kartunya kehilangan permukaannya. Aturan itu sekarang tidak
 pernah menyentuh `display` maupun `background`.
 
-Pengecualiannya **per-baris beserta alasannya**, pola `HAND_REJECTS` yang sama: latar lembar
-(`.mback` — padanannya Escape, bukan tab stop), gambar demo (target jempol tambahan; kontrol
-keyboard-nya tombol `.gifhint` di dalamnya), dan heatmap 12 bulan (grid ratusan sel; datanya
-sama dengan layar Riwayat yang sudah bisa dijangkau — perbaikan sebenarnya roving tabindex, dan
-itu **belum** dikerjakan). Kuncinya penanda HARFIAH dari tag, bukan nama kelas: `Media.jsx`
-menulis `className={cls('')}`, jadi nama kelas yang dirender tidak pernah muncul di sumbernya.
+Pengecualiannya **per-baris beserta alasannya**, pola `HAND_REJECTS` yang sama, dan sekarang
+tinggal DUA: latar lembar (`.mback` — padanannya Escape, bukan tab stop) dan gambar demo (target
+jempol tambahan; kontrol keyboard-nya tombol `.gifhint` di dalamnya). Kuncinya penanda HARFIAH
+dari tag, bukan nama kelas: `Media.jsx` menulis `className={cls('')}`, jadi nama kelas yang
+dirender tidak pernah muncul di sumbernya.
+
+**Yang ketiga sudah dihapus, dan itu memang harus dihapus bukan diperbarui.** Heatmap 12 bulan
+dulu di daftar itu dengan alasan "perbaikan sebenarnya roving tabindex, dan itu belum
+dikerjakan" — dan **pengecualian yang alasannya "belum dikerjakan" adalah utang, bukan
+keputusan.** Roving tabindex-nya sekarang terpasang, jadi barisnya hilang dari daftar.
+
+Modelnya sengaja **KRONOLOGIS, bukan spasial**, dan tiga keputusan di dalamnya saling menopang:
+
+- **Cuma hari yang punya sesi yang bisa difokus**, jadi setiap yang bisa difokus BISA DITEKAN.
+  Sel kosong tetap `<div>` tanpa handler — tombol yang tidak melakukan apa-apa lebih buruk
+  daripada bukan tombol. Terukur di app hidup: 3 tombol, 368 div, **tepat satu tab stop**.
+- **Panah maju/mundur di antara hari-hari itu dalam urutan waktu**, Home/End ke ujung, dan di
+  ujung dia BERHENTI — melingkar di daftar linier membuat orang kehilangan tempat.
+- **`role="grid"` sengaja TIDAK dipakai.** Pola grid ARIA menuntut Kiri/Kanan bergerak di dalam
+  satu baris dan Atas/Bawah antar baris, sementara DOM di sini kolom-mayor: satu `.hm-col` adalah
+  satu PEKAN, dirender vertikal. Jadi mengaku grid berarti memilih salah satu dari dua kerugian —
+  tombol panah yang terasa terbalik dari yang dilihat mata, atau kontrak ARIA yang dilanggar.
+  Nama per-sel ("Kam, 13 Agu 2026 · 1 sesi · 30 mnt · 5.000 kg") membawa lebih banyak informasi
+  daripada "baris 3 kolom 12", jadi tidak ada yang hilang dengan tidak mengaku.
+
+Nama itu sekaligus bukti tiga perbaikan lain menyatu: tanggal terlokalisasi (bukan ISO mentah
+seperti tooltip lama), bentuk **tunggal** "1 sesi", dan satuan **"mnt"** yang sama dengan kartu
+salat. Dijaga `Heatmap.test.jsx` (10 tes), dan `button.hm-c` mendapat reset tombol yang
+**tidak menyentuh `background`** — seluruh tangga `l1..l4` yang menyetelnya, dan menimpanya akan
+menghapus warna heatmap-nya. Pelajaran yang sudah dibayar sekali di `button.card`.
 
 **Bingkai demo kedua dulu cuma bisa dilihat dengan MENGETUK gambarnya.** Jadi separuh informasi
 demo — posisi akhir gerakan — tidak pernah sampai ke pemakai keyboard. Petunjuk di sudut sudah
