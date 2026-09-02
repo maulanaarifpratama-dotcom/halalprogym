@@ -222,7 +222,8 @@ export default {
   'Delete routine?': 'रूटीन हटाएँ?',
   '“{0}” and its exercises will be removed.': '"{0}" और उसके व्यायाम हटा दिए जाएँगे।',
   'Delete routine': 'रूटीन हटाएँ',
-  '{0} exercises · {1} with demo photos': '{0} व्यायाम · {1} डेमो फ़ोटो के साथ',
+  '{0} exercises · {1} with demos':
+    '{0} व्यायाम · {1} डेमो के साथ',
   'Search…': 'खोजें…',
   'No workouts yet.': 'अभी कोई वर्कआउट नहीं।',
   'Starter plan loaded — Mon Push · Wed Pull · Fri Legs': 'स्टार्टर प्लान लोड हुआ — सोम पुश · बुध पुल · शुक्र लेग्स',

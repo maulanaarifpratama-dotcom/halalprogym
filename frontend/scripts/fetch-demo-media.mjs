@@ -69,9 +69,41 @@ async function pinnedCommit() {
   return m[1]
 }
 
+/** Commit RepDB, dibaca dari sumbernya dengan alasan yang sama seperti FEDB_COMMIT di atas. */
+async function pinnedRepdbCommit() {
+  const src = await readFile(join(ROOT, 'src', 'lib', 'exercise-illustrations.ts'), 'utf8')
+  const m = src.match(/REPDB_COMMIT = '([0-9a-f]{40})'/)
+  if (!m) throw new Error('REPDB_COMMIT tidak ketemu di src/lib/exercise-illustrations.ts')
+  return m[1]
+}
+
+/**
+ * Bingkai yang BENAR-BENAR DIPAKAI app, bukan gabungan kedua peta.
+ *
+ * `demoFrames` memilih ILUSTRASI kalau ada, dan baru jatuh ke foto kalau tidak. Jadi untuk latihan
+ * yang tercakup keduanya, fotonya tidak akan pernah tampil — dan membundelnya berarti APK membawa
+ * puluhan pasang gambar mati.
+ *
+ * Resolusinya diulang di sini alih-alih mengimpor `demoFrames`, karena modul itu memakai
+ * `import.meta.env` milik Vite dan tidak bisa dimuat Node biasa. Yang menjaga keduanya tidak
+ * menyimpang adalah `exercise-illustrations.test.ts`, yang membaca sumber berkas ini.
+ */
 const framePaths = async () => {
-  const map = JSON.parse(await readFile(join(ROOT, 'src', 'lib', 'exercise-media.json'), 'utf8'))
-  return [...new Set(Object.values(map).flat())]
+  const foto = JSON.parse(await readFile(join(ROOT, 'src', 'lib', 'exercise-media.json'), 'utf8'))
+  const gambar = JSON.parse(
+    await readFile(join(ROOT, 'src', 'lib', 'exercise-illustrations.json'), 'utf8')
+  )
+  const out = []
+  for (const [id, paths] of Object.entries(gambar)) {
+    for (const rel of paths) out.push({ rel, sumber: 'repdb' })
+  }
+  for (const [id, paths] of Object.entries(foto)) {
+    if (gambar[id]) continue // ilustrasi menang; fotonya tidak akan pernah tampil
+    for (const rel of paths) out.push({ rel, sumber: 'fedb' })
+  }
+  // Dedup by rel: dua latihan bisa memakai bingkai yang sama.
+  const lihat = new Set()
+  return out.filter(x => (lihat.has(x.rel) ? false : (lihat.add(x.rel), true)))
 }
 
 const exists = async p => {
@@ -80,10 +112,17 @@ const exists = async p => {
 
 async function unduh(force) {
   const commit = await pinnedCommit()
+  const repdb = await pinnedRepdbCommit()
   const paths = await framePaths()
-  const cdn = `https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@${commit}/exercises/`
+  const CDN = {
+    fedb: `https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@${commit}/exercises/`,
+    repdb: `https://cdn.jsdelivr.net/gh/RepDB/exercise-dataset@${repdb}/`,
+  }
 
-  console.log(`${paths.length} bingkai, commit ${commit.slice(0, 8)} → media-cache/demo/`)
+  const nRep = paths.filter(x => x.sumber === 'repdb').length
+  console.log(`${paths.length} bingkai → media-cache/demo/`)
+  console.log(`  ilustrasi RepDB : ${nRep} (commit ${repdb.slice(0, 8)})`)
+  console.log(`  foto fedb       : ${paths.length - nRep} (commit ${commit.slice(0, 8)})`)
 
   let sudah = 0
   let baru = 0
@@ -93,7 +132,8 @@ async function unduh(force) {
   // Berurutan, bukan paralel. jsDelivr membatasi laju, dan 640 request bersamaan menghasilkan
   // 429 yang terbaca seperti berkas hilang — itu tepat jenis kegagalan yang paling mahal di sini,
   // karena hasilnya APK dengan foto bolong-bolong dan tidak ada yang menyadarinya.
-  for (const rel of paths) {
+  for (const { rel, sumber } of paths) {
+    const cdn = CDN[sumber]
     const dest = join(CACHE, rel)
     if (!force && await exists(dest)) { sudah++; continue }
     await mkdir(dirname(dest), { recursive: true })

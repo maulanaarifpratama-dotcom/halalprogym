@@ -1,5 +1,7 @@
 import MAP from './exercise-media.json'
 import type { Exercise } from './types.js'
+import { normalizeBase } from './media-base.js'
+import { illustrationFrames, illustratedIds } from './exercise-illustrations.js'
 
 /**
  * Foto demo gerakan, dari free-exercise-db (Unlicense — dedikasi domain publik).
@@ -44,15 +46,15 @@ export const FEDB_COMMIT = 'b0eed061e1c832b3ed815fbaa4b45b3cdc14df49'
 const CDN = `https://cdn.jsdelivr.net/gh/yuhonas/free-exercise-db@${FEDB_COMMIT}/exercises/`
 
 /**
- * Membakukan basis media agar bisa disambung langsung ke jalur bingkai.
+ * Di-reexport dari `media-base.ts`, yang jadi modul sendiri untuk MEMUTUS SIKLUS IMPOR antara
+ * berkas ini dan `exercise-illustrations.ts`. Alasan lengkapnya di sana; ringkasnya: keduanya
+ * memakai fungsi ini saat inisialisasi, jadi siklusnya menghasilkan basis `undefined/...` tanpa
+ * satu pun error.
  *
- * Satu garis miring yang hilang di `VITE_DEMO_BASE` berarti `demoBench_Press/0.jpg` — dan
- * kegagalannya SUNYI: tidak ada error, tidak ada peringatan build, cuma app yang menampilkan
- * nol foto gerakan sementara `hasDemo` tetap bilang fotonya ada. Diperbaiki di sini, bukan
- * diserahkan ke siapa pun yang menyetel variabelnya nanti.
+ * Tetap diekspor dari sini karena `exercise-media.test.ts` dan skrip build sudah mengimpornya
+ * dari sini, dan memindahkan titik impornya tidak menambah kejelasan apa pun.
  */
-export const normalizeBase = (base: string): string =>
-  (base && !base.endsWith('/') ? base + '/' : base)
+export { normalizeBase }
 
 /**
  * Basis media bisa di-override saat build. Dua kegunaannya nyata, dan keduanya dipakai:
@@ -68,11 +70,32 @@ const BASE = normalizeBase(ENV.VITE_DEMO_BASE || CDN)
 
 const FRAMES = MAP as Record<string, string[] | undefined>
 
-/** Berapa latihan katalog yang punya foto demo. Ditampilkan di header Latihan. */
-export const DEMO_COUNT = Object.keys(FRAMES).length
+/** Berapa latihan katalog yang punya FOTO — bukan total demo. Lihat `DEMO_COUNT`. */
+export const PHOTO_COUNT = Object.keys(FRAMES).length
 
-/** URL bingkai demo untuk satu latihan; kosong kalau tidak ada yang dipetakan dengan aman. */
+/**
+ * Berapa latihan katalog yang punya demo apa pun: ilustrasi ATAU foto.
+ *
+ * GABUNGAN, bukan penjumlahan. Puluhan latihan punya keduanya, dan menjumlahkannya akan mengklaim
+ * cakupan yang tidak ada — angka ini tampil di header Latihan, jadi salahnya terlihat pengguna.
+ */
+export const DEMO_COUNT = new Set([...illustratedIds(), ...Object.keys(FRAMES)]).size
+
+/**
+ * URL bingkai demo untuk satu latihan; kosong kalau tidak ada yang dipetakan dengan aman.
+ *
+ * **ILUSTRASI MENANG ATAS FOTO**, dan alasannya aturan brand bukan selera: foto free-exercise-db
+ * adalah foto orang sungguhan dan sebagian bertelanjang dada, yang `DESIGN.md` larang eksplisit
+ * ("Figur manusia berpakaian minim sebagai demo gerakan — soal aurat DAN lisensi"). Alasan
+ * lengkapnya di kepala `exercise-illustrations.ts`.
+ *
+ * Urutannya hidup DI SINI, bukan di pemanggil: `Media.jsx`, `prefetch.ts`, dan seluruh tesnya
+ * memanggil `demoFrames` dan tidak perlu tahu ada dua sumber. Menyebarkan pilihan sumber ke
+ * pemanggil berarti tiga tempat yang bisa memilih berbeda.
+ */
 export function demoFrames(ex: Pick<Exercise, 'id'> | null | undefined): string[] {
+  const gambar = illustrationFrames(ex)
+  if (gambar.length) return gambar
   const paths = ex?.id ? FRAMES[ex.id] : undefined
   return paths ? paths.map(p => BASE + p) : []
 }

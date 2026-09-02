@@ -628,7 +628,8 @@ export default {
     '{0} hari sudah punya data di sini dan tidak akan disentuh.',
   '{0} done': '{0} beres',
   '{0} equipment types': '{0} jenis alat',
-  '{0} exercises · {1} with demo photos': '{0} latihan · {1} berfoto demo',
+  '{0} exercises · {1} with demos':
+    '{0} latihan · {1} berdemo',
   '{0} is on the plan today — let’s go!': '{0} ada di rencana hari ini — gas!',
   '{0} of {1} exercises need equipment outside "{2}"':
     '{0} dari {1} latihan butuh alat di luar "{2}"',

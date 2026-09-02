@@ -144,7 +144,15 @@ describe('Brazilian Portuguese locale', () => {
     // bawaan" sekarang menyebut jalan keluarnya — perkiraan AI dengan kunci sendiri — jadi
     // string sumbernya berubah dan kunci lamanya tidak menunjuk apa pun lagi. Itu ditangkap
     // oleh locale-orphans.test.ts, bukan oleh tes ini, dan itu memang pembagian kerjanya.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('b1afcd6d18471471443be38231af45205c9b6ae0fd25dc334010ead9e62c3176')
+    //
+    // Bergerak lagi 2026-09-02, dan JUMLAHNYA TIDAK — persis kasus yang membuat hash ini ada.
+    // Satu kunci warisan diganti nama sekaligus diubah kata-katanya: '{0} exercises · {1} with
+    // demo photos' jadi '{0} exercises · {1} with demos'. Sebabnya klaimnya jadi salah — 86 dari
+    // 401 demo sekarang ILUSTRASI RepDB, bukan foto, karena ilustrasi menang atas foto untuk
+    // latihan yang tercakup keduanya (aturan aurat di DESIGN.md).
+    //
+    // Tanpa hash, perubahan kata pada terjemahan warisan seperti ini lolos tanpa direview.
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('7cf289a4cccd1a3c30deb685a0e1376f9c78807f39dbddc1eeaeb2e8e652d3ee')
   })
 
   test('does not leak European Portuguese UI terms', () => {

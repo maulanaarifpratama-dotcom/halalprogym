@@ -119,9 +119,17 @@ describe('Media — tiga tingkat demo gerakan', () => {
     await render(<Media ex={WITH_DEMO} />)
     const img = container.querySelector('img')
     expect(img).toBeTruthy()
-    // Commit terpin, bukan `main`: peta dan gambarnya dibangun terhadap commit yang sama,
-    // jadi `main` yang bergerak bisa memisahkan keduanya tanpa suara.
-    expect(img.getAttribute('src')).toContain('free-exercise-db@')
+    /**
+     * Commit terpin, bukan `main`: peta dan gambarnya dibangun terhadap commit yang sama, jadi
+     * `main` yang bergerak bisa memisahkan keduanya tanpa suara.
+     *
+     * Yang dipaku SUMBERNYA-BOLEH-DUA. Tes ini dulu menuntut `free-exercise-db@`, dan itu jadi
+     * salah begitu ilustrasi RepDB masuk: `demoFrames` memilih ilustrasi lebih dulu, jadi latihan
+     * yang tercakup keduanya kini menyajikan `.webp` dari RepDB. Yang tetap wajib adalah commit
+     * 40-heksa yang di-pin — itu invarian sebenarnya, dan nama CDN-nya cuma detail sumber.
+     */
+    expect(img.getAttribute('src')).toMatch(/@[0-9a-f]{40}\//)
+    expect(img.getAttribute('src')).toMatch(/free-exercise-db|exercise-dataset/)
     expect(container.querySelector('.exanat')).toBeNull()
   })
 
@@ -199,7 +207,8 @@ describe('Media — tiga tingkat demo gerakan', () => {
 
   it('Thumb memakai bingkai pertama kalau ada, ikon kalau tidak — 50px terlalu kecil untuk peta otot', async () => {
     await render(<Thumb ex={WITH_DEMO} />)
-    expect(container.querySelector('img.thumb')?.getAttribute('src')).toContain('free-exercise-db@')
+    // Sumbernya boleh foto ATAU ilustrasi — lihat catatan di tes CDN terpin di atas.
+    expect(container.querySelector('img.thumb')?.getAttribute('src')).toMatch(/@[0-9a-f]{40}\//)
 
     await render(<Thumb ex={NO_DEMO} />)
     expect(container.querySelector('.thumb-x')).toBeTruthy()

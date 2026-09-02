@@ -222,7 +222,8 @@ export default {
   'Delete routine?': 'Удалить программу?',
   '“{0}” and its exercises will be removed.': '«{0}» и её упражнения будут удалены.',
   'Delete routine': 'Удалить программу',
-  '{0} exercises · {1} with demo photos': '{0} упражнений · {1} с демофото',
+  '{0} exercises · {1} with demos':
+    '{0} упражнений · {1} с демо',
   'Search…': 'Поиск…',
   'No workouts yet.': 'Тренировок пока нет.',
   'Starter plan loaded — Mon Push · Wed Pull · Fri Legs': 'Стартовый план загружен — Пн Push · Ср Pull · Пт Ноги',

@@ -222,7 +222,8 @@ export default {
   'Delete routine?': 'Eliminar rotina?',
   '“{0}” and its exercises will be removed.': '«{0}» e os seus exercícios serão removidos.',
   'Delete routine': 'Eliminar rotina',
-  '{0} exercises · {1} with demo photos': '{0} exercícios · {1} com foto de demonstração',
+  '{0} exercises · {1} with demos':
+    '{0} exercícios · {1} com demo',
   'Search…': 'Pesquisar…',
   'No workouts yet.': 'Ainda sem treinos.',
   'Starter plan loaded — Mon Push · Wed Pull · Fri Legs': 'Plano inicial carregado — Seg Push · Qua Pull · Sex Pernas',

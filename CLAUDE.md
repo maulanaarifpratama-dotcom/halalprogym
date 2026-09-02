@@ -81,6 +81,45 @@ datang dari commit lain: yang muncul di layar adalah **gerakan yang salah**, tan
 `exercise-media.test.ts`. Kalau dinaikkan, jalankan `node scripts/build-exercise-media.mjs
 --report` dan **periksa mata** kecocokan yang tidak identik.
 
+## Demo gerakan: ILUSTRASI menang atas FOTO — dan alasannya aturan aurat
+
+Dua sumber, dan urutannya bukan selera:
+
+| Sumber | Lisensi | Bentuk | Cakupan |
+| --- | --- | --- | --- |
+| **RepDB** | Free Tier v1.0 — komersial + atribusi | ilustrasi flat, dua bingkai | 86 |
+| free-exercise-db | Unlicense | foto orang sungguhan | 376 |
+| **gabungan** | | | **401 dari 1.324** |
+
+`demoFrames` memilih ILUSTRASI lebih dulu, dan itu memenuhi aturan yang sudah tertulis di
+`DESIGN.md` sejak hari pertama, di bagian *Yang tidak boleh masuk*:
+
+> Figur manusia berpakaian minim sebagai demo gerakan — soal aurat **dan** lisensi.
+
+Foto free-exercise-db adalah foto orang sungguhan, dan **sebagian bertelanjang dada**. Aturannya
+ada; yang tidak pernah terjadi adalah memeriksanya ke foto yang benar-benar dikirim — tidak ada
+metadata yang menyatakan "model bertelanjang dada", jadi aturan otomatis apa pun tidak akan pernah
+menangkapnya. Ketahuan cuma saat delapan foto dibuka satu per satu. Kelas yang sama dengan
+`--acc-ink` dan `--label-3`.
+
+**Cakupannya PARSIAL, dan itu harus disebut jujur.** RepDB cuma menutupi 86
+latihan, jadi ratusan latihan lain masih memakai foto — dan sebagian di antaranya mungkin masih
+melanggar aturan yang sama. Yang menutup itu sepenuhnya adalah keputusan bisnis: beli lisensi
+media, atau foto/ilustrasi sendiri.
+
+**Term 3 lisensi RepDB menentukan cara kerjanya:** dataset tidak boleh diredistribusi. Repo ini
+publik (AGPL mewajibkannya), jadi yang di-commit **cuma peta** (id katalog kami → nama berkas
+mereka, dan peta itu karya kami). Gambarnya dimuat dari distribusi RepDB pada **commit yang
+di-pin** — pola yang sama persis dengan foto, dan alasannya sama: peta dan gambar yang berpisah
+berarti gerakan yang salah di layar, tanpa error. Membundel ke APK adalah pemakaian in-app dan
+diizinkan term 4; cache-nya di luar repo.
+
+**Atribusi wajib** (term 2): `NOTICE.md` dan Pengaturan → Tentang. Dijaga
+`exercise-illustrations.test.ts`. Jangan hapus.
+
+`DEMO_COUNT` adalah **gabungan**, bukan penjumlahan — puluhan latihan tercakup keduanya, dan
+menjumlahkannya akan mengklaim cakupan yang tidak ada di header yang dilihat pengguna.
+
 ## Stack
 
 Vite + React + **TypeScript** + Tailwind + shadcn/ui + **Supabase** → **Vercel**,

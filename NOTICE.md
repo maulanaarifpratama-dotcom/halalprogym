@@ -107,6 +107,36 @@ Cooked dishes (nasi uduk, rendang, gado-gado) are in neither source: they are no
 and not raw ingredients. Those are handled by the AI estimate path, which sends nothing to us and
 distributes no food data at all — which is exactly why it was built.
 
+## Movement illustrations — RepDB
+
+`frontend/src/lib/exercise-illustrations.json` maps our catalogue ids to flat-style illustrations
+from [**RepDB**](https://repdb.co), used under the **RepDB Free Tier License v1.0**.
+
+> Exercise data by RepDB (repdb.co)
+
+The licence permits personal **and commercial** use inside applications, requires visible
+attribution, and forbids redistributing the dataset — including derived datasets. That last term
+shapes how this repository works: only the **map** is committed here (our catalogue ids to their
+filenames, which is our own work). The illustrations themselves are loaded from RepDB's own
+distribution at a **pinned commit**, exactly as the exercise photos are. Bundling them into the
+Android APK is in-app use and is permitted; the download cache lives outside the repository and is
+git-ignored.
+
+### Why illustrations win over photos
+
+For any exercise covered by both sources, the illustration is used. That is not an aesthetic
+preference — it is `DESIGN.md`'s own rule, under *Yang tidak boleh masuk*:
+
+> Figur manusia berpakaian minim sebagai demo gerakan — soal aurat **dan** lisensi.
+
+The free-exercise-db photos are photographs of real people, and some of them are bare-chested. The
+rule existed from day one; what never happened was **checking it against the photos that actually
+ship** — no metadata in free-exercise-db says "the model is shirtless", so no automatic rule could
+ever have caught it. It surfaced only when eight photos were opened one at a time to verify that
+the movements matched.
+
+Exercises covered by neither source still get the MuscleMap muscle diagram.
+
 ## Body diagram geometry
 
 The muscle outlines the body maps are drawn from (`frontend/src/lib/body-paths.js`) are derived

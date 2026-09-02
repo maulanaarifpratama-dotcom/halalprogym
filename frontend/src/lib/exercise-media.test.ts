@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, readFileSync } from 'node:fs'
-import { DEMO_COUNT, demoFrames, FEDB_COMMIT, hasDemo, normalizeBase } from './exercise-media.js'
+import { DEMO_COUNT, PHOTO_COUNT, demoFrames, FEDB_COMMIT, hasDemo, normalizeBase } from './exercise-media.js'
 import MAP from './exercise-media.json'
 
 /**
@@ -136,8 +136,22 @@ describe('build mobile membundel fotonya, build WEB tidak', () => {
 })
 
 describe('DEMO_COUNT', () => {
-  it('cocok dengan jumlah kunci peta', () => {
-    // Angka ini tampil di header layar Latihan. Dia harus dihitung, bukan ditulis.
-    expect(DEMO_COUNT).toBe(Object.keys(MAP).length)
+  it('PHOTO_COUNT cocok dengan jumlah kunci peta foto', () => {
+    // Angka ini harus dihitung, bukan ditulis.
+    expect(PHOTO_COUNT).toBe(Object.keys(MAP).length)
+  })
+
+  it('DEMO_COUNT lebih besar dari PHOTO_COUNT — dia GABUNGAN dengan ilustrasi', () => {
+    /**
+     * Tes ini dulu menuntut `DEMO_COUNT === Object.keys(MAP).length`, dan itu benar selama cuma
+     * ada SATU sumber. Sejak ilustrasi RepDB masuk, `DEMO_COUNT` jadi gabungan foto dan ilustrasi
+     * — dan gabungan, bukan penjumlahan, karena puluhan latihan tercakup keduanya.
+     *
+     * Angka ini tampil di header layar Latihan ("1324 exercises · N with demos"), jadi
+     * menjumlahkan dua peta akan mengklaim cakupan yang tidak ada, di tempat yang dilihat orang.
+     *
+     * Kesamaan persisnya dipaku di `exercise-illustrations.test.ts`, yang memang punya kedua peta.
+     */
+    expect(DEMO_COUNT).toBeGreaterThan(PHOTO_COUNT)
   })
 })
