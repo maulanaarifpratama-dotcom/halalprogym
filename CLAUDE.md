@@ -761,6 +761,29 @@ Dan mekanismenya ikut dipaku: kalau seseorang "memperbaikinya" dengan mengetikka
 13 `aria-label`, penjaga namanya tetap hijau — jadi ada tes terpisah yang menuntut sakelar di
 dalam `Row` memakai `aria-labelledby`.
 
+**LEMBAR ADALAH DIALOG MODAL, dan sampai 2026-09-02 dia cuma modal secara visual.** Escape sudah
+bekerja sejak awal — yang tidak ada adalah tiga hal lain, dan semuanya standar: `role="dialog"` +
+`aria-modal`, fokus yang MASUK, dan fokus yang KEMBALI. Diukur di app hidup: membuka lembar
+meninggalkan fokus pada PEMICUNYA di belakang overlay, dan **51 elemen di belakang overlay masih
+bisa di-Tab** — pemakai keyboard berjalan ke kontrol yang tertutup dan tidak bisa dilihatnya.
+
+Empat keputusan di dalamnya yang tidak boleh dibalik tanpa membaca alasannya:
+
+- **Fokus jatuh ke PANEL, bukan ke kontrol pertamanya.** Panel yang difokus membuat pembaca layar
+  menyebut "dialog" lalu membaca dari judulnya; melompat ke tombol pertama melewati judul itu.
+- **Panel TIDAK merampas fokus dari kolom yang meng-`autoFocus` sendiri** (`panel.contains(
+  document.activeElement)`). Dua lembar melakukannya — `AiFoodSheet` dan `FoodDbSheet` — dan
+  merampasnya berarti orang mengetuk "Database" lalu mengetik ke tempat yang salah.
+- **Fokus kembali ke pemicunya saat ditutup**, dan pemicu yang sudah hilang dari dokumen tidak
+  boleh melempar: "Hapus latihan ini" adalah persis bentuk itu — baris yang membuka lembar lalu
+  dihapus oleh lembar itu sendiri.
+- **`aria-modal` cuma di lembar TERATAS.** Dua dialog yang sama-sama mengaku modal adalah
+  pernyataan yang saling bertentangan, dan yang di bawah memang tidak modal lagi.
+
+Perangkap Tab tidak butuh `isTop`: peristiwanya berasal dari dalam panel teratas, dan panel di
+bawahnya bukan leluhurnya. Dijaga `Modals.focus.test.jsx` (9 tes), termasuk jalur
+`kind: 'center'` yang render-nya BERBEDA — dan itu jalur `confirmSheet`, yang menghapus data.
+
 **Satu lagi dari sapuan yang sama, dan kelasnya beda: SCRIM.** Pil "Perkecil"/"posisi awal" di
 atas gambar demo memakai `rgba(0,0,0,.45)` dengan teks putih. Di bawahnya bukan permukaan yang
 bisa diukur — di bawahnya GAMBAR SEMBARANG, jadi yang bisa diukur cuma batas terburuknya: di atas

@@ -1,11 +1,62 @@
 import { useEffect, useRef } from 'react'
 import { useUI } from '../store/useUI.js'
 
+/** Yang dihitung sebagai perhentian tab di dalam lembar. */
+const FOKUSABEL = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),'
+  + 'textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+
 // One bottom sheet (or centered dialog) with swipe-to-dismiss.
-function Sheet({ sheet }) {
+function Sheet({ sheet, isTop }) {
   const { closeSheet } = useUI()
   const ref = useRef(null)
+  const panelRef = useRef(null)
+  const pemicu = useRef(null)
   const drag = useRef({ startY: null, delta: 0 })
+
+  /**
+   * TIGA HAL YANG HILANG DARI LEMBAR INI, dan semuanya standar untuk dialog modal.
+   *
+   * Diukur di app hidup sebelum diperbaiki: membuka lembar meninggalkan fokus pada PEMICUNYA di
+   * belakang overlay, dan **51 elemen di belakang overlay masih bisa di-Tab** — jadi pemakai
+   * keyboard berjalan ke kontrol yang tertutup dan tidak bisa dilihatnya. Escape sudah bekerja
+   * sejak awal; yang tidak ada adalah masuknya, terperangkapnya, dan kembalinya.
+   *
+   *   1. Fokus MASUK ke panelnya, bukan ke kontrol pertamanya: panel yang difokus membuat
+   *      pembaca layar menyebut "dialog" lalu membaca dari judulnya, sementara melompat ke
+   *      kontrol pertama melewati judul itu.
+   *   2. Fokus tidak boleh keluar lewat Tab — lihat `onKeyDown`.
+   *   3. Fokus KEMBALI ke pemicunya saat lembar ditutup. Tanpa itu orang kehilangan tempatnya:
+   *      Tab berikutnya mulai dari awal halaman.
+   *
+   * `panel.contains(document.activeElement)` itu penjaga yang wajib: dua lembar
+   * (`AiFoodSheet`, `FoodDbSheet`) meng-`autoFocus` kolomnya sendiri, dan memindahkan fokus ke
+   * panel akan merampasnya — orang mengetuk "Database" lalu mengetik ke tempat yang salah.
+   */
+  useEffect(() => {
+    pemicu.current = document.activeElement
+    const panel = panelRef.current
+    if (panel && !panel.contains(document.activeElement)) panel.focus()
+    return () => {
+      const t = pemicu.current
+      if (t && document.contains(t) && typeof t.focus === 'function') t.focus()
+    }
+  }, [])
+
+  /**
+   * Perangkap Tab. Tidak butuh `isTop`: peristiwanya berasal dari dalam panel teratas, dan
+   * panel di bawahnya bukan leluhurnya — jadi handler lembar bawah tidak pernah ikut jalan.
+   */
+  const onKeyDown = e => {
+    if (e.key !== 'Tab') return
+    const panel = panelRef.current
+    if (!panel) return
+    const f = [...panel.querySelectorAll(FOKUSABEL)].filter(el => el.offsetParent !== null)
+    if (!f.length) { e.preventDefault(); panel.focus(); return }
+    const pertama = f[0], terakhir = f[f.length - 1]
+    const aktif = document.activeElement
+    if (e.shiftKey && (aktif === pertama || aktif === panel)) { e.preventDefault(); terakhir.focus() }
+    else if (!e.shiftKey && aktif === terakhir) { e.preventDefault(); pertama.focus() }
+  }
 
   const onTouchStart = e => {
     const el = ref.current
@@ -74,14 +125,19 @@ function Sheet({ sheet }) {
     return (
       <div>
         <div className="mback" onClick={() => { if (!sheet.locked) close() }} />
-        <div className="center">{sheet.render(close)}</div>
+        {/* `aria-modal` cuma di lembar TERATAS: dua dialog yang sama-sama mengaku modal adalah
+            pernyataan yang saling bertentangan, dan yang di bawah memang tidak modal lagi. */}
+        <div className="center" ref={panelRef} tabIndex={-1} role="dialog"
+          aria-modal={isTop ? 'true' : undefined} onKeyDown={onKeyDown}>{sheet.render(close)}</div>
       </div>
     )
   }
   return (
     <div>
       <div className="mback" onClick={() => { if (!sheet.locked) close() }} />
-      <div className="sheet" ref={ref} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+      <div className="sheet" ref={el => { ref.current = el; panelRef.current = el }}
+        tabIndex={-1} role="dialog" aria-modal={isTop ? 'true' : undefined} onKeyDown={onKeyDown}
+        onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
         onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp} onMouseLeave={onMouseUp}>
         <div className="grab" />
         {sheet.render(close)}
@@ -167,7 +223,7 @@ export default function Modals() {
   if (!sheets.length) return null
   return (
     <div id="modal-root" className="open">
-      {sheets.map(s => <Sheet key={s.id} sheet={s} />)}
+      {sheets.map((s, i) => <Sheet key={s.id} sheet={s} isTop={i === sheets.length - 1} />)}
     </div>
   )
 }
