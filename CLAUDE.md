@@ -87,9 +87,9 @@ Dua sumber, dan urutannya bukan selera:
 
 | Sumber | Lisensi | Bentuk | Cakupan |
 | --- | --- | --- | --- |
-| **RepDB** | Free Tier v1.0 — komersial + atribusi | ilustrasi flat, dua bingkai | 86 |
+| **RepDB** | Free Tier v1.0 — komersial + atribusi | ilustrasi flat, dua bingkai | 135 |
 | free-exercise-db | Unlicense | foto orang sungguhan | 376 |
-| **gabungan** | | | **401 dari 1.324** |
+| **gabungan** | | | **411 dari 1.324** |
 
 `demoFrames` memilih ILUSTRASI lebih dulu, dan itu memenuhi aturan yang sudah tertulis di
 `DESIGN.md` sejak hari pertama, di bagian *Yang tidak boleh masuk*:
@@ -102,10 +102,28 @@ metadata yang menyatakan "model bertelanjang dada", jadi aturan otomatis apa pun
 menangkapnya. Ketahuan cuma saat delapan foto dibuka satu per satu. Kelas yang sama dengan
 `--acc-ink` dan `--label-3`.
 
-**Cakupannya PARSIAL, dan itu harus disebut jujur.** RepDB cuma menutupi 86
+**Cakupannya PARSIAL, dan itu harus disebut jujur.** RepDB cuma menutupi 135
 latihan, jadi ratusan latihan lain masih memakai foto — dan sebagian di antaranya mungkin masih
 melanggar aturan yang sama. Yang menutup itu sepenuhnya adalah keputusan bisnis: beli lisensi
 media, atau foto/ilustrasi sendiri.
+
+**Cakupannya dinaikkan lewat alias yang diperiksa manusia, bukan pelonggaran aturan.** 86 → 135
+(+49): 424 usulan → penjaga kata-penentu-varian membuang 325 → **penjaga kesepakatan alat**
+membuang 44 lagi → tujuh sisanya gambarnya dibuka satu per satu.
+
+Penjaga alat itu yang paling berharga, dan empat contohnya akan lolos kalau cuma membaca nama:
+
+| Nama kita | Nama RepDB | Yang digambar ilustrasinya |
+| --- | --- | --- |
+| `kettlebell arnold press` | "Arnold Press" | **dumbbell** |
+| `dumbbell goblet squat` | "Goblet Squat" | **kettlebell** |
+| `barbell single leg deadlift` | "… Single Leg Deadlift" | **kettlebell** |
+| `dumbbell preacher curl` | "Preacher Curl" | **EZ-bar** |
+
+Nama RepDB sering generik sementara nama kita menyebut alatnya — dan yang generik itu **tetap
+menggambar satu alat tertentu.** Enam dari tujuh yang alatnya tidak dinyatakan juga ditolak
+setelah gambarnya dibuka: ilustrasi "Single Leg Calf Raise" ternyata berat badan murni, tanpa
+band maupun dumbbell.
 
 **Term 3 lisensi RepDB menentukan cara kerjanya:** dataset tidak boleh diredistribusi. Repo ini
 publik (AGPL mewajibkannya), jadi yang di-commit **cuma peta** (id katalog kami → nama berkas
