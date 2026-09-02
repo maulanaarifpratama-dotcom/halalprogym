@@ -53,9 +53,27 @@ export function fmtDate(iso: string, long?: boolean, withYear = false): string {
   return localeDateString(d, options)
 }
 
+/**
+ * Durasi lewat `t()`, memakai kunci yang SAMA dengan hitungan mundur kartu salat.
+ *
+ * Versi sebelumnya menulis satuannya sendiri (`'h '`, `'m'`, `' min'`), jadi riwayat
+ * membaca "2 min" dan "1h 25m" di ketiga belas bahasa. Bentuknya identik dengan
+ * `PrayerCard` yang dulu menuliskan `${h} jam ${m} mnt` di template — dan sekali lagi
+ * keempat checker tidak bisa melihatnya, karena teks yang tidak pernah lewat `t()`
+ * tidak pernah mengaku sebagai teks yang perlu diterjemahkan. Yang menemukan ini
+ * mengganti bahasa app ke Indonesia lalu MEMBACA layarnya: Beranda menulis
+ * "Zuhur 20 mnt", Riwayat menulis "2 min" — satuan yang sama, dua singkatan.
+ *
+ * Penjaga `no-untranslated-id.test.ts` sengaja tidak memindai `lib/`, jadi celah ini
+ * memang ada di direktori yang paling tidak diawasi untuk urusan teks UI.
+ *
+ * Kuncinya DIPAKAI ULANG, bukan kunci baru yang lebih ringkas: dua tempat yang
+ * menampilkan durasi ke orang yang sama sebaiknya menyebutnya dengan cara yang sama,
+ * dan kunci baru berarti tiga belas pack lagi yang bisa menyimpang.
+ */
 export function fmtDur(ms: number): string {
   const m = Math.floor(ms / 60000)
-  return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + ' min'
+  return m >= 60 ? t('{0} hr {1} min', Math.floor(m / 60), m % 60) : t('{0} min', m)
 }
 
 // Imported history has no clock — an unknown duration is left out rather than shown as "0 min".
@@ -72,6 +90,18 @@ export const fmtVol = (v: number, unit: string): string => fmtNum(v) + ' ' + uni
 
 // Plural forms are not automatic when the English string is the key.
 export const exCount = (n: number): string => t(n === 1 ? '{0} exercise' : '{0} exercises', n)
+
+/**
+ * Pasangan `exCount` untuk set, dan alasan dia ada bentuknya bukan kerapian.
+ *
+ * Lima tempat memanggil `t('{0} sets', n)` dengan hitungan mentah, jadi satu set membaca
+ * "1 sets" — di Statistik, di baris riwayat, dan di ringkasan selesai. Helper ini yang
+ * membuat keputusannya hidup di SATU tempat: pemanggil keenam tidak bisa lupa.
+ *
+ * Yang dibiarkan memakai `t('{0} sets', ...)` langsung cuma yang mengoper PECAHAN
+ * ("1/17 sets") — di situ nominanya memang milik penyebutnya, dan bentuk tunggal justru salah.
+ */
+export const setCount = (n: number): string => t(n === 1 ? '{0} set' : '{0} sets', n)
 
 /**
  * Awal minggu: **Ahad**, bukan Senin.

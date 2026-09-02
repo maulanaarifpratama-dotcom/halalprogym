@@ -91,11 +91,16 @@ const ID_KEEPS_ENGLISH = new Set([
   'Reset',
   'Rest-pause',
   'Sep',
+  // Label aria untuk checkbox set — di Indonesia baris itu memang dibaca "Set 1", dan
+  // 'Set {0}' menerjemahkan diri jadi persis kuncinya. Sama untuk '{0} set': '{0} sets'
+  // sudah lama dipetakan ke '{0} set', jadi bentuk tunggalnya identik dengan kuncinya.
+  'Set {0}',
   'Superset',
   'Superset {0} / {1}',
   'Tip',
   'Volume',
   'Warm-up',
+  '{0} set',
   'band',
   'barbell',
   'cable',

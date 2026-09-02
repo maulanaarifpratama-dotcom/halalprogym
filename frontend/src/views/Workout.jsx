@@ -217,7 +217,15 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onAddSet, onRemov
               onClick={() => onStartTimed(i)}><Icon name="play" /></button>}
             {warm && <button className="iconbtn" style={{ fontSize: 13 }} aria-label={t('Remove set')}
               disabled={entry.sets.length <= 1} onClick={() => onRemoveSetAt(i)}><Icon name="xmark" /></button>}
-            <Check checked={s.done} onChange={() => onToggle(i)} />
+            {/* Checkbox ini SATU-SATUNYA kontrol di layar yang tidak punya nama: tetangganya
+                di baris yang sama ('Start set', 'Remove set') sudah ber-aria-label sejak awal.
+                Pohon aksesibilitas hidup menyebutnya "checkbox" saja, empat kali berturut-turut,
+                jadi pembaca layar tidak bisa membedakan set 1 dari set 4 — dan justru orang
+                yang memakainya tidak bisa melihat nomor di kolom kiri. Kelas yang sama dengan
+                baris daftar yang dulu `<div>`. Keadaannya sendiri sudah dibawa `aria-checked`,
+                jadi namanya cukup menyebut BARIS MANA. */}
+            <Check checked={s.done} onChange={() => onToggle(i)}
+              label={t(warm ? 'Warm-up set {0}' : 'Set {0}', phaseNum)} />
           </div>
           {/* Drop-sets and rest-pause bursts extend this same row — no long rest, no new set.
               A planned exercise arrives with these already filled in (applyIntensifierPlan);

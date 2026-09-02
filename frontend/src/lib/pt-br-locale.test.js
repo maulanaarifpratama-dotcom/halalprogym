@@ -97,7 +97,12 @@ describe('Brazilian Portuguese locale', () => {
     //
     // MASUK: 'Search {0} packaged products and {1} Indonesian staples.', yang menjawab pertanyaan
     // yang orang benar-benar punya di layar kosong: apa isinya.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(336)
+    // 336 -> 337: '{0} equipment type', pasangan tunggal dari kunci yang SUDAH jadi override
+    // byte-identik di sini. Kata Brasilnya sama dengan Portugal, jadi warisan akan cukup —
+    // yang tidak cukup adalah membiarkan separuh pasangan dipaku dan separuhnya diwarisi.
+    // Kalau pt-PT nanti mengubah 'tipos de equipamento', tunggalnya ikut bergerak sementara
+    // pluralnya tidak, dan pt-BR menampilkan dua kata berbeda untuk satu hal.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(337)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')
@@ -129,7 +134,20 @@ describe('Brazilian Portuguese locale', () => {
     // dan Brasil sama-sama memakai 'h' dan 'min', jadi warisan.
     // Katalog makanan bawaan TIDAK mengubah angka ini: sebelas kuncinya semua jadi override
     // eksplisit, dan kunci lama yang dihapus juga override. Jadi warisannya tetap 494.
-    expect(inherited).toHaveLength(494)
+    // 494 -> 498: EMPAT dari lima kunci bentuk tunggal yang baru. Bentuk tunggal ada karena
+    // hitungan 1 membaca "1 sets", "1 workouts", "1 equipment types" di layar — plural
+    // Inggris tidak otomatis kalau string Inggrisnya adalah kuncinya sendiri. Keempat yang
+    // diwarisi ('{0} set', 'Set {0}', 'Warm-up set {0}', '{0} set · {1} work') memakai kata
+    // yang sama di Portugal dan Brasil: 'série', 'Série de aquecimento', 'de trabalho'.
+    // Yang KELIMA, '{0} equipment type', justru jadi override — bukan karena katanya beda,
+    // tapi karena bentuk PLURAL-nya sudah lebih dulu dipaku sebagai override byte-identik
+    // di sini. Pasangan tunggal/plural yang separuhnya diwarisi bisa terpisah kalau pt-PT
+    // mengubah salah satunya, dan pasangan yang terpisah adalah tepat jenis kebocoran yang
+    // berkas ini dibuat untuk mencegah.
+    // 498 -> 499: satu kunci kardio, '{0} min @ {1} km/h'. Ringkasan kardio dulu menulis
+    // "20 min @ 8 km/h" langsung di template, jadi tidak diterjemahkan sama sekali; Portugal
+    // dan Brasil sama-sama memakai 'min' dan 'km/h', jadi warisan.
+    expect(inherited).toHaveLength(499)
     // If this fails, review the changed keys and wording before accepting a new hash. From
     // frontend/: node scripts/pt-br-inheritance-fingerprint.mjs --list
     //
@@ -152,7 +170,7 @@ describe('Brazilian Portuguese locale', () => {
     // latihan yang tercakup keduanya (aturan aurat di DESIGN.md).
     //
     // Tanpa hash, perubahan kata pada terjemahan warisan seperti ini lolos tanpa direview.
-    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('7cf289a4cccd1a3c30deb685a0e1376f9c78807f39dbddc1eeaeb2e8e652d3ee')
+    expect(fingerprint, 'pt-PT inheritance changed; review the inherited pt-BR wording').toBe('a9b521f03924fedd27f2bbe5251196d84b8b4502b9810bf687e4548afb782538')
   })
 
   test('does not leak European Portuguese UI terms', () => {

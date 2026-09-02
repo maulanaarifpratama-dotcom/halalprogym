@@ -182,7 +182,7 @@ function scheme(e, unit) {
   const sets = e.sets || 1
   const mode = modeOf(e)
   if (mode === 'cardio') {
-    const body = `${e.min || 20} min @ ${fmtNum(e.speed || 8)} km/h`
+    const body = t('{0} min @ {1} km/h', e.min || 20, fmtNum(e.speed || 8))
     return sets > 1 ? `${sets} × ${body}` : body
   }
   let s = mode === 'time' ? `${sets} × ${fmtSec(e.sec || 45)}` : `${sets} × ${e.reps ?? 10}`

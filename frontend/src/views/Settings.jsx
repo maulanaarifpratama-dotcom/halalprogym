@@ -606,7 +606,7 @@ function EquipmentCard({ S, update }) {
       options={profiles.map(p => ({ value: p.id, label: p.name }))} />}
     {profiles.map(p => (
       <Row key={p.id} icon="dumbbell" iconTint="var(--teal)" title={p.name}
-        subtitle={t('{0} equipment types', p.equipment.length)} accessory="chevron"
+        subtitle={t(p.equipment.length === 1 ? '{0} equipment type' : '{0} equipment types', p.equipment.length)} accessory="chevron"
         onClick={() => equipmentProfileSheet(p)}>
         <button className="iconbtn" aria-label={t('Delete')} onClick={ev => { ev.stopPropagation(); remove(p) }}><Icon name="trash" /></button>
       </Row>

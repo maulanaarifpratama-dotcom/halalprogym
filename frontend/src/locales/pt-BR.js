@@ -285,6 +285,10 @@ export const PT_BR_OVERRIDES = {
   'Needs {0} — not in your active profile': 'Precisa de {0} — não está no seu perfil ativo',
   'Filter by equipment': 'Filtrar por equipamento',
   'Active profile': 'Perfil ativo',
+  // Pasangan tunggalnya ikut dipaku, bukan diwarisi: pluralnya sudah jadi override
+  // byte-identik di sini, dan pasangan tunggal/plural yang separuhnya diwarisi bisa
+  // terpisah kalau pt-PT mengubah salah satunya.
+  '{0} equipment type': '{0} tipo de equipamento',
   '{0} equipment types': '{0} tipos de equipamento',
   'Add equipment profile': 'Adicionar perfil de equipamentos',
   'Delete profile?': 'Excluir perfil?',

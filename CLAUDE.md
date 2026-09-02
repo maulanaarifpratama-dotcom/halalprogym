@@ -620,6 +620,17 @@ Dua akibat yang harus dijaga:
 - **Baris TANPA `onClick` sendiri tetap `<div>`.** Baris "Logged today" di `Food.jsx` cuma memuat
   tombol hapus; dia bukan kontrol, dan memaksanya jadi tombol menghasilkan nesting yang tidak sah.
 
+**Checkbox set adalah kontrol yang paling sering diketuk di app ini, dan dia TIDAK PUNYA NAMA
+sampai 2026-09-02.** `Check` di `ui.jsx` merender `<button role="checkbox">` yang isinya cuma
+`<Icon>` ber-`aria-hidden` — benar untuk ikon dekoratif, tapi akibatnya tombolnya tidak punya
+nama sama sekali. Diukur di pohon aksesibilitas hidup: layar latihan menyebut **"checkbox" empat
+kali berturut-turut**, tidak ada satu pun yang bisa dibedakan. Tetangganya di baris yang sama
+(`Start set`, `Remove set`) sudah ber-`aria-label` sejak awal, jadi ini kelalaian satu komponen,
+bukan kebijakan — dan orang yang memakai pembaca layar justru orang yang tidak bisa melihat nomor
+set di kolom kiri. Sekarang `Set 1` … `Set 4`, dan `Set warm-up 1` untuk baris pemanasan, dengan
+penomoran yang tetap restart per fase. Keadaannya tetap dibawa `aria-checked`, jadi namanya cukup
+menyebut BARIS MANA.
+
 Dijaga `list-rows.test.ts`, yang memindai SELURUH `.jsx`. Daftar "elemen interaktif"-nya memuat
 KOMPONEN berhuruf besar (`<Button>`, `<Switch>`, `<TextField>`, …), bukan cuma tag HTML — karena
 pemeriksaan yang cuma mencari `<button` huruf kecil justru yang melewatkan pelanggaran pertama.
@@ -816,6 +827,30 @@ Indonesia) lalu memindai literal string di `components/`, `views/`, `store/`. `l
 luar cakupan — dua isi Indonesia di sana keduanya sah dan bukan UI: prompt LLM di
 `ai-nutrition.ts` (yang memang harus Indonesia) dan string `why` diagnostik di `sync.ts` (yang
 diperiksa ke pemanggilnya: tidak pernah ditampilkan).
+
+**Titik buta itu punya sisi KEDUA, dan yang ini cuma terlihat kalau app-nya dipakai.** Teks yang
+lewat `t()` pun bisa salah, karena `t()` melakukan `dict[s] || s` — string Inggrisnya ADALAH
+kuncinya, jadi **plural Inggris tidak pernah otomatis**. Hitungan 1 membaca "1 workouts" di
+Riwayat, "1 sets" di Statistik, "1 equipment types" di Pengaturan. Kesadarannya sudah ada:
+komentar `exCount` di `lib/format.ts` menuliskannya persis ("Plural forms are not automatic when
+the English string is the key") dan tiga tempat sudah memakai idiomnya. Lima tempat lain tidak.
+Bentuknya identik dengan `--acc-ink` dan `--label-3`: aturannya tertulis, penerapannya sebagian.
+
+**Dan satuan waktu tidak pernah lewat `t()` sama sekali.** `fmtDur` menulis `' min'`, `'h '`, dan
+`'m'` sendiri, jadi Beranda menulis "Zuhur 20 mnt" sementara Riwayat menulis "2 min" — satuan yang
+sama, dua singkatan, satu ketukan apart. Ringkasan kardio lebih jauh lagi: `"20 min @ 8 km/h"`
+ditulis langsung di template di TIGA tempat (`history.ts` dua kali, `plan-share.js`), padahal
+kolom isiannya sudah lama menerjemahkan `Speed (km/h)` jadi **"km/jam"**. Ketiganya di `lib/` —
+direktori yang `no-untranslated-id.test.ts` sengaja TIDAK pindai, jadi celahnya ada di tempat
+yang paling tidak diawasi untuk urusan teks UI dan paling banyak dipanggil.
+
+`counted-strings.test.ts` memaku keduanya sebagai KELAS, bukan sebagai daftar temuan: dia
+memindai setiap pemanggilan kunci plural dan menuntut cabang tunggal (kecuali yang mengoper
+PECAHAN — "1/17 sets" benar, "1/17 set" salah), lalu memindai satuan waktu di luar `t()`. Dua
+dari tiga temuan kardio ditemukan OLEH penjaga itu, bukan oleh mata saya. Dua kali penjaganya
+sempat menuduh dirinya sendiri — komentar yang mengutip pemanggilan yang salah, dan
+`${t('{0} min', x)}` yang cocok dengan pola naif karena `[^}]+` berhenti di kurung tutup pertama.
+Keduanya dibuang eksplisit, dan ketiga penjaganya sudah dibuktikan bisa merah.
 
 **Sekalian ditemukan di layar yang sama: ICU `zh` memakai ulang nama bulan GREGORIAN untuk bulan
 Hijriah.** Bulan ke-3 keluar sebagai `三月` — nama Maret — jadi pengguna Mandarin melihat

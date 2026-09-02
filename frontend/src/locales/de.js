@@ -116,6 +116,7 @@ export default {
   'Tap a trained day for details · tap any other day to plan a session': 'Tippe auf einen trainierten Tag für Details · tippe auf jeden anderen Tag, um zu planen',
   // --- workout lifecycle ---
   '{0} sets': '{0} Sätze',
+  '{0} set': '{0} Satz',
   'no sets': 'keine Sätze',
   'Delete workout?': 'Training löschen?',
   'This removes it from your history for good.': 'Das entfernt es endgültig aus deinem Verlauf.',
@@ -161,7 +162,9 @@ export default {
   'Last time': 'Letztes Mal',
   'Remove set': 'Satz entfernen',
   'Warm-up': 'Aufwärmen',
+  'Set {0}': 'Satz {0}',
   'Add warm-up set': 'Aufwärmsatz hinzufügen',
+  'Warm-up set {0}': 'Aufwärmsatz {0}',
   'Add set': 'Satz hinzufügen',
   '+ Drop': '+ Dropsatz',
   '+ Burst': '+ Burst',
@@ -568,6 +571,7 @@ export default {
   '{0} per side': '{0} pro Seite',
   'You still log the total: {0} is {1} per side.': 'Du trägst weiterhin die Gesamtzahl ein: {0} sind {1} pro Seite.',
   '{0} sets · {1} work': '{0} Sätze · {1} Arbeit',
+  '{0} set · {1} work': '{0} Satz · {1} Arbeit',
   'Make superset with previous': 'Mit vorheriger Übung kombinieren',
   'Make superset with next': 'Mit nächster Übung kombinieren',
   'primary': 'primär',
@@ -591,6 +595,7 @@ export default {
   'Filter by equipment': 'Nach Geräten filtern',
   'Active profile': 'Aktives Profil',
   '{0} equipment types': '{0} Gerätearten',
+  '{0} equipment type': '{0} Geräteart',
   'Add equipment profile': 'Geräteprofil hinzufügen',
   'Delete profile?': 'Profil löschen?',
   '"{0}" and its equipment list will be removed.': '„{0}“ und die zugehörige Geräteliste werden entfernt.',
@@ -809,6 +814,7 @@ export default {
   '{0} min': '{0} Min.',
 
   // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  '{0} min @ {1} km/h': '{0} Min. @ {1} km/h',
   'Food database': 'Lebensmittel-Datenbank',
   'Database': 'Datenbank',
   'Search a product or ingredient': 'Produkt oder Zutat suchen',

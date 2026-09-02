@@ -159,6 +159,7 @@ export default {
   'Add to my plan': 'Tambahkan ke rencanaku',
   'Add to routine': 'Tambahkan ke rutin',
   'Add warm-up set': 'Tambah set warm-up',
+  'Warm-up set {0}': 'Set warm-up {0}',
   'Add “{0}”': 'Tambahkan “{0}”',
   'Added ({0})': 'Ditambahkan ({0})',
   'Added as your own': 'Ditambahkan sebagai milikmu',
@@ -628,6 +629,7 @@ export default {
     '{0} hari sudah punya data di sini dan tidak akan disentuh.',
   '{0} done': '{0} beres',
   '{0} equipment types': '{0} jenis alat',
+  '{0} equipment type': '{0} jenis alat',
   '{0} exercises · {1} with demos':
     '{0} latihan · {1} berdemo',
   '{0} is on the plan today — let’s go!': '{0} ada di rencana hari ini — gas!',
@@ -639,6 +641,7 @@ export default {
   '{0} set to rest': '{0} disetel jadi hari istirahat',
   '{0} sets': '{0} set',
   '{0} sets · {1} work': '{0} set · {1} kerja',
+  '{0} set · {1} work': '{0} set · {1} kerja',
   '{0} to go': 'sisa {0}',
   '{0} week streak': 'rentetan {0} pekan',
   '{0} weigh-ins imported': '{0} penimbangan diimpor',
@@ -961,6 +964,7 @@ export default {
   '{0} min': '{0} mnt',
 
   // --- katalog makanan bawaan (Open Food Facts + USDA) ---
+  '{0} min @ {1} km/h': '{0} mnt @ {1} km/jam',
   'Food database': 'Database makanan',
   'Database': 'Database',
   'Search a product or ingredient': 'Cari produk atau bahan',
