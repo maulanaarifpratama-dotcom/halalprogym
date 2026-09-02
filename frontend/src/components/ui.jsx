@@ -13,7 +13,7 @@
 //   · :active gives a scale/tint response so touch feels acknowledged
 //   · focus-visible draws a ring; pointer interaction never does
 
-import { useRef, useState, useEffect, useCallback, forwardRef } from 'react'
+import { useRef, useState, useEffect, useCallback, forwardRef, useId, createContext, useContext } from 'react'
 import { t } from '../lib/i18n.js'
 import Icon from './Icon.jsx'
 
@@ -77,11 +77,35 @@ export function SearchField({ value, onChange, onClear, ...rest }) {
 
 /* ============================ switch ============================ */
 
-export function Switch({ checked, onChange, disabled }) {
+/**
+ * Id judul baris yang membungkus sebuah kontrol, supaya kontrolnya bisa MEMAKAI judul itu
+ * sebagai namanya. Kosong kalau kontrolnya tidak di dalam `Row`.
+ */
+const RowTitleId = createContext(null)
+
+/**
+ * `label` adalah NAMA kontrolnya, dan tanpa itu sakelar ini TIDAK PUNYA NAMA SAMA SEKALI:
+ * isinya cuma `<span className="knob" />`, sebuah bulatan tanpa teks.
+ *
+ * Diukur di pohon aksesibilitas hidup sebelum diperbaiki: layar Pengaturan menyebut
+ * **"switch" lima kali berturut-turut**, tidak ada satu pun yang bisa dibedakan — dan dua di
+ * antaranya "Mode Ramadan" dan "Puasa sunah", yang menahan mesin progresi. Menyalakan yang
+ * salah berarti beban ditahan sebulan di hari orang tidak berpuasa. Kelas yang sama dengan
+ * `Check` di baris set, dan ternyata 13 kali, bukan satu.
+ *
+ * Namanya diambil dari JUDUL BARISNYA lewat `aria-labelledby`, bukan dari `label` yang
+ * diketikkan ulang di 13 pemanggil. Dua alasannya: nol string duplikat untuk diterjemahkan,
+ * dan namanya ikut berubah sendiri kalau judulnya diedit. `label` tetap ada untuk sakelar yang
+ * memang tidak duduk di dalam `Row` — ada dua.
+ */
+export function Switch({ checked, onChange, disabled, label }) {
+  const rowTitle = useContext(RowTitleId)
   return (
     <button
       role="switch"
       aria-checked={!!checked}
+      aria-label={label || undefined}
+      aria-labelledby={!label && rowTitle ? rowTitle : undefined}
       disabled={disabled}
       className={'sw' + (checked ? ' on' : '')}
       onClick={() => onChange(!checked)}
@@ -116,20 +140,40 @@ export function Segmented({ options, value, onChange, className = '' }) {
 
 /* ============================ stepper ============================ */
 
+/**
+ * Label yang TERLIHAT dan label yang PROGRAMATIK adalah dua hal, dan sebelum 2026-09-02 stepper
+ * ini cuma punya yang pertama.
+ *
+ * `.stp-l` sudah merender "Set", "Reps", "Beban (kg)" di atas kolomnya — jadi pemakai yang
+ * melihat tahu persis kolom apa itu. Tapi tidak ada yang menghubungkannya ke `<input>`-nya, dan
+ * diukur di lembar konfigurasi latihan: pembaca layar menyebut **"edit text, blank" lima kali
+ * berturut-turut**. Kelas yang sama dengan `Check` dan `Switch`: teks yang sudah ada di layar
+ * tidak sampai ke pohon aksesibilitas karena tidak ada yang menautkannya.
+ *
+ * Ditautkan lewat `aria-labelledby` ke label yang SUDAH dirender, bukan `aria-label` yang
+ * mengetikkan ulang teksnya: nol string duplikat untuk diterjemahkan, dan namanya ikut berubah
+ * sendiri kalau labelnya diedit. `NumberField` sudah menyebar `...rest` ke input-nya, jadi ini
+ * nol baris tambahan di sana.
+ *
+ * Stepper TANPA `label` tidak berubah: dia tidak punya teks untuk ditautkan, dan pemanggilnya
+ * yang bertanggung jawab memberi nama — itu yang dilakukan baris set lewat `aria-label`.
+ */
 export function Stepper({ value, step = 1, onChange, decimal = true, className = '', label, unit }) {
   const set = v => onChange(Math.max(0, Math.round((v || 0) * 100) / 100))
+  const auto = useId()
+  const labelId = label ? auto : undefined
   const inner = (
     <div className={'stp ' + className}>
       <button onClick={() => set((+value || 0) - step)} aria-label={t('Decrease')}><Icon name="minus" /></button>
       <span className="val">
-        <NumberField value={value} decimal={decimal} onChange={onChange} />
+        <NumberField value={value} decimal={decimal} onChange={onChange} aria-labelledby={labelId} />
         {unit && <i>{unit}</i>}
       </span>
       <button onClick={() => set((+value || 0) + step)} aria-label={t('Increase')}><Icon name="plus" /></button>
     </div>
   )
   if (!label) return inner
-  return <div className="stp-w"><span className="stp-l">{label}</span>{inner}</div>
+  return <div className="stp-w"><span className="stp-l" id={labelId}>{label}</span>{inner}</div>
 }
 
 /* ============================ slider ============================ */
@@ -239,14 +283,18 @@ export function Section({ title, footer, children, className = '' }) {
 
 export function Row({ icon, iconTint, title, subtitle, value, accessory = 'none', onClick, danger, children, className = '' }) {
   const Tag = onClick ? 'button' : 'div'
+  // Id-nya cuma dipasang kalau baris ini MEMBUNGKUS sesuatu: baris tanpa anak tidak punya
+  // kontrol yang butuh nama, dan menaburkan id ke setiap baris hanya menambah atribut mati.
+  const auto = useId()
+  const titleId = children ? auto : undefined
   return (
     <Tag className={'lrow' + (onClick ? ' tap' : '') + (danger ? ' danger' : '') + ' ' + className} onClick={onClick}>
       {icon && <span className="lrow-i" style={iconTint ? { '--tint': iconTint } : null}><Icon name={icon} /></span>}
       <span className="lrow-m">
-        <span className="lrow-t">{title}</span>
+        <span className="lrow-t" id={titleId}>{title}</span>
         {subtitle && <span className="lrow-s">{subtitle}</span>}
       </span>
-      {children}
+      {titleId ? <RowTitleId.Provider value={titleId}>{children}</RowTitleId.Provider> : children}
       {value != null && <span className="lrow-v">{value}</span>}
       {accessory === 'chevron' && <Icon name="chevronRight" className="lrow-c" />}
       {accessory === 'check' && <Icon name="check" className="lrow-k" />}

@@ -180,7 +180,7 @@ export default function AiFoodSheet({ close, onLogged }) {
       <div className="small dim">{t('Nutrition per serving')}</div>
       <div className="row" style={{ gap: 8, alignItems: 'center' }}>
         <Icon name="lock" className="dim" />
-        <Switch checked={unlocked} onChange={setUnlocked} />
+        <Switch checked={unlocked} onChange={setUnlocked} label={t('Edit')} />
       </div>
     </div>
     <div className="small dim" style={{ marginTop: 4, marginBottom: 8 }}>

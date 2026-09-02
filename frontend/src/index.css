@@ -820,9 +820,15 @@ button.mrow{background:none}
 /* was #fff — berkedip putih di app gelap sebelum gambar/diagram muncul */
 .exmedia{position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--surface-2);margin-bottom:12px}
 .exmedia img{width:100%;height:320px;object-fit:contain;display:block}
+/* Scrim di bawah teks putih, dan opasitasnya diukur ke KASUS TERBURUK: foto/ilustrasi yang
+   latarnya putih. Pada .45 teks putih cuma 3,35:1 di atas area putih — dan itu bukan kasus
+   sudut, karena ILUSTRASI RepDB latarnya memang hampir putih dan dia sumber demo utama
+   sekarang. Pada .55 dia 4,76:1 (dan 5,44 di atas latar terang, 9,8 di atas foto medium).
+   Scrim beda dari token warna: yang di bawahnya gambar sembarang, jadi tidak ada permukaan
+   yang bisa diukur — yang bisa diukur cuma batas terburuknya. */
 .exmedia .gifhint,.exmedia .giftoggle{
   position:absolute;bottom:9px;display:inline-flex;align-items:center;gap:4px;
-  background:rgba(0,0,0,.45);color:#fff;border-radius:99px;padding:5px 11px;
+  background:rgba(0,0,0,.55);color:#fff;border-radius:99px;padding:5px 11px;
   font-size:12px;font-weight:500;
   -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }

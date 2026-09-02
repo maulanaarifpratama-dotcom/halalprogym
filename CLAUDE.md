@@ -734,6 +734,40 @@ mengatakan keadaannya dan sudah berbagi CSS dengan tombol `.giftoggle`, jadi men
 nol baris gaya baru. Handler gambarnya DIBIARKAN: target sebesar gambar itu yang benar untuk
 jempol, dan aturan "jangan perbaiki keyboard dengan memperburuk jempol" sudah tertulis di atas.
 
+**Dan kelasnya ternyata TIGA komponen lagi, bukan cuma `Check`.** Bentuknya sama persis:
+teksnya SUDAH ADA di layar, tapi tidak ada yang menautkannya ke kontrolnya.
+
+| Komponen | Isinya | Yang didengar pembaca layar |
+| --- | --- | --- |
+| `Switch` | cuma `<span class="knob">` | **"switch" 5x** di Pengaturan, dua di antaranya Mode Ramadan dan Puasa sunah |
+| `Stepper` | `.stp-l` sudah merender "Set"/"Reps" | **"edit text, blank" 5x** di lembar konfigurasi latihan |
+| baris set | header `BEBAN (KG)`/`REPS`/`RIR` di baris terpisah | **"edit text, blank" 3x per baris** |
+
+Sakelar Mode Ramadan yang tidak bisa dibedakan itu bukan ketidaknyamanan: menyalakan yang salah
+berarti beban ditahan sebulan di hari orang tidak berpuasa.
+
+**Semuanya ditautkan lewat `aria-labelledby` ke teks yang SUDAH dirender, bukan `aria-label` yang
+mengetikkan ulang.** Dua alasannya, dan keduanya berlaku umum: nol string duplikat untuk
+diterjemahkan ke 13 bahasa, dan namanya ikut berubah sendiri kalau labelnya diedit. `Row`
+menyediakan id judulnya lewat context supaya 13 pemanggil `<Switch>` tidak perlu disentuh sama
+sekali. Baris set menunjuk DUA id — nomor set dan header kolomnya — jadi ARIA yang merangkainya
+jadi "1 Beban (kg)", bukan penggabungan manual yang lolos dari penjaga terjemahan.
+
+**Yang menemukan tiga dari empat itu penjaganya, bukan mata saya.** `views/smoke.test.jsx`
+sekarang me-mount setiap rute dan menuntut NOL kontrol tanpa nama — tes RENDER, bukan pemindai
+sumber, karena mekanisme namanya berbeda-beda (`aria-label`, dua bentuk `aria-labelledby`,
+placeholder). Pemindai sumber harus tahu ketiganya; render cuma perlu bertanya "apa namanya".
+Dan mekanismenya ikut dipaku: kalau seseorang "memperbaikinya" dengan mengetikkan ulang label ke
+13 `aria-label`, penjaga namanya tetap hijau — jadi ada tes terpisah yang menuntut sakelar di
+dalam `Row` memakai `aria-labelledby`.
+
+**Satu lagi dari sapuan yang sama, dan kelasnya beda: SCRIM.** Pil "Perkecil"/"posisi awal" di
+atas gambar demo memakai `rgba(0,0,0,.45)` dengan teks putih. Di bawahnya bukan permukaan yang
+bisa diukur — di bawahnya GAMBAR SEMBARANG, jadi yang bisa diukur cuma batas terburuknya: di atas
+area putih, teks putih cuma **3,35:1**. Dan itu bukan kasus sudut sejak ilustrasi RepDB jadi
+sumber demo utama, karena latar ilustrasinya memang hampir putih. Naik ke `.55` memberi 4,76 di
+atas putih dan 9,8 di atas foto medium.
+
 **16 `aria-label` ditulis langsung dalam bahasa Inggris**, jadi nama kontrolnya Inggris di 13
 bahasa. Keempat checker tidak bisa melihatnya karena mereka bekerja dari `t()`, dan
 `no-untranslated-id.test.ts` mencari literal INDONESIA — literal Inggris justru luput darinya.

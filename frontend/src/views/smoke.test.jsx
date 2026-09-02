@@ -191,6 +191,118 @@ describe('setiap layar bisa dirender — state TERISI', () => {
   })
 })
 
+/**
+ * SETIAP KONTROL HARUS PUNYA NAMA — lapis a11y yang hilang, dan kelasnya terulang tiga kali.
+ *
+ * Tiga komponen mengirim kontrol tanpa nama ke layar, dan ketiganya punya bentuk yang sama:
+ * teksnya SUDAH ADA di layar, tapi tidak ada yang menautkannya ke kontrolnya.
+ *
+ *   `Check`   isinya cuma `<Icon aria-hidden>`   -> layar latihan menyebut "checkbox" 4x
+ *   `Switch`  isinya cuma `<span class="knob">`  -> Pengaturan menyebut "switch" 5x, dua di
+ *                                                   antaranya Mode Ramadan dan Puasa sunah
+ *   `Stepper` `.stp-l` merender "Set"/"Reps"     -> lembar konfigurasi "edit text, blank" 5x
+ *
+ * Ketiganya diperbaiki, tapi PERBAIKAN SATU-SATU bukan penjaga: kontrol keempat akan mengulang
+ * hal yang sama. Yang menutup kelasnya adalah tes ini, dan dia harus tes RENDER — bukan
+ * pemindai sumber — karena mekanisme namanya berbeda-beda: `aria-label` langsung,
+ * `aria-labelledby` ke judul baris lewat context, `aria-labelledby` ke label stepper, atau
+ * placeholder. Pemindai sumber harus tahu ketiga mekanisme itu; render cuma perlu bertanya
+ * "apa namanya".
+ */
+describe('setiap kontrol yang dirender punya nama', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    useStore.setState({ S: populated(), user: { id: 'u1', email: 'a@b.c', name: 'Arif' }, ready: true })
+  })
+
+  /**
+   * Nama aksesibilitas, versi sederhana: urutan yang dipakai browser, dipotong pada yang
+   * benar-benar dipakai app ini. Bukan implementasi lengkap spesifikasi accname — yang
+   * dibutuhkan cuma jawaban ADA atau TIDAK.
+   */
+  const nama = el => {
+    const al = el.getAttribute('aria-label')
+    if (al && al.trim()) return al.trim()
+    const lb = el.getAttribute('aria-labelledby')
+    if (lb) {
+      const teks = lb.split(/\s+/)
+        .map(id => container.querySelector('[id="' + id + '"]')?.textContent || '')
+        .join(' ').trim()
+      if (teks) return teks
+    }
+    const own = (el.textContent || '').trim()
+    if (own) return own
+    const ti = el.getAttribute('title')
+    if (ti && ti.trim()) return ti.trim()
+    // Placeholder bukan nama yang ideal, tapi dia SAMPAI ke pembaca layar dan dia terlihat.
+    // Yang dijaga di sini "tidak telanjang", bukan "sempurna".
+    const ph = el.getAttribute('placeholder')
+    if (ph && ph.trim()) return ph.trim()
+    return null
+  }
+
+  const SELEKTOR = [
+    'button', 'a[href]', 'input', 'select', 'textarea',
+    '[role=checkbox]', '[role=switch]', '[role=button]', '[role=tab]',
+  ].join(',')
+
+  for (const { name, el } of VIEWS) {
+    it(`${name}: nol kontrol telanjang`, () => {
+      mount(el)
+      const telanjang = []
+      for (const c of container.querySelectorAll(SELEKTOR)) {
+        // `type=hidden` bukan kontrol yang bisa difokus, dan input file disembunyikan dengan
+        // sengaja di layar Pengaturan — tombolnya yang punya nama.
+        if (c.tagName === 'INPUT' && (c.type === 'hidden' || c.type === 'file')) continue
+        if (nama(c)) continue
+        telanjang.push(
+          c.tagName.toLowerCase()
+          + (c.getAttribute('role') ? '[role=' + c.getAttribute('role') + ']' : '')
+          + '.' + String(c.className || '').split(' ')[0]
+        )
+      }
+      expect(
+        [...new Set(telanjang)],
+        name + ': kontrol ini sampai ke pembaca layar tanpa nama. Kalau labelnya SUDAH ada di '
+        + 'layar, tautkan dengan aria-labelledby (nol string duplikat); kalau tidak ada, beri '
+        + 'aria-label.'
+      ).toEqual([])
+    })
+  }
+
+  it('RoutineEdit juga — kolom nama rutin tidak punya label terlihat maupun placeholder', () => {
+    mount(<RoutineEdit />, '/plan/r/r1', '/plan/r/:id')
+    const input = container.querySelector('.hdr input.input')
+    expect(input, 'kolom nama rutin harus ada').toBeTruthy()
+    expect(
+      input.getAttribute('aria-label'),
+      'nilainya sendiri yang jadi judul layar, jadi untuk mata dia bekerja — untuk pembaca '
+      + 'layar dia "edit text" telanjang'
+    ).toBeTruthy()
+  })
+
+  it('mekanismenya memang aria-labelledby, bukan teks yang diketik ulang', () => {
+    // Kalau seseorang "memperbaiki" ini dengan mengetikkan ulang labelnya ke aria-label di 13
+    // pemanggil, tesnya di atas tetap hijau — dan repo dapat 13 string duplikat yang harus
+    // diterjemahkan dan bisa menyimpang dari labelnya. Jadi mekanismenya ikut dipaku.
+    mount(<Settings />)
+    const sw = [...container.querySelectorAll('button.sw')]
+    expect(sw.length, 'Pengaturan harus punya sakelar').toBeGreaterThan(2)
+    const lewatJudulBaris = sw.filter(s => s.getAttribute('aria-labelledby'))
+    expect(
+      lewatJudulBaris.length,
+      'sakelar di dalam Row mengambil namanya dari judul baris itu, bukan dari string sendiri'
+    ).toBe(sw.length)
+    // Dan id yang ditunjuk harus benar-benar ada di dokumen.
+    for (const s of lewatJudulBaris) {
+      const id = s.getAttribute('aria-labelledby')
+      const target = container.querySelector('[id="' + id + '"]')
+      expect(target, 'aria-labelledby menunjuk id yang tidak ada: ' + id).toBeTruthy()
+      expect(target.textContent.trim().length).toBeGreaterThan(0)
+    }
+  })
+})
+
 describe('daftar view tidak boleh tertinggal dari daftar rute', () => {
   it('setiap rute di App.jsx punya view yang diuji di sini', async () => {
     // Tanpa ini, layar BARU tidak akan pernah masuk smoke test — dan layar baru justru yang

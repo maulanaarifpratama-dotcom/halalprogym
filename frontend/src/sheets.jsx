@@ -878,7 +878,7 @@ function PlanImport({ bundle, close }) {
     </div>}
     {bundle.scheduledDays > 0 && <div className="row between" style={{ padding: '10px 2px', borderTop: '1px solid var(--sep)', borderBottom: '1px solid var(--sep)', marginBottom: 16, gap: 12 }}>
       <div><div className="tt" style={{ fontSize: 15 }}>{t('Use this weekly schedule')}</div><div className="small dim">{t('Replaces your current Sunday–Saturday assignments.')}</div></div>
-      <Switch checked={schedule} onChange={setSchedule} />
+      <Switch checked={schedule} onChange={setSchedule} label={t('Use this weekly schedule')} />
     </div>}
     <Button variant="primary" onClick={apply}>{t('Add to my plan')}</Button>
     <div style={{ height: 8 }} />

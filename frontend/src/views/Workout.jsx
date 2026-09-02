@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useId } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
 import { useUI } from '../store/useUI.js'
@@ -60,6 +60,10 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onAddSet, onRemov
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
   const working = useUI(s => s.work)
+  // Akar id untuk menautkan kolom isian ke header kolomnya dan ke nomor setnya. Per-blok, bukan
+  // per-app: dua latihan bisa tampil bersamaan di superset, dan id yang sama dua kali membuat
+  // `aria-labelledby` menunjuk elemen yang salah.
+  const hid = useId()
   const entry = S.active.entries[entryIdx]
   // Drops/bursts mutate the row in place — same card, not a new set with its own long rest.
   // A planned exercise (see the exercise's "Intensifier" config) arrives with these already
@@ -136,11 +140,19 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onAddSet, onRemov
   }
   // Uses the shared stepper markup so a set row picks up the same control styling
   // as every other +/- field in the app.
-  const cell = (s, i, col, cls) => (
+  // `labelIds` menautkan kolom isian ke DUA teks yang sudah ada di layar: nomor set di kiri
+  // baris, dan header kolomnya di atas tabel. ARIA yang merangkainya jadi "1 Beban (kg)", jadi
+  // tidak ada string yang diketik ulang dan tidak ada penggabungan manual yang harus
+  // diterjemahkan. Sebelum ini kolomnya sampai ke pembaca layar sebagai "edit text, blank" —
+  // labelnya SUDAH terlihat di header, cuma tidak pernah ditautkan. Kelas yang sama dengan
+  // `Check`, `Switch` dan `Stepper`, dan yang menemukannya penjaga di `views/smoke.test.jsx`,
+  // bukan mata saya.
+  const cell = (s, i, col, cls, labelIds) => (
     <div className={'stp ' + cls}>
       <button aria-label={t('Decrease')} onClick={() => bump(s, i, col, -1)}><Icon name="minus" /></button>
       {/* a typed effort is capped — there is no RPE 12, and 12 reps in reserve is a warm-up */}
       <span className="val"><NumberField decimal={col.dec} nullable={col.opt} value={s[col.f] ?? ''}
+        aria-labelledby={labelIds}
         onChange={v => onField(i, col.f, col.eff ? capEffort(col.eff, v) : v)} /></span>
       <button aria-label={t('Increase')} onClick={() => bump(s, i, col, 1)}><Icon name="plus" /></button>
     </div>
@@ -196,7 +208,7 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onAddSet, onRemov
     </div>}
     <div className="card" style={{ marginTop: 10, marginBottom: 0 }}>
       {/* the header carries the same eff3 sizing as the rows, or the labels drift off their columns */}
-      <div className={'sethead' + (col3 ? ' eff3' : '')}><span className="n-sp" /><span className="w-sp">{col1.hd}</span>{col2 && <span className="r-sp">{col2.hd}</span>}{col3 && <span className="eff-sp">{col3.hd}</span>}{timed && <span className="ck-sp" />}<span className="ck-sp" /></div>
+      <div className={'sethead' + (col3 ? ' eff3' : '')}><span className="n-sp" /><span className="w-sp" id={hid + '-w'}>{col1.hd}</span>{col2 && <span className="r-sp" id={hid + '-r'}>{col2.hd}</span>}{col3 && <span className="eff-sp" id={hid + '-eff'}>{col3.hd}</span>}{timed && <span className="ck-sp" />}<span className="ck-sp" /></div>
       {entry.sets.map((s, i) => {
         const warm = isWarmupRow(s)
         const warmBefore = i > 0 && isWarmupRow(entry.sets[i - 1])
@@ -207,10 +219,10 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onAddSet, onRemov
           {isFirstWarmup && <div className="setph">{t('Warm-up')}</div>}
           {!warm && warmBefore && <div className="setsep" />}
           <div className={'setrow' + (s.done ? ' done' : '') + (col3 ? ' eff3' : '')}>
-            <div className="n">{phaseNum}</div>
-            {cell(s, i, col1, 'w')}
-            {col2 && cell(s, i, col2, 'r')}
-            {col3 && cell(s, i, col3, 'eff')}
+            <div className="n" id={hid + '-n' + i}>{phaseNum}</div>
+            {cell(s, i, col1, 'w', hid + '-n' + i + ' ' + hid + '-w')}
+            {col2 && cell(s, i, col2, 'r', hid + '-n' + i + ' ' + hid + '-r')}
+            {col3 && cell(s, i, col3, 'eff', hid + '-n' + i + ' ' + hid + '-eff')}
             {/* A timed set is started, not typed: the timer counts the hold down and checks the
                 set off itself. The checkbox stays for anyone who timed it on their own watch. */}
             {timed && <button className="setgo" aria-label={t('Start set')} disabled={s.done || !!working}
