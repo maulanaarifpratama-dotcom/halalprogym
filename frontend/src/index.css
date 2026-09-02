@@ -72,7 +72,16 @@
   /* Aksen sebagai TEKS. Di tema gelap sama dengan --acc: lime di atas #101c13 sudah 11:1.
      Di tema terang dia harus turun, karena lime di atas putih cuma 1.5:1 — lihat blok light. */
   --acc-ink: var(--acc);
-  --yellow-ink: var(--yellow);
+  /* Tinta warna SEMANTIK. Di tema gelap sama dengan warnanya; di tema terang turun, dan
+     nilainya diukur ke permukaan TERBURUK tempat dia benar-benar dipakai — lihat blok light. */
+  --yellow-ink: var(--yellow);   /* tint 16%: 7,16 — cukup apa adanya */
+  --orange-ink: var(--orange);   /* tint 16%: 5,45 — cukup apa adanya */
+  /* Hijau dan merah TIDAK cukup apa adanya, dan itu terukur di atas tint mereka sendiri:
+     --green #0db800 memberi 4,38 dan --red #ff453a memberi 3,82. Chip "Selesai" di Beranda
+     adalah kasus nyatanya. Di tema gelap tintanya NAIK ke arah putih — arah yang berlawanan
+     dengan tema terang, dan itu sebabnya satu nilai tidak bisa melayani keduanya. */
+  --green-ink:  #23be17;         /* tint 16%: 4,70 · surface: 7,06 */
+  --red-ink:    #ff6e65;         /* tint 16%: 4,75 · surface: 6,41 */
 
   /* geometry */
   /* 10/18/28 adalah radius halalpro.id apa adanya; 14/16 mengisi celah khas app.
@@ -130,37 +139,96 @@
      nyaris hilang" — kesadarannya sudah ada, tapi cuma diterapkan ke GARIS, tidak ke teks.
      Latar tetap --acc (lime di atas lime-soft memang benar); yang turun cuma tintanya. */
   --acc-ink: var(--acc-2);
-  /* Kuning #ffcc00 di atas putih 1.5:1 juga. Ini kuning yang cukup gelap untuk teks. */
-  --yellow-ink: #8a6d00;
+
+  /* TINTA DI ATAS PERMUKAAN BERTINT — lapisan kedua dari bug yang sama, dan cuma terlihat
+     dengan mengukur di layar tema terang.
+     Nilai --acc-ink di bawah diukur ke PUTIH. Tapi setiap permukaan `tinted` di app ini adalah
+     wash 16-18% dari warna itu sendiri di atas paper (#f3f7ef) atau --surface-2 (#e8efe1), dan
+     keduanya lebih gelap dari putih — jadi marginnya terkikis: sel salat berikutnya 4,03,
+     tombol tinted 4,31, PR badge 3,98. Semuanya di bawah 4,5.
+     Menipiskan tint TIDAK menolong, dan itu diukur: pada 6% pun lime cuma 4,16 dan pink 4,19.
+     Sebabnya bukan kedalaman tint, tapi permukaan di bawahnya. Jadi tintanya yang turun, dan
+     KASUS TERBURUK yang jadi target — warna yang lolos di atas tint otomatis lolos di paper.
+     Kuning #ffcc00 di atas putih 1.5:1; #8a6d00 lolos di paper (4,54) tapi gagal di tint .pr. */
+  --yellow-ink: #7a6200;   /* tint 18%: 4,75 · paper: 5,42 · putih: 5,87 */
+  --green-ink:  #0a6b00;   /* tint 16%: 4,78 · paper: 6,21 · putih: 6,74 */
+  --orange-ink: #8c5200;   /* tint 16%: 4,82 · paper: 5,83 · putih: 6,32 */
+  --red-ink:    #b3000d;   /* tint 16%: 4,99 · paper: 6,62 · putih: 7,19 */
 }
 
-/* Lime perlu perlakuan sendiri: --acc-2 (--green #0a9a00) cuma 3.4:1 di atas putih — lolos
-   untuk teks besar, gagal untuk teks 13-15px yang justru paling banyak dipakai. --deep #008140
-   dari palet brand memberi 5.0:1, dan dia memang warna brand untuk tinta di atas paper.
-   Aksen lain sudah punya --acc-2 yang cukup gelap dan dipakai apa adanya. */
+/* KETUJUH aksen dapat nilainya sendiri, dan ini menggantikan "default --acc-2 plus dua
+   pengecualian" yang lebih dulu ada di sini.
+   Versi lama benar sejauh yang diukurnya: lime butuh --deep karena --acc-2 cuma 3,4:1 di atas
+   putih, dan oranye butuh #a35800 karena --acc-2 cuma 3,8:1. Yang tidak pernah diukur adalah
+   permukaan BERTINT — dan di sana KEENAM aksen lain juga gagal:
+       lime 4,03 · sky 3,94 · oranye 4,05 · violet 4,26 · pink 3,66 · merah 3,74 · teal 4,05
+   (tint 16% aksen di atas --surface-2, permukaan tinted paling gelap di app ini).
+   Jadi "cuma lime dan oranye yang bermasalah" adalah kesimpulan dari mengukur satu permukaan.
+   Sekarang kasus TERBURUK yang jadi target: tiap nilai 10-15% lebih gelap dari sebelumnya, dan
+   yang lolos di atas tint otomatis lolos di paper dan di putih. */
 :root[data-theme="light"][data-accent="lime"],
-:root[data-theme="light"]:not([data-accent]) { --acc-ink: var(--deep) }
-/* Oranye juga: --acc-2 #c76b00 memberi 3.8:1 — lolos untuk teks besar, gagal untuk teks biasa.
-   Ini satu-satunya aksen lain yang tidak sampai 4.5:1, dan membiarkannya berarti satu aksen
-   yang lebih buruk dari enam lainnya tanpa alasan. Terukur 5.1:1 di atas putih. */
-:root[data-theme="light"][data-accent="orange"] { --acc-ink: #a35800 }
+:root[data-theme="light"]:not([data-accent]) { --acc-ink:#00743a }  /* tint 4,77 */
+:root[data-theme="light"][data-accent="sky"]    { --acc-ink:#0055c6 }  /* tint 4,73 */
+:root[data-theme="light"][data-accent="orange"] { --acc-ink:#934f00 }  /* tint 4,77 */
+:root[data-theme="light"][data-accent="violet"] { --acc-ink:#7f3f9f }  /* tint 4,76 */
+:root[data-theme="light"][data-accent="pink"]   { --acc-ink:#b7002e }  /* tint 4,73 */
+:root[data-theme="light"][data-accent="red"]    { --acc-ink:#b90012 }  /* tint 4,75 */
+:root[data-theme="light"][data-accent="teal"]   { --acc-ink:#006694 }  /* tint 4,74 */
 
-/* accents — Apple's system colours, so a recolour never looks off-system */
+/* accents — Apple's system colours, so a recolour never looks off-system.
+   EMPAT di antaranya digelapkan 7-14% dari nilai sistemnya, dan itu bukan selera. Aksen yang
+   memakai teks PUTIH harus memikul label 17px/600, dan pada nilai aslinya tidak bisa:
+       sky #007aff 4,02 · violet #af52de 4,13 · pink #ff2d55 3,65 · merah #ff3b30 3,55
+   Semuanya di bawah 4,5. Lihat blok --on-acc di bawah untuk premis yang membuat ini terlewat.
+   Yang memakai teks GELAP (lime, oranye, teal, gold) tidak disentuh — mereka lolos jauh, dan
+   lime adalah aksen brand. */
 :root[data-accent="lime"]  { --acc:var(--lime);  --acc-2:var(--green); --on-acc:#06140a }
-:root[data-accent="sky"]   { --acc:var(--blue);   --acc-2:#0060df; --on-acc:#fff }
+:root[data-accent="sky"]   { --acc:#0070eb;      --acc-2:#0060df; --on-acc:#fff }  /* putih 4,64 */
 :root[data-accent="orange"]{ --acc:var(--orange); --acc-2:#c76b00; --on-acc:#000 }
-:root[data-accent="violet"]{ --acc:var(--purple); --acc-2:#8944ab; --on-acc:#fff }
-:root[data-accent="pink"]  { --acc:var(--pink);   --acc-2:#d70036; --on-acc:#fff }
-:root[data-accent="red"]   { --acc:var(--red);    --acc-2:#d70015; --on-acc:#fff }
+:root[data-accent="violet"]{ --acc:#a34cce;      --acc-2:#8944ab; --on-acc:#fff }  /* putih 4,68 */
+:root[data-accent="pink"]  { --acc:#de274a;      --acc-2:#d70036; --on-acc:#fff }  /* putih 4,67 */
+:root[data-accent="red"]   { --acc:#db3329;      --acc-2:#d70015; --on-acc:#fff }  /* putih 4,64 */
 :root[data-accent="teal"]  { --acc:var(--teal);   --acc-2:#0071a4; --on-acc:#000 }
 :root[data-accent="gold"]  { --acc:var(--yellow); --acc-2:#b25000; --on-acc:#000 }
+/* --acc-ink TEMA GELAP, per aksen. Komentar di :root menyatakan "sama dengan --acc karena lime
+   di atas #101c13 sudah 11:1" — benar, tapi cuma untuk LIME di permukaan POLOS. Di atas tint 16%
+   aksen itu sendiri (permukaan `.btn.tinted`, `.tag`, `.prayer-cell.next`):
+
+       lime 6,75 · oranye 5,19   -> cukup, dibiarkan var(--acc)
+       teal 4,47 · pink 3,68 · merah 3,73 · sky 3,17 · violet 3,14   -> GAGAL
+
+   Jadi lima dari tujuh aksen memberi teks yang gagal AA di tema gelap, dan cuma dua yang
+   diperiksa. Kelas yang sama dengan tema terang, arah koreksinya berlawanan: di sini tintanya
+   NAIK ke arah putih. Selektor light di atas lebih spesifik (0,3,0 vs 0,2,0), jadi urutan
+   berkas tidak menentukan apa pun di sini. */
+:root[data-accent="sky"]    { --acc-ink:#4aa1ff }  /* tint 4,75 */
+:root[data-accent="violet"] { --acc-ink:#c581e7 }  /* tint 4,74 */
+:root[data-accent="pink"]   { --acc-ink:#ff6481 }  /* tint 4,73 */
+:root[data-accent="red"]    { --acc-ink:#ff6a62 }  /* tint 4,71 */
+:root[data-accent="teal"]   { --acc-ink:#48bcd0 }  /* tint 4,86 — #3cb5ca yang dihitung dari
+   model permukaan memberi 4,48 saat diukur di sel salat sungguhan, jadi dinaikkan satu langkah.
+   Model permukaan mendekati; yang menentukan tetap pengukuran di DOM. */
+
 /* Label colour on a filled accent button is picked per accent by measured contrast,
-   not by taste. Button text is 17px/600, so the AA bar is 3:1 (large text).
-   Aturan ini diwarisi dan tetap berlaku — dan aksen default sekarang JUSTRU memperkuatnya:
-   lime brand (#94e900) lebih terang lagi dari hijau iOS yang digantikannya, jadi teks putih
-   gagal lebih jauh dan teks gelap makin jelas benar. Karena itu --on-acc lime dipatok
+   not by taste. Aturan ini diwarisi dan tetap berlaku — dan aksen default JUSTRU
+   memperkuatnya: lime brand (#94e900) lebih terang lagi dari hijau iOS yang digantikannya, jadi
+   teks putih gagal lebih jauh dan teks gelap makin jelas benar. Karena itu --on-acc lime dipatok
    #06140a (nilai --btn-fg brand) di kedua tema, bukan putih di tema terang.
-   Blue, purple, pink dan red tetap putih (3.5-4.1:1) — lolos, dan sesuai konvensi platform. */
+
+   PREMISNYA SALAH SELAMA INI, dan baris ini dulu berbunyi: "Button text is 17px/600, so the AA
+   bar is 3:1 (large text)", lalu menyimpulkan "blue, purple, pink dan red tetap putih
+   (3.5-4.1:1) — lolos". WCAG menyebut teks besar >= 18,66px BOLD atau >= 24px; 17px/600 bukan
+   keduanya, jadi ambangnya 4,5:1 dan keempatnya GAGAL. Ini kelas kesalahan yang paling mahal di
+   repo ini: bukan angka yang salah dihitung, tapi angka yang benar dibandingkan ke ambang yang
+   salah — dan itu lolos dari review karena angkanya tercatat.
+
+   `--on-acc` juga bukan cuma soal tombol: dia dipakai sebagai teks di `.btn.primary`,
+   `.chip.on`, `.setrow.done .n`, `.prayer-cell.on` dan `.wday.today .num`. Jadi untuk keempat
+   aksen itu setiap label kontrol terisi gagal, bukan satu tombol.
+
+   Diperbaiki di blok aksen di atas dengan menggelapkan keempat --acc, bukan di sini: menukar
+   putih jadi hitam di atas biru terbaca salah, dan membesarkan `.num` supaya lolos ambang teks
+   besar cuma memindahkan masalahnya ke lima pemakaian lain. */
 :root[data-theme="light"][data-accent="lime"],
 :root[data-theme="light"][data-accent="teal"]  { --on-acc:#000 }
 :root[data-theme="light"][data-accent="sky"],
@@ -308,7 +376,7 @@ h4.sec{
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
 .lrow-c{color:var(--label);font-size:15px;flex:none;--icon-stroke:2.4}
 .lrow-k{color:var(--acc-ink);font-size:17px;flex:none;--icon-stroke:2.4}
-.lrow.danger,.lrow.danger .lrow-t{color:var(--red)}
+.lrow.danger,.lrow.danger .lrow-t{color:var(--red-ink)}
 /* The Stats exercise name gets its own line so long names cannot run into the title.
    Two columns only — label/value on the left, chevron on the right — so this is for rows
    WITHOUT an icon. `.lrow-i` is not placed here; on a row that has one it would auto-place
@@ -342,7 +410,7 @@ h4.sec{
 .btn.primary{background:var(--acc);color:var(--on-acc)}
 .btn.primary:active{background:var(--acc-2)}
 .btn.tinted{background:var(--acc-soft);color:var(--acc-ink)}
-.btn.danger{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red)}
+.btn.danger{background:color-mix(in srgb,var(--red) 15%,transparent);color:var(--red-ink)}
 .btn.ghost,.btn.plain{background:none;color:var(--acc-ink);font-weight:400}
 .btn.ghost:active,.btn.plain:active{background:var(--surface-2)}
 .btn.sm{padding:8px 14px;width:auto;font-size:15px;border-radius:var(--r-sm);gap:5px}
@@ -395,7 +463,7 @@ h4.sec{
    The disc is orange in either theme, so its glyph is black, not `--on-acc`. */
 #tabbar button.start .cir{color:var(--on-acc)}
 #tabbar button.start.rec .cir{background:var(--orange);color:#000;box-shadow:0 6px 18px -4px color-mix(in srgb,var(--orange) 55%,transparent)}
-#tabbar button.start.rec span{color:var(--orange)}
+#tabbar button.start.rec span{color:var(--orange-ink)}
 #tabbar button.start.rec .cir::after{
   content:'';position:absolute;inset:0;border-radius:50%;
   border:2px solid var(--orange);animation:ping 1.9s var(--ease) infinite;
@@ -1093,7 +1161,7 @@ button.mrow{background:none}
 .stat-v{font-size:26px;font-weight:600;letter-spacing:-.026em;line-height:1.1}
 .mchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .mchip{font-size:12px;padding:4px 9px;border-radius:99px;background:var(--surface-2);color:var(--label-2)}
-.mchip.miss{background:color-mix(in srgb,var(--orange) 16%,transparent);color:var(--orange)}
+.mchip.miss{background:color-mix(in srgb,var(--orange) 16%,transparent);color:var(--orange-ink)}
 
 /* --- stat tiles --- */
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}

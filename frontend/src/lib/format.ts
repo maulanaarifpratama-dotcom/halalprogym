@@ -104,6 +104,22 @@ export const exCount = (n: number): string => t(n === 1 ? '{0} exercise' : '{0} 
 export const setCount = (n: number): string => t(n === 1 ? '{0} set' : '{0} sets', n)
 
 /**
+ * Title-case yang MENIRU `text-transform: capitalize`, untuk nama yang dirangkai ke string.
+ *
+ * Katalog menyimpan nama huruf kecil ("cable lat pulldown full range of motion"), dan sepuluh
+ * tempat menaikkannya lewat CSS `.capitalize`. Tempat kesebelas tidak bisa: pemilih latihan di
+ * Statistik merangkai nama itu dengan bebannya ("... - 60 kg"), dan `capitalize` pada string
+ * gabungan menghasilkan "60 Kg" — jebakan yang sama dengan `.chip` yang sempat menulis "350 Ml".
+ * Kapital di satuan SI membawa arti, jadi yang dinaikkan harus namanya saja.
+ *
+ * Batas katanya SETIAP non-huruf, bukan cuma spasi, karena itu yang dilakukan CSS: tanpa itu
+ * "cable triceps pushdown (v-bar)" jadi "Cable Triceps Pushdown (v-bar)" sementara sepuluh
+ * tempat lain menampilkan "(V-Bar)" — memperbaiki satu inkonsistensi dengan membuat yang lain.
+ */
+export const capWords = (s: string): string =>
+  s.replace(/(^|[^\p{L}\p{N}])(\p{L})/gu, (_m, pemisah, huruf) => pemisah + huruf.toUpperCase())
+
+/**
  * Awal minggu: **Ahad**, bukan Senin.
  *
  * Ini satu-satunya tempat aturan itu hidup. Sebelumnya lima tempat menghitungnya sendiri

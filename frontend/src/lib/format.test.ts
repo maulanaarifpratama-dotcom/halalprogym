@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest'
 import { _setLangState } from './i18n-core.js'
-import { DAYN, DAYS, fmtDate, localeDateString, startOfWeek, weekKey, ACCENTS } from './format.js'
+import { DAYN, DAYS, fmtDate, localeDateString, startOfWeek, weekKey, ACCENTS, capWords } from './format.js'
 import id from '../locales/id.js'
 
 // 30 Agustus 2026 adalah hari Ahad. Tanggal dipatok, bukan diambil dari jam sistem — tes yang
@@ -105,5 +105,53 @@ describe('weekKey — berbasis AHAD', () => {
 describe('ACCENTS', () => {
   it('lime adalah lime brand, bukan hijau iOS yang tertinggal dari sebelum rebrand', () => {
     expect(ACCENTS.lime).toBe('#94e900')
+  })
+})
+
+/**
+ * `capWords` ada karena satu tempat TIDAK BISA memakai CSS `.capitalize`.
+ *
+ * Katalog menyimpan nama latihan huruf kecil, dan sepuluh tempat menaikkannya lewat CSS. Pemilih
+ * latihan di Statistik merangkai nama itu dengan bebannya ("... — 60 kg"), jadi `capitalize` di
+ * situ akan menulis "60 Kg" — jebakan yang sudah dibayar sekali di `.chip` ("350 Ml"). Kapital
+ * di satuan SI membawa arti: mm dan Mm beda 10^6 kali.
+ *
+ * Jadi yang dijaga di sini bukan cuma "hurufnya besar", tapi bahwa hasilnya SAMA dengan yang
+ * CSS lakukan di sepuluh tempat lain. Memperbaiki satu inkonsistensi dengan membuat yang lain
+ * bukan perbaikan.
+ */
+describe('capWords', () => {
+  it('menaikkan setiap kata, seperti text-transform: capitalize', () => {
+    expect(capWords('cable lat pulldown full range of motion'))
+      .toBe('Cable Lat Pulldown Full Range Of Motion')
+  })
+
+  it('batas katanya setiap non-huruf, bukan cuma spasi', () => {
+    // Ini yang membedakannya dari `\b`-naif. CSS menaikkan huruf setelah "(" dan "-", dan
+    // sepuluh tempat lain di app ini sudah menampilkan "(V-Bar)".
+    expect(capWords('cable triceps pushdown (v-bar)')).toBe('Cable Triceps Pushdown (V-Bar)')
+    expect(capWords('ez-bar curl')).toBe('Ez-Bar Curl')
+  })
+
+  it('tidak menurunkan apa pun — nama yang sudah benar dibiarkan', () => {
+    // Penting untuk nama terjemahan dan nama buatan user yang sudah dikapitalisasi sendiri.
+    expect(capWords('Smith Machine Squat')).toBe('Smith Machine Squat')
+    expect(capWords('EZ Barbell Curl')).toBe('EZ Barbell Curl')
+  })
+
+  it('idempoten, jadi menerapkannya dua kali aman', () => {
+    const s = 'dumbbell romanian deadlift'
+    expect(capWords(capWords(s))).toBe(capWords(s))
+  })
+
+  it('aksara non-Latin dibiarkan utuh', () => {
+    // Mandarin, Korea dan Hindi tidak punya huruf besar; toUpperCase() harus jadi no-op.
+    for (const s of ['杠铃卧推', '바벨 벤치 프레스', 'बारबेल बेंच प्रेस']) {
+      expect(capWords(s)).toBe(s)
+    }
+  })
+
+  it('angka di awal tidak menelan huruf sesudahnya', () => {
+    expect(capWords('45 degree leg press')).toBe('45 Degree Leg Press')
   })
 })

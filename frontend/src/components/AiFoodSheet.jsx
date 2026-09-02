@@ -217,7 +217,7 @@ export default function AiFoodSheet({ close, onLogged }) {
 
     {shownWarnings.length > 0 && <div className="card" style={{ marginTop: 12, borderColor: 'var(--orange)' }}>
       {shownWarnings.map(w => (
-        <div key={w} className="small" style={{ color: 'var(--orange)' }}>{warningText(w)}</div>
+        <div key={w} className="small" style={{ color: 'var(--orange-ink)' }}>{warningText(w)}</div>
       ))}
     </div>}
 
@@ -264,7 +264,7 @@ export default function AiFoodSheet({ close, onLogged }) {
       onKeyDown={e => { if (e.key === 'Enter') ask() }} />
 
     {error && <div className="card" style={{ marginTop: 12, borderColor: 'var(--red)' }}>
-      <div className="small" style={{ color: 'var(--red)' }}>{errorText(error)}</div>
+      <div className="small" style={{ color: 'var(--red-ink)' }}>{errorText(error)}</div>
     </div>}
 
     <div style={{ height: 14 }} />
