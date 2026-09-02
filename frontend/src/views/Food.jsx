@@ -119,7 +119,7 @@ export default function Food() {
         · "AI"        — masakan matang yang tidak ada di katalog mana pun. Butuh kunci sendiri.
         Yang paling murah berdiri paling depan: jalur pertama dan kedua jalan tanpa jaringan,
         tanpa kunci, dan tanpa kuota siapa pun. */}
-    <div className="row" style={{ gap: 8, margin: '16px 0 10px' }}>
+    <div className="actrow" style={{ margin: '16px 0 10px' }}>
       <Button variant="primary" icon="plus" className="grow"
         onClick={() => useUI.getState().openSheet(close => <PickSheet close={close} onPick={addEntry} />)}>
         {t('Log food')}

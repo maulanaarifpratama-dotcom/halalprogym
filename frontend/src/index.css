@@ -329,6 +329,31 @@ h4.sec{
 .row{display:flex;align-items:center;gap:12px}
 .row.between{justify-content:space-between}
 
+/* BARIS TIGA AKSI: satu utama plus dua sekunder.
+   Terukur di layar: sebagai `.row` biasa (flex tanpa wrap) baris ini butuh 370px, jadi tombol
+   ketiga TERPOTONG di 360px — dan body tidak menggeser horizontal, jadi bukan cuma jelek,
+   aksinya benar-benar tidak bisa dijangkau. 360dp adalah lebar Android paling umum di pasar
+   sasaran app ini, jadi ini bukan kasus tepi.
+
+   Sempit dulu, bukan lebar dulu: bentuk baku adalah dua baris — utama penuh di atas, dua
+   sekunder berbagi baris kedua. Itu bentuk yang benar di 320px DAN di 375px, dan tidak
+   bergantung pada panjang teks bahasa mana pun. Baris tunggal cuma dipakai kalau ruangnya
+   memang ada, dan 400px dipilih dengan margin di atas 370px yang terukur karena label ini
+   diterjemahkan ke 13 bahasa — "Catat makanan" jauh lebih pendek dari "Essen protokollieren". */
+.actrow{display:flex;flex-wrap:wrap;gap:8px}
+/* `flex-basis` di sini SELALU dinyatakan, tidak pernah `auto`, dan itu bukan gaya penulisan:
+   `.btn` membawa `width:100%`, jadi basis `auto` resolve ke lebar baris penuh dan SETIAP tombol
+   pindah ke barisnya sendiri. Dengan `.row` yang nowrap dulu itu tidak terlihat, karena tanpa
+   wrap mereka menyusut untuk berbagi baris. Terukur: ketiganya 398px di viewport 430px. */
+.actrow>:first-child{flex:1 1 100%}
+.actrow>:not(:first-child){flex:1 1 0}
+@media (min-width:400px){
+  /* Utama menyusut lebih dulu; dua sekunder memakai lebar isinya. */
+  .actrow{flex-wrap:nowrap}
+  .actrow>:first-child{flex:1 1 0}
+  .actrow>:not(:first-child){flex:0 1 auto;width:auto}
+}
+
 /* ----------------------------------------------------------------- card -- */
 .card{
   background:var(--surface);border-radius:var(--r-card);
@@ -732,8 +757,23 @@ button.mrow{background:none}
   flex:1;min-width:0;display:flex;align-items:baseline;justify-content:center;gap:3px;padding:0 2px;
 }
 .stp .val i{font-style:normal;font-size:12px;color:var(--label-2);flex:none}
+/* `min-width:0` DULU DI SINI, dan itu yang membiarkan angkanya menyusut sampai terpotong.
+   Diukur di 320px: baris set dengan kolom effort menaruh TIGA stepper (enam tombol -/+) di
+   178px, dan tombolnya yang menang — kolom reps tersisa 8px, jadi "10" tampil sebagai "1"
+   dengan digit kedua terpotong, dan kolom RIR 6px, praktis tidak terlihat.
+
+   Nilainya BENAR di DOM (`input.value === "10"`), jadi tidak ada yang melempar dan tidak ada
+   tes DOM yang bisa melihatnya: `scrollWidth` 15px lawan lebar render 8px adalah satu-satunya
+   jejaknya. Yang salah cuma apa yang TERBACA.
+
+   Untuk app latihan itu kelas cacat yang mahal: orang membaca beban dan reps dari baris ini di
+   sela set, dan angka yang salah dibaca berarti set yang salah dikerjakan.
+
+   2,1em pada 14px = 29px, cukup tiga digit. Tombolnya TIDAK menyusut (tetap 23/20px) dan nol
+   luapan — keduanya terukur. 320dp dan 360dp sama-sama lebar Android yang nyata di pasar
+   sasaran app ini, jadi ini bukan kasus tepi. */
 .stp .num{
-  width:100%;min-width:0;text-align:center;background:none;border:none;outline:none;
+  width:100%;min-width:2.1em;text-align:center;background:none;border:none;outline:none;
   font-size:17px;font-weight:500;letter-spacing:-.012em;padding:0;
   -moz-appearance:textfield;appearance:textfield;
 }
@@ -853,6 +893,34 @@ button.mrow{background:none}
 .setrow.eff3 .stp button{width:23px}
 .setrow.eff3 .stp.eff button{width:20px}
 .setrow.eff3 .stp .num{font-size:14px}
+/* TIGA KOLOM DI LAYAR SEMPIT: alokasinya diukur, bukan dibagi rata.
+   Pada 320px baris ini punya 178px untuk tiga stepper, dan `min-width:2.1em` yang menyelamatkan
+   kolom reps ternyata masih memotong beban lima karakter ("127.5" butuh 33px, dapat 29). Yang
+   menutupnya bukan menambah lebar total — tidak ada lagi — tapi membagi ulang:
+
+     beban  flex 1.5   memuat DESIMAL, jadi dia yang paling butuh   -> 39px, cukup "127.5"
+     reps   flex 1                                                  -> 22px
+     effort flex .7    RIR/RPE satu karakter                        -> 22px
+     tombol 20px (17px untuk effort)
+
+   Tombolnya menyusut 23 -> 20px, dan itu pertukaran yang disengaja: keduanya sudah di bawah
+   ambang target-ketuk 44px pada lebar ini, sementara angka yang tidak terbaca membuat orang
+   mengerjakan set yang salah. Yang tidak terbaca lebih buruk dari yang sulit diketuk, dan
+   barisnya masih bisa diisi dengan mengetik.
+
+   Terukur: nol terpotong untuk "127.5" / "12" / "2", nol luapan di 320px. */
+@media (max-width:379px){
+  /* DUA kolom juga terpotong, dan itu ketemu setelah yang tiga kolom diperbaiki: mematikan
+     kolom effort membuat tombolnya kembali 32px, jadi beban lima karakter dapat 36px dari 41
+     yang dibutuhkan. Menyusutkan tombolnya ke 26px sudah cukup (48px) — tanpa perlu menyentuh
+     pembagian flex-nya. */
+  .setrow:not(.eff3) .stp button{width:26px}
+  .setrow.eff3 .stp button{width:20px}
+  .setrow.eff3 .stp.eff button{width:17px}
+  .setrow.eff3 .stp.w{flex:1.5}
+  .setrow.eff3 .stp.eff{flex:.7}
+  .setrow.eff3 .stp .num{min-width:1.6em}
+}
 .setrow.done .n{background:var(--acc);color:var(--on-acc)}
 .setrow.done{opacity:.45}
 /* drop-set drops / rest-pause bursts riding on a work row, editable like the row itself

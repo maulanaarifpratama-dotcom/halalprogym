@@ -591,6 +591,45 @@ ke `--acc-2`, dengan dua penurunan tambahan yang diukur satu-satu: lime ke `--de
 **`iconTint` TIDAK ikut berubah** — itu LATAR dengan glyph gelap di atasnya, dan penulisnya sudah
 mengukurnya (12,6:1 untuk aksen). Mengubahnya akan merusak yang sudah benar.
 
+**Dan lapisan KEDUA dari bug yang sama, ditemukan 2026-09-02 dengan memindai setiap simpul
+teks di 7 rute x 2 tema x 7 aksen.** Nilai `--acc-ink` di atas diukur ke PUTIH, sementara setiap
+permukaan `tinted` di app ini adalah wash 16-18% warna itu sendiri di atas paper (`#f3f7ef`) atau
+`--surface-2` (`#e8efe1`) — keduanya lebih gelap dari putih, jadi marginnya terkikis. Di sana
+KETUJUH aksen gagal, bukan cuma lime dan oranye: lime 4,03 · sky 3,94 · oranye 4,05 · violet
+4,26 · pink 3,66 · merah 3,74 · teal 4,05.
+
+**Menipiskan tint TIDAK menolong, dan itu diukur:** pada 6% pun lime cuma 4,16 dan pink 4,19.
+Sebabnya bukan kedalaman tint, tapi permukaan di bawahnya. Jadi tintanya yang turun 10-15%, dan
+**kasus TERBURUK yang jadi target** — yang lolos di atas tint otomatis lolos di paper dan putih.
+
+**Tema gelap juga, dan arah koreksinya BERLAWANAN.** Klaim "di tema gelap sama dengan `--acc`:
+lime di atas `#101c13` sudah 11:1" benar, tapi cuma untuk LIME di permukaan POLOS. Di atas tint
+sendiri lima dari tujuh gagal (sky 3,17 · violet 3,14 · pink 3,68 · merah 3,73 · teal 4,47), dan
+di sana tintanya harus NAIK ke arah putih. Satu nilai tidak bisa melayani kedua tema.
+
+**Tiga warna semantik tidak punya tinta sama sekali.** `--yellow-ink` sudah jadi presedennya,
+tapi `--green`, `--orange` dan `--red` dipakai sebagai warna teks di 15 tempat tanpa varian ink:
+chip "Selesai" 2,65 · `.mchip.miss` 1,93 · "Reset semuanya" 3,55. Sekarang `--green-ink`,
+`--orange-ink`, `--red-ink` di kedua tema. Dan `--yellow-ink` yang SUDAH ADA pun gagal (3,98) di
+atas wash kuning 18% `.pr`, karena dia juga diukur ke putih.
+
+**Premisnya yang salah, bukan angkanya: "17px/600, jadi ambang AA-nya 3:1 (teks besar)".** Baris
+itu ada di `index.css` dan menyimpulkan "blue, purple, pink dan red tetap putih (3.5-4.1:1) —
+lolos". WCAG menyebut teks besar >= 18,66px **bold** atau >= 24px; 17px/600 bukan keduanya, jadi
+ambangnya 4,5 dan keempatnya gagal. **Ini kelas kesalahan yang paling mahal di sini: angka yang
+BENAR dibandingkan ke ambang yang salah — dan itu lolos review justru karena angkanya tercatat.**
+
+Dan itu bukan soal satu tombol: `--on-acc` dipakai sebagai teks di `.btn.primary`, `.chip.on`,
+`.setrow.done .n`, `.prayer-cell.on` dan `.wday.today .num`. Perbaikannya menggelapkan keempat
+`--acc` 7-14% (sky `#0070eb`, violet `#a34cce`, pink `#de274a`, merah `#db3329`) — BUKAN menukar
+putih jadi hitam (di atas biru terbaca salah), dan BUKAN membesarkan `.num` supaya lolos ambang
+teks besar (itu memindahkan masalahnya ke lima pemakaian lain). Aksen brand lime tidak disentuh.
+
+**Nama latihan huruf kecil di Statistik, Title Case di sepuluh tempat lain.** `capWords` ada
+karena satu tempat TIDAK BISA memakai CSS `.capitalize`: pemilih latihan merangkai nama dengan
+bebannya, dan `capitalize` di situ menulis "60 Kg" — jebakan `.chip`/"350 Ml" yang sama. Batas
+katanya setiap non-huruf, bukan cuma spasi, karena itu yang CSS lakukan.
+
 Dijaga `contrast.test.ts`, yang menghitung rasionya dari token — bukan dari render. Kontras itu
 aritmetika atas dua warna, dan tes render di lingkungan ini justru tidak bisa dipercaya:
 pengukuran pertama di browser melaporkan 1,26:1 untuk teks yang baik-baik saja, karena transisi
@@ -698,6 +737,56 @@ Satu lagi dari kelas yang sama: `.chip` meng-`capitalize` isinya, jadi "350 ml" 
 **"350 Ml"**. Kapital di satuan SI membawa arti — mm vs Mm itu 10⁶ kali. Ditutup `.chip.unit`,
 dengan tes yang juga memaku `.chip` dasar MASIH meng-capitalize; kalau tidak, penjaganya berhenti
 menjaga apa pun tanpa ada yang tahu.
+
+## 320dp dan 360dp bukan kasus tepi — dan dua fitur sempat hilang di sana
+
+Pasar sasaran app ini Android Indonesia, dan **360dp adalah lebar paling umum** di sana; 320dp
+masih hidup di perangkat murah. Dua cacat ditemukan dengan benar-benar menyetel viewport ke lebar
+itu, dan keduanya **SUNYI**: nol error, nol tes merah, nilai yang benar di DOM.
+
+**1. Tombol "AI" di layar Makanan TIDAK BISA DIJANGKAU di 360px.** Baris tiga aksi ("Catat
+makanan" / "Database" / "AI") sebagai `.row` biasa butuh 370px — terukur. Dan `overflow-x` body
+tidak menggeser, jadi tombolnya bukan "sedikit terpotong", dia hilang. Seluruh jalur perkiraan
+gizi AI ikut hilang bersamanya.
+
+Sekarang `.actrow`: **sempit dulu**, bentuk bakunya dua baris (utama penuh di atas, dua sekunder
+berbagi baris kedua), dan baris tunggal cuma di `@media (min-width:400px)`. Ambangnya 400 bukan
+370 karena label ini diterjemahkan ke 13 bahasa — "Catat makanan" jauh lebih pendek dari "Essen
+protokollieren".
+
+Satu jebakan di sini yang cuma terlihat di layar: **`flex-basis:auto` memaksa satu tombol per
+baris**, karena `.btn` membawa `width:100%` dan basis `auto` resolve ke lebar baris penuh.
+Terukur: ketiganya 398px di viewport 430px, tiga baris di layar yang jelas cukup untuk satu.
+`flex:0 1 auto` terbaca sangat wajar, dan itu sebabnya penjaganya menjaga PASANGANNYA —
+`auto` boleh justru ketika `width:auto` ikut menetralkan `.btn`.
+
+**2. Baris set menampilkan "1" untuk nilai 10.** `.stp .num` membawa `min-width:0`, jadi di baris
+tiga kolom (mode effort menyala) enam tombol -/+ memakan hampir semuanya: kolom reps tersisa
+**8px**, kolom RIR **6px**. `input.value` tetap `"10"` — jadi tidak ada yang melempar dan tidak
+ada tes DOM yang bisa melihatnya. Satu-satunya jejaknya `scrollWidth` 15px lawan lebar render
+8px.
+
+Untuk app latihan itu cacat yang mahal: orang membaca beban dan reps dari baris ini di sela set,
+dan **angka yang salah dibaca berarti set yang salah dikerjakan.**
+
+Alokasinya diukur, bukan dibagi rata — beban memuat DESIMAL, effort satu karakter:
+
+| | flex | hasil di 320px |
+| --- | --- | --- |
+| beban | 1.5 | 39px — cukup "127.5" |
+| reps | 1 | 22px |
+| effort | .7 | 22px |
+
+Tombolnya menyusut 23 → 20px dengan sengaja: keduanya sudah di bawah ambang target-ketuk 44px
+pada lebar ini, sementara **angka yang tidak terbaca lebih buruk dari yang sulit diketuk**, dan
+barisnya masih bisa diisi dengan mengetik. Kasus DUA kolom ketemu SETELAH yang tiga kolom
+diperbaiki — mematikan effort membuat tombolnya kembali 32px dan beban lima karakter terpotong
+lagi; tombolnya jadi 26px di sana.
+
+Dijaga `narrow-layout.test.ts`, dan penjaganya **membaca CSS, bukan merender**: jsdom tidak punya
+layout, jadi `getBoundingClientRect()` nol, `scrollWidth` nol, dan media query tidak pernah
+cocok. Tes render di sini akan hijau apa pun yang terjadi — bentuk penjaga yang paling berbahaya.
+Angka-angkanya datang dari pengukuran di browser sungguhan dan tercatat di komentar `index.css`.
 
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
