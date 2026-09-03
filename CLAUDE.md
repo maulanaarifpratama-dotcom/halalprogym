@@ -915,6 +915,39 @@ belum jalan — dan harganya terukur: **plugin Tailwind memakan 89% waktu build*
 detik) untuk utility yang belum dipakai satu layar pun. Apakah Fase 3 diteruskan atau dicabut
 adalah keputusan produk, bukan keputusan yang boleh diambil sambil lalu.
 
+## Pack instruksi: `pt` mendapat INGGRIS padahal pack Portugis ada di repo
+
+Sepuluh pack instruksi, masing-masing menutupi **seluruh 1.324 latihan**. Tiga bahasa tidak
+punya: `de`, `id`, dan `pt`. Untuk dua yang pertama itu memang belum ada terjemahannya. Untuk
+`pt` tidak — `pt-BR` ada, dan untuk teks PANJANG seperti langkah gerakan jarak Brasil-Portugal
+jauh lebih kecil daripada jarak Portugis-Inggris. Yang hilang bukan packnya, tapi fallback-nya.
+
+`INSTR_FALLBACK = { pt: 'pt-BR' }`, dan cuma INSTRUKSI yang meminjam — bukan nama latihan, yang
+pendek, sudah bilingual dengan Inggris di kurung, dan perbedaan istilahnya jauh lebih terasa
+per-baris.
+
+**Keputusan "pack mana" tadinya tersebar di EMPAT tempat**, dan itu yang membuat perbaikannya
+setengah jalan pada percobaan pertama:
+
+| Tempat | Gerbangnya |
+| --- | --- |
+| `setLang` di `i18n.js` | memuat packnya |
+| `_setLangState` di `i18n-core.js` | **membuang** yang baru dimuat |
+| `sheets.jsx` | label "· instruksi Inggris" di detail latihan |
+| `Settings.jsx` | subtitle di pemilih bahasa |
+
+Salinan KEDUA yang paling mahal: browser benar-benar mengunduh `instr/pt-BR.js` — terlihat di
+tab jaringan — lalu `_setLangState` menyetel `instr` ke `null` karena dia mengulang
+`INSTR_LANGS.includes(lang)` sendiri. Labelnya sudah benar, isinya masih Inggris, **nol error di
+mana pun.** Cuma terlihat dengan membaca layar.
+
+Sekarang semuanya lewat `instrPackFor()`, dan `lang-packs.test.ts` memaku `INSTR_LANGS.includes(`
+cuma boleh ada di dalam fungsi itu. Berkas yang sama juga memaku ketiga daftar bahasa cocok
+dengan berkas di disk — selisihnya sunyi ke dua arah: pack tak terdaftar tidak pernah dimuat,
+pack terdaftar tanpa berkas jatuh ke Inggris tanpa pesan. Keduanya lolos `check:locales` (dia
+membandingkan pack lawan pack) dan `check:locale-keys` (dia cuma melihat kunci UI), karena
+instruksi latihan tidak lewat `t()` sama sekali.
+
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
 GitHub melaporkan 11 kerentanan (8 high, 1 critical) di repo ini. Semuanya satu rantai:

@@ -13,6 +13,30 @@ export const LANGS = {
 }
 export const INSTR_LANGS = ['en', 'es', 'fr', 'it', 'tr', 'ru', 'zh', 'hi', 'pl', 'ko', 'pt-BR']
 export const EXERCISE_NAME_LANGS = ['pt-BR']
+
+/**
+ * Bahasa yang meminjam pack INSTRUKSI dari saudara regionalnya.
+ *
+ * `pt` tidak punya pack instruksi, `pt-BR` punya — jadi pengguna Portugal mendapat instruksi
+ * INGGRIS sementara pack Portugis yang hampir sempurna sudah ada di repo ini. Untuk teks
+ * panjang seperti langkah gerakan, jarak Brasil-Portugal jauh lebih kecil daripada jarak
+ * Portugis-Inggris.
+ *
+ * Cuma INSTRUKSI yang meminjam, bukan nama latihan: nama itu pendek, sudah bilingual dengan
+ * Inggris di dalam kurung, dan perbedaan istilahnya jauh lebih terasa per-baris.
+ *
+ * `de` dan `id` tidak punya saudara, jadi keduanya tetap Inggris. Untuk `id` itu keputusan yang
+ * sudah tercatat (instruksi Indonesia ~106 ribu kata, ditunda).
+ */
+export const INSTR_FALLBACK = { pt: 'pt-BR' }
+
+/** Pack instruksi mana yang benar-benar dimuat untuk `lang` — null kalau memang Inggris. */
+export const instrPackFor = lang => {
+  if (!lang || lang === 'en') return null
+  if (INSTR_LANGS.includes(lang)) return lang
+  const pinjam = INSTR_FALLBACK[lang]
+  return pinjam && INSTR_LANGS.includes(pinjam) ? pinjam : null
+}
 export const DATE_LOCALES = {
   en: 'en-GB', id: 'id-ID', de: 'de-DE', es: 'es-ES', fr: 'fr-FR', it: 'it-IT', pt: 'pt-PT', 'pt-BR': 'pt-BR',
   pl: 'pl-PL', tr: 'tr-TR', ru: 'ru-RU', zh: 'zh-CN', ko: 'ko-KR', hi: 'hi-IN'
@@ -95,7 +119,11 @@ export const exerciseNameSearchText = ex => {
 export function _setLangState(newLang, newDict, newInstr, newExerciseNames) {
   lang = LANGS[newLang] ? newLang : 'en'
   dict = lang === 'en' ? {} : (newDict || {})
-  instr = lang === 'en' || !INSTR_LANGS.includes(lang) ? null : (newInstr || null)
+  // `instrPackFor`, BUKAN `INSTR_LANGS.includes(lang)`. Baris ini mengulang gerbang yang sama
+  // dengan pemuatnya, dan pengulangan itu yang membuang pack `pt-BR` yang baru saja diunduh
+  // untuk `pt`: browser mengambil berkasnya, lalu baris ini menyetelnya ke null. Terlihat cuma
+  // dari layar — labelnya sudah benar, isinya masih Inggris, dan nol error di mana pun.
+  instr = instrPackFor(lang) ? (newInstr || null) : null
   exerciseNames = lang === 'en' || !EXERCISE_NAME_LANGS.includes(lang) ? null : (newExerciseNames || null)
   version++
   return version

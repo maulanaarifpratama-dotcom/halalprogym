@@ -14,7 +14,7 @@ import {
   clearAiConfig, DEFAULT_MODEL, FREE_KEY_URL, loadAiConfig, maskKey, PROVIDER_LABEL, saveAiConfig,
 } from '../lib/ai-key.js'
 import { wakeLockSupported } from '../lib/wakelock.js'
-import { t, LANGS, INSTR_LANGS } from '../lib/i18n.js'
+import { t, LANGS, INSTR_LANGS, instrPackFor } from '../lib/i18n.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { MOBILE, shareExport, syncReminder } from '../lib/mobile.js'
 import { loadStarterPlan, confirmSheet, importFromApp, equipmentProfileSheet } from '../sheets.jsx'
@@ -126,7 +126,12 @@ export default function Settings() {
         value={S.lang || 'en'} onChange={v => update(s => { s.lang = v })}
         options={Object.entries(LANGS).map(([k, name]) => ({
           value: k, label: name,
-          subtitle: INSTR_LANGS.includes(k) ? null : t("Exercise instructions aren't available in this language yet — they stay in English."),
+          // `instrPackFor`, bukan `INSTR_LANGS.includes(k)`: `pt` meminjam pack `pt-BR`, jadi
+          // memberi tahu "tetap Inggris" di sana justru salah. Label dan pemuatnya HARUS
+          // memakai satu sumber keputusan — kalau tidak, salah satunya pasti berbohong.
+          subtitle: instrPackFor(k) || k === 'en'
+            ? null
+            : t("Exercise instructions aren't available in this language yet — they stay in English."),
         }))}
       />
       <Row icon="scale" iconTint="var(--teal)" title={t('Weight unit')}>

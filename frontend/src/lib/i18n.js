@@ -5,13 +5,13 @@
 
 import { useSyncExternalStore } from 'react'
 import {
-  LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES,
+  LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES, INSTR_FALLBACK, instrPackFor,
   getLang, dateLocale, t, instrFor, loadBaseInstructions, exerciseNameFor, exerciseNameSearchText,
   getVersion, _setLangState
 } from './i18n-core.js'
 
 export {
-  LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES,
+  LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES, INSTR_FALLBACK, instrPackFor,
   getLang, dateLocale, t, instrFor, loadBaseInstructions, exerciseNameFor, exerciseNameSearchText
 }
 
@@ -30,7 +30,10 @@ export async function setLang(l) {
   if (l === getLang() && getVersion() > 0) return
   let dict = {}, instr = null, exerciseNames = null
   try { dict = l === 'en' ? {} : (await localePacks['../locales/' + l + '.js']()).default } catch (e) { dict = {} }
-  try { instr = l === 'en' || !INSTR_LANGS.includes(l) ? null : (await instrPacks['../instr/' + l + '.js']()).default } catch (e) { instr = null }
+  // `instrPackFor`, bukan `INSTR_LANGS.includes(l)`: `pt` meminjam pack `pt-BR` alih-alih
+  // jatuh ke Inggris. Lihat INSTR_FALLBACK di i18n-core.js.
+  const packInstr = instrPackFor(l)
+  try { instr = packInstr ? (await instrPacks['../instr/' + packInstr + '.js']()).default : null } catch (e) { instr = null }
   try {
     exerciseNames = l === 'en' || !EXERCISE_NAME_LANGS.includes(l)
       ? null
