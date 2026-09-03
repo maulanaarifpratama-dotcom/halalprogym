@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { gzipSync } from 'node:zlib'
 import { readFileSync } from 'node:fs'
 import RETAIL from './food-retail.js'
+import USDA from './food-usda.js'
 
 /**
  * `food-retail.js` DIBUAT MESIN, dan berkas yang di-generate paling mudah rusak diam-diam: satu
@@ -163,5 +164,53 @@ describe('penanda cair (`l`) — dia yang menentukan "350 ml" atau "350 g"', () 
     expect(contoh.length, 'contoh minuman tidak ada di katalog').toBeGreaterThan(2)
     const tertandai = contoh.filter(r => (r as { l?: number }).l === 1)
     expect(tertandai.length, 'nol minuman kemasan tertandai cair').toBeGreaterThan(0)
+  })
+})
+
+/**
+ * ANGKA DI DOKUMENTASI DIPERIKSA KE DATANYA.
+ *
+ * `CLAUDE.md` menyebut "59 bahan pokok" dan "758 produk ritel" di beberapa tempat, dan sampai
+ * 2026-09-03 tidak ada satu pun tes yang memakunya. Repo ini sudah pernah membayar kelas itu:
+ * komentar `exercise-media.ts` menulis "329 dari 1.324" sementara petanya berisi 340 — basi 11
+ * latihan, dan tidak ada yang bisa melihatnya.
+ *
+ * Dua berkas ini DIBUAT MESIN, jadi jumlahnya bergerak setiap kali skripnya dijalankan ulang.
+ * Yang dijaga di sini bukan angkanya sakral — yang dijaga adalah **angka di dokumen sama dengan
+ * angka di data**. Kalau `npm run food:retail` mengubahnya, perbarui KEDUANYA di satu commit.
+ */
+describe('jumlah katalog makanan sama dengan yang ditulis dokumentasi', () => {
+  const CLAUDE = readFileSync(new URL('../../../CLAUDE.md', import.meta.url), 'utf8')
+
+  it('USDA: 59 bahan pokok, dan dokumennya menyebut angka yang sama', () => {
+    expect(USDA.length).toBe(59)
+    expect(CLAUDE, 'CLAUDE.md menyebut jumlah USDA yang berbeda dari datanya')
+      .toContain(USDA.length + ' bahan pokok')
+  })
+
+  it('ritel: 758 produk, dan dokumennya menyebut angka yang sama', () => {
+    expect(RETAIL.length).toBe(758)
+    expect(CLAUDE, 'CLAUDE.md menyebut jumlah produk ritel yang berbeda dari datanya')
+      .toContain(RETAIL.length + ' produk ritel')
+  })
+
+  it('keduanya berkas TERPISAH, dan itu soal lisensi bukan kerapian', () => {
+    // USDA = CC0, Open Food Facts = ODbL. Mencampurnya berarti seluruh berkas harus ODbL —
+    // termasuk baris yang sebenarnya CC0 — dan lebih buruk, tidak ada lagi cara melihat mana
+    // yang mana. Penjaga ini menagih pemisahan itu tetap ada.
+    const usdaSrc = readFileSync(new URL('./food-usda.js', import.meta.url), 'utf8')
+    const ritelSrc = readFileSync(new URL('./food-retail.js', import.meta.url), 'utf8')
+    expect(usdaSrc).toMatch(/CC0/)
+    expect(ritelSrc).toMatch(/ODbL/)
+    // Setiap baris USDA membawa FDC id-nya: itu yang membuat klaim CC0 bisa diperiksa
+    // PER-BARIS ke sumbernya, bukan cuma dinyatakan di kepala berkas.
+    //
+    // Fieldnya bernama `id`, bukan `fdcId` — CLAUDE.md menyebutnya "fdcId" secara konsep, dan
+    // asersi pertama saya mencari nama itu lalu melaporkan 59 baris "tanpa fdcId". Salah alarm
+    // dari tesnya, bukan cacat di datanya. Catatan ini ada supaya pencarian `fdcId` berikutnya
+    // mendarat di sini alih-alih menyimpulkan hal yang sama.
+    const bukanFdc = (USDA as Array<{ id?: unknown; nama?: string }>)
+      .filter(f => !/^\d{5,7}$/.test(String(f.id ?? '')))
+    expect(bukanFdc.map(f => f.nama), 'baris USDA tanpa FDC id yang berbentuk benar').toEqual([])
   })
 })

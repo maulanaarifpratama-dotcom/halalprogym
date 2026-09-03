@@ -37,6 +37,19 @@ const KEMENAG: Array<{ city: string; iso: string; ref: Record<PrayerName, string
     ref: { subuh: '04:37', terbit: '05:45', zuhur: '11:54', asar: '15:13', magrib: '17:57', isya: '19:02' }
   },
   {
+    // Surabaya melengkapi ENAM kota yang diwajibkan di prayer.ts — kepala berkas ini sudah
+    // menyebut "perbandingan enam kota" sementara isinya lima. Dan dia membawa hal yang tidak
+    // dibawa lima lainnya: satu-satunya titik di TIMUR meridian zona di dalam Asia/Jakarta
+    // (112,75°E lawan meridian 105°E). Jakarta 106,85 hampir di meridian dan Medan 98,7 di
+    // baratnya, jadi tanpa Surabaya sisi timur zona ini tidak pernah diuji.
+    //
+    // Tanggalnya SAMA dengan Jakarta dan Bandung dengan sengaja: itu yang membuat
+    // perbandingannya soal bujur saja. Uji kewajarannya lolos persis — Zuhur 11:34 lawan
+    // 11:58 Jakarta, 24 menit untuk jarak bujur 5,9° (~23,6 menit waktu surya).
+    city: 'surabaya', iso: '2026-08-28',
+    ref: { subuh: '04:17', terbit: '05:29', zuhur: '11:34', asar: '14:53', magrib: '17:32', isya: '18:41' }
+  },
+  {
     // Jayapura — ujung timur, WIT. Dekat Ramadan 1448.
     city: 'jayapura', iso: '2027-02-08',
     ref: { subuh: '04:28', terbit: '05:42', zuhur: '11:55', asar: '15:13', magrib: '18:01', isya: '19:11' }
@@ -62,6 +75,39 @@ const dateOf = (iso: string): Date => {
 }
 
 describe('waktu salat vs jadwal resmi Kemenag', () => {
+  /**
+   * KEENAM kota yang diwajibkan harus benar-benar ada di sini.
+   *
+   * `prayer.ts` dan kepala berkas ini sama-sama menyebut "enam kota", dan sampai 2026-09-03
+   * isinya LIMA — Surabaya tidak ada. Itu kelas kesalahan yang paling sering di repo ini:
+   * dokumentasi yang benar, penerapan yang kurang satu, dan tidak ada yang membandingkannya.
+   *
+   * Alasannya juga dipaku, bukan cuma jumlahnya: ketiga zona waktu Indonesia harus terwakili,
+   * karena `scheduleFor` menurunkan hari kalender dari `city.tz` dan bug pergeseran hari cuma
+   * muncul di zona yang bukan zona perangkat.
+   */
+  const WAJIB = ['jakarta', 'bandung', 'surabaya', 'medan', 'makassar', 'jayapura']
+
+  it('keenam kota yang diwajibkan ada patokannya', () => {
+    const ada = KEMENAG.map(k => k.city)
+    for (const c of WAJIB) {
+      expect(ada, c + ' hilang dari patokan Kemenag — prayer.ts mewajibkannya').toContain(c)
+    }
+  })
+
+  it('ketiga zona waktu Indonesia terwakili', () => {
+    const zona = new Set(KEMENAG.map(k => cityById(k.city)?.tz).filter(Boolean))
+    expect([...zona].sort()).toEqual(['Asia/Jakarta', 'Asia/Jayapura', 'Asia/Makassar'])
+  })
+
+  it('setiap patokan menunjuk kota yang benar-benar ada di CITIES', () => {
+    // Patokan untuk kota yang sudah dihapus dari daftar akan hijau selamanya tanpa menguji
+    // apa pun — `cityById` mengembalikan undefined dan perbandingannya dilewati.
+    for (const k of KEMENAG) {
+      expect(cityById(k.city), k.city + ' tidak ada di CITIES').toBeTruthy()
+    }
+  })
+
   for (const { city: cityId, iso, ref } of KEMENAG) {
     const city = cityById(cityId)
 

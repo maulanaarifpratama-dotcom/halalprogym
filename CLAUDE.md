@@ -404,7 +404,7 @@ dibuat untuk pangan Indonesia. Jangan diperiksa ulang, dan **jangan pernah di-co
 
 | Berkas | Isi | Lisensi |
 | --- | --- | --- |
-| `lib/food-usda.js` | 59 bahan pokok dikurasi tangan, tiap baris membawa `fdcId`-nya | CC0 |
+| `lib/food-usda.js` | 59 bahan pokok dikurasi tangan, tiap baris membawa FDC id-nya di field `id` | CC0 |
 | `lib/food-retail.js` | 758 produk ritel, **dibuat mesin** oleh `scripts/build-food-retail.mjs` | ODbL |
 
 Dipisah karena kewajibannya beda. Mencampurnya berarti seluruh berkas harus ODbL, termasuk baris
@@ -947,6 +947,40 @@ dengan berkas di disk — selisihnya sunyi ke dua arah: pack tak terdaftar tidak
 pack terdaftar tanpa berkas jatuh ke Inggris tanpa pesan. Keduanya lolos `check:locales` (dia
 membandingkan pack lawan pack) dan `check:locale-keys` (dia cuma melihat kunci UI), karena
 instruksi latihan tidak lewat `t()` sama sekali.
+
+## Waktu salat: enam kota yang diwajibkan, dan yang keenam tidak ada
+
+`prayer.ts` mewajibkan verifikasi ke jadwal Kemenag untuk **enam kota**, dan kepala
+`prayer.test.ts` menyebut "perbandingan enam kota" — sementara isinya **lima**. Surabaya tidak
+ada sampai 2026-09-03. Dokumentasi benar, penerapan kurang satu, dan tidak ada yang
+membandingkannya.
+
+Surabaya bukan sekadar melengkapi hitungan: dia satu-satunya titik di **timur meridian zona** di
+dalam Asia/Jakarta (112,75°E lawan meridian 105°E). Jakarta 106,85 hampir di meridian dan Medan
+98,7 di baratnya, jadi tanpa Surabaya sisi timur zona itu tidak pernah diuji.
+
+Datanya diambil dari sumber yang sama yang sudah didokumentasikan (`api.myquran.com`), bukan dari
+hafalan — dan uji kewajarannya lolos persis: Zuhur 11:34 lawan 11:58 Jakarta, 24 menit untuk
+jarak bujur 5,9° (~23,6 menit waktu surya). Perhitungan kita lolos toleransi asimetrisnya.
+
+Sekarang dipaku tiga arah: keenam kota wajib ada patokannya, ketiga zona waktu Indonesia
+terwakili, dan setiap patokan menunjuk kota yang benar-benar ada di `CITIES` — patokan untuk kota
+yang sudah dihapus akan hijau selamanya tanpa menguji apa pun, karena `cityById` mengembalikan
+`undefined` dan perbandingannya dilewati.
+
+## Jumlah katalog makanan sekarang dipaku ke dokumentasinya
+
+59 USDA + 758 ritel, dan keduanya cocok dengan yang tertulis di berkas ini — diperiksa, bukan
+diasumsikan. Yang tidak ada sebelumnya adalah penjaganya: dua berkas itu DIBUAT MESIN, jadi
+jumlahnya bergerak setiap kali skripnya dijalankan ulang, dan repo ini sudah pernah membayar
+kelas itu (komentar `exercise-media.ts` menulis "329 dari 1.324" sementara petanya berisi 340).
+
+Sekalian dipaku: pemisahan dua berkas itu soal LISENSI bukan kerapian (CC0 lawan ODbL), dan
+setiap baris USDA membawa FDC id-nya sehingga klaim CC0 bisa diperiksa per-baris ke sumbernya.
+
+**Fieldnya bernama `id`, bukan `fdcId`.** Baris tabel di atas dulu menyebut "`fdcId`", dan
+asersi pertama saya mencari nama itu lalu melaporkan 59 baris "tanpa fdcId" — salah alarm dari
+tesnya, bukan cacat di datanya.
 
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
