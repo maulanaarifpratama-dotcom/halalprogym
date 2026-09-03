@@ -684,6 +684,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'En un día de ayuno el peso se mantiene — sin subir, sin deload — y las series de trabajo se recortan. El calentamiento no se toca.',
   'Ramadan mode': 'Modo Ramadán',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'El calendario indica Ramadán — el modo Ramadán está desactivado. Actívalo en Ajustes para mantener el peso.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Modo Ramadán — el peso se mantiene. Ayunar no es motivo para un deload.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

@@ -684,6 +684,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'In un giorno di digiuno il carico resta — nessun aumento, nessun deload — e le serie di lavoro vengono ridotte. Il riscaldamento non si tocca.',
   'Ramadan mode': 'Modalità Ramadan',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'Il calendario indica il Ramadan — la modalità Ramadan è disattivata. Attivala in Impostazioni per mantenere il carico.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Modalità Ramadan — il carico resta. Digiunare non è un motivo per fare un deload.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

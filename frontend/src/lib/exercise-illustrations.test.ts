@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import MAP from './exercise-illustrations.json'
 import FOTO from './exercise-media.json'
-import { REPDB_COMMIT, ILLUSTRATION_COUNT, hasIllustration, illustrationFrames } from './exercise-illustrations.js'
+import { REPDB_COMMIT, ILLUSTRATION_COUNT, illustrationFrames } from './exercise-illustrations.js'
 import { demoFrames, DEMO_COUNT, PHOTO_COUNT } from './exercise-media.js'
 
 /**
@@ -130,7 +130,7 @@ describe('ILUSTRASI MENANG ATAS FOTO', () => {
 
   it('latihan tanpa keduanya tetap kosong — supaya diagram otot yang tampil', () => {
     expect(demoFrames({ id: '9999' })).toEqual([])
-    expect(hasIllustration({ id: '9999' })).toBe(false)
+    expect(illustrationFrames({ id: '9999' })).toEqual([])
   })
 })
 

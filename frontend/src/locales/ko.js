@@ -679,6 +679,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     '단식일엔 무게를 그대로 유지합니다 — 오림도 디로드도 없이 — 워킹 셋은 줄여요. 워밍업은 그대로 둘니다.',
   'Ramadan mode': '라마단 모드',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    '캘린더가 라마단을 표시합니다 — 라마단 모드가 꺼져 있습니다. 무게를 유지하려면 설정에서 켜세요.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     '라마단 모드 — 무게를 유지합니다. 단식은 디로드할 이유가 아니에요.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

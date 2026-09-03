@@ -684,6 +684,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'Un jour de jeûne, la charge est maintenue — pas d’augmentation, pas de deload — et les séries de travail sont réduites. L’échauffement reste intact.',
   'Ramadan mode': 'Mode Ramadan',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'Le calendrier indique le Ramadan — le mode Ramadan est désactivé. Activez-le dans les Réglages pour maintenir la charge.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Mode Ramadan — la charge est maintenue. Jeûner n’est pas une raison de faire un deload.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

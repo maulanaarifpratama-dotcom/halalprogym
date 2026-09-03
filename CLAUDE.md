@@ -869,6 +869,52 @@ layout, jadi `getBoundingClientRect()` nol, `scrollWidth` nol, dan media query t
 cocok. Tes render di sini akan hijau apa pun yang terjadi — bentuk penjaga yang paling berbahaya.
 Angka-angkanya datang dari pengukuran di browser sungguhan dan tercatat di komentar `index.css`.
 
+## Ekspor yang tidak pernah dipanggil — dan yang PALING mahal bukan kode matinya
+
+Dijaga `idle-exports.test.ts`, dan bentuknya `ID_KEEPS_ENGLISH` yang sama: yang menganggur harus
+**sama dengan** daftar eksplisit, dan pemeriksaannya dua arah.
+
+Kelasnya sudah tiga kali di sini, dan yang mahal bukan baris matinya — yang mahal adalah **fungsi
+yang dokumentasinya menjanjikan pemakaian yang tidak pernah ada**. Dia lolos review justru karena
+ada tesnya, dan setiap sesi berikutnya membacanya sebagai fitur yang sudah jalan:
+
+| Fungsi | Klaimnya | Kenyataannya |
+| --- | --- | --- |
+| `trainingWindows` | jendela latihan hari puasa | nol pemanggil sampai 2026-08-28 |
+| `isRamadanByHisab` | "dipakai kartu Home untuk memberi konteks" | nol pemanggil sampai 2026-09-02 |
+| `prayerClash` | "dipakai saat merencanakan" | nol pemanggil, **masih** |
+
+`isRamadanByHisab` sekarang benar-benar dipakai, dan itu menutup lubang yang nyata di antara dua
+aturan yang sama-sama benar: mode Ramadan ADA karena mesin progresi akan meregresi beban, dan
+sakelarnya MANUAL karena awal Ramadan ditetapkan sidang isbat. Di antara keduanya, orang yang
+tidak tahu setelan itu ada berpuasa sebulan sementara bebannya diregresi. Kartu salat sekarang
+mengatakannya — **isyarat, bukan gerbang**, dan kata-katanya tidak menyatakan "ini Ramadan"
+sebagai fakta karena hisab bisa beda sehari dari isbat.
+
+Kelasnya `.prayer-hint`, BUKAN `.prayer-train`. Keduanya baris kecil di bawah jadwal tapi artinya
+berbeda, dan memakai satu kelas membuat tes tidak bisa membedakannya — terbukti langsung: tiga tes
+`.prayer-train` yang sudah ada jadi merah, karena tanggal yang mereka pakai (4 Maret 2026) memang
+di dalam Ramadan 1447 menurut hisab.
+
+`prayerClash` TIDAK disambungkan, dan itu keputusan bukan kelalaian: dia butuh perkiraan DURASI
+sesi, dan repo ini belum punya satu pun — `fmtDur` cuma memformat yang sudah lewat. Dari mana
+angkanya datang (median riwayat rutin itu? jumlah set × waktu istirahat?) adalah keputusan yang
+belum diambil.
+
+**Dua berkas DIHAPUS, dan yang satu bukan sekadar mati.** `lib/audit.js` + tesnya (209 baris)
+merender log aktivitas admin dari `GET /api/admin/audit` — server yang dihapus di Fase 0, dan
+`Admin.jsx` yang ikut pergi bersamanya (`Settings.jsx` sendiri mencatat itu). Modulnya juga
+**sengaja Inggris-saja**, jadi keempat checker lokalisasi pun tidak melihatnya. Tesnya hijau
+selamanya untuk fitur yang tidak bisa jalan.
+
+**Dan satu yang TIDAK dihapus meski terlihat mati: Tailwind + shadcn.** `components/ui/button.tsx`
+satu-satunya komponen shadcn dan tidak ada layar yang memakainya; nol utility Tailwind di seluruh
+JSX. Tapi `styles/tailwind.css` menjelaskan bahwa itu **bibit Fase 3** (migrasi UI per layar),
+lengkap dengan alasan preflight sengaja dimatikan. Jadi ini bukan sisa scaffold, ini rencana yang
+belum jalan — dan harganya terukur: **plugin Tailwind memakan 89% waktu build** (15,2 dari 17
+detik) untuk utility yang belum dipakai satu layar pun. Apakah Fase 3 diteruskan atau dicabut
+adalah keputusan produk, bukan keputusan yang boleh diambil sambil lalu.
+
 ## Peringatan Dependabot 11 kerentanan — sudah diputuskan, jangan dikejar lagi
 
 GitHub melaporkan 11 kerentanan (8 high, 1 critical) di repo ini. Semuanya satu rantai:

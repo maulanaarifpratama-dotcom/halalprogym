@@ -683,6 +683,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'В день поста вес остаётся тем же — без прибавки и без делоада — а рабочие подходы урезаются. Разминка не трогается.',
   'Ramadan mode': 'Режим Рамадана',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'Календарь показывает Рамадан — режим Рамадана выключен. Включите его в настройках, чтобы вес не снижался.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Режим Рамадана — вес держится. Пост — не повод для делоада.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

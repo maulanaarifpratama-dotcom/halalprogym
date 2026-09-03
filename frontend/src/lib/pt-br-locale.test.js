@@ -107,7 +107,10 @@ describe('Brazilian Portuguese locale', () => {
     // layar menyebut "Increase" tiap kali beban ditambah, di ke-13 bahasa. Tujuh di antaranya
     // kata yang sama di kedua varian Portugis dan diwarisi; dua ini tidak, karena Portugal
     // memakai 'seguinte' sementara Brasil mengatakan 'proxima/proximo'.
-    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(339)
+    // 339 -> 340: isyarat kalender Ramadan di kartu salat. DUA kata regional sekaligus di satu
+    // kalimat — 'Ramadã' bukan 'Ramadão', dan 'Ajustes' bukan 'Definições' — jadi dia override,
+    // bukan warisan. Karena itu `inherited` di bawah tidak bergerak dan sidik jarinya sama.
+    expect(Object.keys(PT_BR_OVERRIDES)).toHaveLength(340)
     // 449 -> 452 -> 457 -> 459. Tiga gelombang:
     //   +3  demo gerakan ('also', 'start position', 'end position')
     //   +5  waktu salat ('Prayer times', 'Prayer city', 'Imsak', 'tomorrow', '{0} now')

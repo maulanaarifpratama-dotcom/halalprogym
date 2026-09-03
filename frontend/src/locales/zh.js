@@ -678,6 +678,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     '斋戒日重量保持不变 — 不加不减 — 工作组相应减少。热身组不变。',
   'Ramadan mode': '斋月模式',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    '日历显示为斋月 — 斋月模式已关闭。在设置中开启即可保持重量。',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.': '斋月模式 — 重量保持不变。斋戒不是降重的理由。',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':
     '同样的处理，只在这两天 — 也是在斋月前验证这一切的方式。',

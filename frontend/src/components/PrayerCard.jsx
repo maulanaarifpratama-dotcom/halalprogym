@@ -6,6 +6,7 @@ import {
   PRAYER_LABEL, SALAT_TIMES, activePrayerWindow, cityById, fmtPrayer, nextPrayer, scheduleFor
 } from '../lib/prayer.js'
 import { isFastingDay, trainingWindows } from '../lib/ramadan.js'
+import { isRamadanByHisab } from '../lib/hijri.js'
 
 /**
  * Jadwal salat hari ini, dengan yang berikutnya ditandai.
@@ -71,8 +72,29 @@ export default function PrayerCard() {
   // Sakelar puasa dibaca dari state, bukan dari kalender: yang menentukan hari ini hari puasa
   // atau bukan adalah keputusan pengguna, dan itu memang harus manual (lihat lib/ramadan.ts).
   const ramadan = useStore(s => s.S.ramadan)
+  const hijriOffset = useStore(s => s.S.hijriOffset || 0)
   const puasa = isFastingDay(ramadan, now)
   const latihan = puasa ? trainingWindows(city, now) : null
+  /**
+   * ISYARAT KALENDER, bukan gerbang — dan kenapa dia ada meski sakelarnya sengaja manual.
+   *
+   * Mode Ramadan ada karena mesin progresi tidak tahu itu Ramadan dan akan MEREGRESI beban;
+   * sebulan begitu membuat program mundur jauh. Dan sakelarnya manual karena awal Ramadan
+   * ditetapkan sidang isbat, jadi menyala sehari lebih awal berarti menahan beban di hari orang
+   * belum berpuasa.
+   *
+   * Kedua hal itu benar sekaligus, dan di antaranya ada lubang: orang yang tidak tahu setelan
+   * itu ada berpuasa sebulan penuh sementara bebannya diregresi. Baris ini menutup lubang itu
+   * tanpa menyentuh sakelarnya — beda kepentingan yang sama dengan pita Ramadan di grafik berat
+   * badan, yang juga dihitung dari kalender.
+   *
+   * Kata-katanya tidak menyatakan "ini Ramadan" sebagai fakta: hisab bisa beda sehari dari
+   * isbat, dan yang boleh dikatakan cuma apa yang kalender tunjukkan.
+   *
+   * `sunnah` tidak ikut dihitung: di bulan Ramadan SETIAP hari puasa, jadi mode Senin-Kamis
+   * memang tidak cukup dan isyaratnya tetap layak muncul.
+   */
+  const isyaratRamadan = !ramadan?.on && isRamadanByHisab(now, hijriOffset)
 
   return (
     <div className="card prayer">
@@ -116,6 +138,18 @@ export default function PrayerCard() {
             {fmtPrayer(latihan.beforeIftar.from, city)}–{fmtPrayer(latihan.beforeIftar.to, city)}{' '}
             {t('before iftar')} · {t('after Tarawih')} {fmtPrayer(latihan.afterTarawih.from, city)}
           </span>
+        </div>
+      )}
+
+      {/* Kelas SENDIRI, bukan `.prayer-train`. Keduanya baris kecil di bawah jadwal, tapi
+          artinya berbeda — yang satu jendela latihan di hari puasa, yang ini isyarat kalender —
+          dan memakai kelas yang sama membuat tes tidak bisa membedakannya. Terbukti: tiga tes
+          `.prayer-train` yang sudah ada langsung merah, karena tanggal yang mereka pakai
+          (4 Maret 2026) memang di dalam Ramadan 1447 menurut hisab. */}
+      {isyaratRamadan && (
+        <div className="prayer-hint">
+          <Icon name="moon" />
+          <span>{t('Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.')}</span>
         </div>
       )}
 

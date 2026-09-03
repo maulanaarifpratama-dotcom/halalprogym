@@ -36,6 +36,9 @@ const RABU = new Date(2026, 2, 4, 10, 0, 0)
 const SENIN = new Date(2026, 2, 2, 10, 0, 0)
 // Rabu juga, tapi dipakai sebagai hari NON-puasa saat mode sunah menyala: Rabu bukan Senin/Kamis.
 const RABU_BUKAN_SUNAH = RABU
+// Jumat 28 Agustus 2026 — Rabiulawal 1448, jauh dari Ramadan. Dipakai untuk cabang NEGATIF
+// isyarat kalender, dan tanggalnya dipatok supaya tesnya tidak bergantung pada jam sistem.
+const BUKAN_RAMADAN = new Date(2026, 7, 28, 10, 0, 0)
 
 let dom
 let root
@@ -170,5 +173,78 @@ describe('kartu tetap utuh untuk state yang belum lengkap', () => {
     mocks.S = { city: 'kota-yang-tidak-ada', ramadan: { on: true, sunnah: false } }
     freeze(RABU)
     expect(() => mount()).not.toThrow()
+  })
+})
+
+/**
+ * ISYARAT KALENDER RAMADAN — dan kenapa dia ada meski sakelarnya sengaja manual.
+ *
+ * `isRamadanByHisab` sudah ada dan bertes sejak mode Ramadan dipasang, dan docstring-nya
+ * menyatakan "dipakai kartu Home untuk memberi konteks". Pemanggilnya **NOL** sampai
+ * 2026-09-02 — klaim tentang pemanggilan yang tidak pernah ada, kelas `trainingWindows` yang
+ * sama persis.
+ *
+ * Yang menutupnya bukan menghapus fungsinya. Dua hal benar sekaligus di repo ini:
+ *
+ *   · mode Ramadan ADA karena mesin progresi tidak tahu itu Ramadan dan akan MEREGRESI beban;
+ *   · sakelarnya MANUAL karena awal Ramadan ditetapkan sidang isbat, dan menyala sehari lebih
+ *     awal berarti menahan beban di hari orang belum berpuasa.
+ *
+ * Di antara keduanya ada lubang: orang yang tidak tahu setelan itu ada berpuasa sebulan penuh
+ * sementara bebannya diregresi. Baris ini menutupnya tanpa menyentuh sakelarnya — beda
+ * kepentingan yang sama dengan pita Ramadan di grafik berat badan, yang juga dihitung dari
+ * kalender justru karena dia bukan gerbang.
+ */
+describe('isyarat kalender Ramadan', () => {
+  it('TIDAK muncul di luar Ramadan — cabang yang paling penting', () => {
+    // 95% waktu app dipakai di luar Ramadan. Isyarat yang salah muncul di sini menyuruh orang
+    // menyalakan mode yang akan MENAHAN bebannya tanpa alasan — kerugian yang sama arah dengan
+    // yang mau dicegah, cuma kebalikannya.
+    freeze(BUKAN_RAMADAN)
+    mount()
+    expect(container.querySelector('.prayer-hint')).toBe(null)
+  })
+
+  it('muncul saat kalender Ramadan dan modenya MATI', () => {
+    freeze(RABU)   // 4 Maret 2026, di dalam Ramadan 1447 menurut hisab
+    mount()
+    expect(container.querySelector('.prayer-hint')).toBeTruthy()
+  })
+
+  it('TIDAK muncul saat modenya sudah menyala — tidak ada yang perlu diberitahu', () => {
+    mocks.S = { city: 'jakarta', ramadan: { on: true, sunnah: false } }
+    freeze(RABU)
+    mount()
+    expect(container.querySelector('.prayer-hint')).toBe(null)
+  })
+
+  it('TETAP muncul saat cuma mode SUNAH yang menyala', () => {
+    // Di bulan Ramadan SETIAP hari puasa, jadi mode Senin-Kamis memang tidak cukup — dan orang
+    // yang menyalakannya justru orang yang paling mungkin belum tahu ada mode penuhnya.
+    mocks.S = { city: 'jakarta', ramadan: { on: false, sunnah: true } }
+    freeze(RABU)
+    mount()
+    expect(container.querySelector('.prayer-hint')).toBeTruthy()
+  })
+
+  it('`ramadan` yang tidak ada di state tidak melempar, dan isyaratnya tetap muncul', () => {
+    // State dari versi sebelum mode Ramadan ada. Boot berikutnya menambal dari DEF, tapi sesi
+    // ini tidak boleh mati — dan orang itu justru yang paling butuh isyaratnya.
+    mocks.S = { city: 'jakarta' }
+    freeze(RABU)
+    expect(() => mount()).not.toThrow()
+    expect(container.querySelector('.prayer-hint')).toBeTruthy()
+  })
+
+  it('kelasnya BEDA dari jendela latihan, bukan berbagi satu kelas', () => {
+    // Versi pertama memakai `.prayer-train` untuk keduanya, dan tiga tes di atas langsung
+    // merah — tanggal yang mereka pakai memang di dalam Ramadan menurut hisab. Kalau kelasnya
+    // digabung lagi, asersi "jendela latihan tidak muncul" berhenti berarti apa pun.
+    mocks.S = { city: 'jakarta', ramadan: { on: false, sunnah: false } }
+    freeze(RABU)
+    mount()
+    expect(container.querySelector('.prayer-hint')).toBeTruthy()
+    expect(container.querySelector('.prayer-train'), 'modenya mati, jadi tidak ada jendela latihan')
+      .toBe(null)
   })
 })

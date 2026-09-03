@@ -7,6 +7,10 @@ export const PT_BR_OVERRIDES = {
   // Override regional: Portugal menulis "Ramadao", Brasil "Ramada". Pembeda yang sudah
   // tercatat di pack ini sejak kunci waktu salat masuk.
   'Ramadan': 'Ramadã',
+  // Isyarat kalender Ramadan: dua kata regional sekaligus — 'Ramadã' bukan 'Ramadão',
+  // dan 'Ajustes' bukan 'Definições'.
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'O calendário indica o Ramadã — o modo Ramadã está desligado. Ative-o nos Ajustes para manter a carga.',
   // --- nama kontrol ikon: dua yang benar-benar beda regional ---
   // Portugal memakai 'seguinte' untuk yang berikutnya; Brasil mengatakan 'próxima/próximo'.
   // Tujuh kunci lain di kelompok yang sama ('Limpar', 'Aumentar', 'Mover para cima', ...)

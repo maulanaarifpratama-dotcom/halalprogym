@@ -88,6 +88,3 @@ export function illustrationFrames(ex: Pick<Exercise, 'id'> | null | undefined):
   return paths ? paths.map(p => BASE + p) : []
 }
 
-/** Ada ilustrasi untuk latihan ini? */
-export const hasIllustration = (ex: Pick<Exercise, 'id'> | null | undefined): boolean =>
-  illustrationFrames(ex).length > 0

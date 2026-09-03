@@ -683,6 +683,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'Oruçlu bir günde ağırlık sabit kalır — artış yok, deload yok — ve çalışma setleri kısalır. Isınma setlerine dokunulmaz.',
   'Ramadan mode': 'Ramazan modu',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'Takvim Ramazan gösteriyor — Ramazan modu kapalı. Ağırlığın sabit kalması için Ayarlar’dan aç.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Ramazan modu — ağırlık sabit kalır. Oruç deload için bir sebep değildir.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

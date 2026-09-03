@@ -1186,12 +1186,16 @@ button.hm-c:focus-visible{outline:2px solid var(--acc-ink);outline-offset:2px;bo
 /* Jendela latihan di hari puasa. Bentuknya mengikuti .prayer-note — sama-sama satu baris
    keterangan di bawah jadwal — tapi warnanya aksen, bukan redup: ini SARAN yang bisa
    ditindaklanjuti, sementara .prayer-note peringatan. */
-.prayer-train{
+/* Dua baris kecil di bawah jadwal salat, bentuknya sama tapi artinya berbeda:
+   `.prayer-train` = jendela latihan di hari puasa, `.prayer-hint` = isyarat kalender Ramadan
+   saat modenya mati. Kelasnya dipisah supaya tes bisa membedakan keduanya — memakai satu kelas
+   membuat asersi "jendela latihan tidak muncul" ikut hijau/merah karena isyarat. */
+.prayer-train,.prayer-hint{
   display:flex;gap:7px;align-items:flex-start;margin-top:10px;padding-top:10px;
   border-top:1px solid var(--sep-op);font-size:12.5px;line-height:1.45;color:var(--label-2);
 }
 .prayer-train b{color:var(--acc-ink);font-weight:650}
-.prayer-train svg{flex:none;margin-top:1px;color:var(--acc-ink)}
+.prayer-train svg,.prayer-hint svg{flex:none;margin-top:1px;color:var(--acc-ink)}
 .prayer-note{
   display:flex;gap:6px;align-items:flex-start;margin-top:10px;padding-top:9px;
   border-top:var(--hair) solid var(--sep);font-size:11.5px;line-height:1.45;color:var(--label-3)

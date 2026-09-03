@@ -859,6 +859,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'Di hari puasa beban ditahan — tidak naik, tidak turun — dan set kerja dipangkas. Warm-up tidak disentuh.',
   'Ramadan mode': 'Mode Ramadan',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'Kalender menunjukkan Ramadan — Mode Ramadan mati. Nyalakan di Pengaturan supaya bebannya ditahan.',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'Mode Ramadan — beban ditahan. Puasa bukan alasan untuk deload.',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':

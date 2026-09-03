@@ -682,6 +682,8 @@ export default {
   'On a fasting day the weight holds — no increase, no deload — and work sets are trimmed. Warm-ups are left alone.':
     'रोज़े के दिन वज़न वैसा ही रहता है — न बढ़ता, न डीलोड — और वर्क सेट कम होते हैं। वॉर्म-अप वैसा ही रहता है।',
   'Ramadan mode': 'रमज़ान मोड',
+  'Calendar shows Ramadan — Ramadan mode is off. Turn it on in Settings to hold the weight.':
+    'कैलेंडर रमज़ान दिखा रहा है — रमज़ान मोड बंद है। वज़न बनाए रखने के लिए सेटिंग्स में इसे चालू करें।',
   'Ramadan mode — the weight holds. Fasting is not a reason to deload.':
     'रमज़ान मोड — वज़न वैसा ही रहता है। रोज़ा डीलोड की वजह नहीं है।',
   'Same treatment, only on those two days — and a way to test all this before Ramadan.':
